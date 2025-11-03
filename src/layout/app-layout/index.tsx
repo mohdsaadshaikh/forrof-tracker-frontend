@@ -1,17 +1,16 @@
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { Suspense } from "react";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "./AppSidebar";
 import { Outlet } from "react-router-dom";
+import { AppSidebar } from "./AppSidebar";
+import Header from "./Header";
 
 const AppLayout = () => {
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full">
+      <div className="min-h-screen flex w-full ">
         <AppSidebar />
         <main className="flex-1">
-          <header className="h-14 border-b flex items-center px-4 sticky top-0 bg-background z-10">
-            <SidebarTrigger className="md:hidden" />
-          </header>
+          <Header />
           <div className="p-6">
             <Suspense
               fallback={<p className="text-md font-medium loading-text"></p>}
