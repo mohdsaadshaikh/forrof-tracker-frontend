@@ -16,6 +16,9 @@ import Register from "./pages/auth/Register";
 import ResetPassword from "./pages/auth/ResetPassword";
 import Profile from "./pages/profile";
 import Setting from "./pages/settings";
+import ProtectedRoute from "./layout/app-layout/ProtectedRoute";
+import VerifySuccess from "./pages/auth/Verify-success";
+import AuthLayout from "./layout/auth-layout";
 
 const queryClient = new QueryClient();
 
@@ -26,13 +29,23 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route element={<AuthLayout />}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+          </Route>
+          <Route path="/verify-success" element={<VerifySuccess />} />
 
-          <Route path="/" element={<AppLayout />}>
-            <Route index element={<Dashboard />} />{" "}
+          <Route
+            path="/"
+            element={
+              // <ProtectedRoute>
+              <AppLayout />
+              // </ProtectedRoute>
+            }
+          >
+            <Route index element={<Dashboard />} />
             <Route path="/employees" element={<Employees />} />
             <Route path="/attendance" element={<Attendance />} />
             <Route path="/leave" element={<Leave />} />

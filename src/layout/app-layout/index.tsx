@@ -1,10 +1,23 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Suspense } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { AppSidebar } from "./AppSidebar";
 import Header from "./Header";
+import { useSession } from "@/lib/auth-client";
 
 const AppLayout = () => {
+  const { data: session, isPending } = useSession();
+  const navigate = useNavigate();
+
+  // if (!session) {
+  //   navigate("/login");
+  //   return null;
+  // }
+
+  if (isPending) {
+    return <p className="text-md font-medium loading-text"></p>;
+  }
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full ">

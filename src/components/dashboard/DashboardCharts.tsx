@@ -57,7 +57,8 @@ export const DashboardCharts = ({
                 <ChartTooltip content={<ChartTooltipContent />} />
                 <Bar
                   dataKey="hours"
-                  fill="hsl(var(--primary))"
+                  // fill="hsl(var(--primary))"
+                  fill="#01339a"
                   radius={[8, 8, 0, 0]}
                 />
               </BarChart>
@@ -103,18 +104,22 @@ export const DashboardCharts = ({
                   type="monotone"
                   dataKey="estimated"
                   stackId="1"
-                  stroke="hsl(var(--primary))"
-                  fill="hsl(var(--primary))"
+                  // stroke="hsl(var(--primary))"
+                  stroke="#01339a"
+                  // fill="hsl(var(--primary))"
+                  fill="#01339a"
                   fillOpacity={0.6}
                 />
-                <Area
+                {/* <Area
                   type="monotone"
                   dataKey="logged"
                   stackId="1"
+                  // stroke="hsl(var(--chart-2))"
                   stroke="hsl(var(--chart-2))"
-                  fill="hsl(var(--chart-2))"
+                  // fill="hsl(var(--chart-2))"
+                  fill="#01339a"
                   fillOpacity={0.6}
-                />
+                /> */}
               </AreaChart>
             </ResponsiveContainer>
           </ChartContainer>
@@ -129,7 +134,7 @@ export const DashboardCharts = ({
           </CardTitle>
         </CardHeader>
 
-        <CardContent className="h-[350px] w-full p-6">
+        <CardContent className="h-[350px] w-full -p-4">
           <ChartContainer
             config={{
               value: {
@@ -143,11 +148,11 @@ export const DashboardCharts = ({
               <PieChart>
                 <Pie
                   data={lateArrivalsData}
-                  cx="50%"
+                  cx="65%"
                   cy="50%"
-                  innerRadius="60%"
-                  outerRadius="80%"
-                  paddingAngle={3}
+                  innerRadius="72%"
+                  outerRadius="100%"
+                  paddingAngle={2}
                   dataKey="value"
                   nameKey="name"
                 >
@@ -176,7 +181,7 @@ export const DashboardCharts = ({
 
                 <Legend
                   layout="vertical"
-                  verticalAlign="middle"
+                  verticalAlign="top"
                   align="right"
                   wrapperStyle={{ paddingLeft: "20px" }}
                   iconType="square"
