@@ -21,7 +21,7 @@ export const announcementFormSchema = z.object({
   category: announcementCategorySchema,
   department: z.string().optional(),
   publishDate: z.date().optional(),
-  sendEmail: z.boolean().default(false),
+  // sendEmail: z.boolean().default(false),
 });
 
 export const announcementFilterSchema = z.object({

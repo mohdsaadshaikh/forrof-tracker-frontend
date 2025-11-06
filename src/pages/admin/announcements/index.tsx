@@ -1,12 +1,12 @@
-import { useState } from "react";
-import { useAnnouncements, type Announcement } from "@/hooks/useAnnouncements";
-import AnnouncementHeader from "@/components/announcements/AnnouncementHeader";
-import AnnouncementFilters from "@/components/announcements/AnnouncementFilters";
-import AnnouncementTable from "@/components/announcements/AnnouncementTable";
 import AnnouncementCard from "@/components/announcements/AnnouncementCard";
+import AnnouncementFilters from "@/components/announcements/AnnouncementFilters";
+import AnnouncementHeader from "@/components/announcements/AnnouncementHeader";
+import AnnouncementTable from "@/components/announcements/AnnouncementTable";
 import CreateAnnouncementDialog from "@/components/announcements/CreateAnnouncementDialog";
 import ViewAnnouncementDialog from "@/components/announcements/ViewAnnouncementDialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAnnouncements, type Announcement } from "@/hooks/useAnnouncements";
+import { useState } from "react";
 import { toast } from "sonner";
 
 const Announcements = () => {
@@ -41,11 +41,13 @@ const Announcements = () => {
     setViewDialogOpen(true);
   };
 
-  const handleEdit = (announcement: Announcement) => {
+  // const handleEdit = (announcement: Announcement) => {
+  const handleEdit = () => {
     toast.info("Edit functionality coming soon!");
   };
 
-  const handleDelete = (id: string) => {
+  // const handleDelete = (id: string) => {
+  const handleDelete = () => {
     toast.success("Announcement deleted successfully!");
   };
 

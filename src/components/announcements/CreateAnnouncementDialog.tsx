@@ -29,7 +29,6 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useCreateAnnouncement } from "@/hooks/useAnnouncements";
@@ -56,7 +55,8 @@ const CreateAnnouncementForm = ({ onSuccess }: { onSuccess: () => void }) => {
       description: "",
       category: "update",
       department: "",
-      sendEmail: false,
+      // sendEmail: false,
+      publishDate: undefined,
     },
   });
 
@@ -67,6 +67,7 @@ const CreateAnnouncementForm = ({ onSuccess }: { onSuccess: () => void }) => {
       form.reset();
       onSuccess();
     } catch (error) {
+      console.error("Failed to create announcement:", error);
       toast.error("Failed to create announcement");
     }
   };
@@ -109,7 +110,6 @@ const CreateAnnouncementForm = ({ onSuccess }: { onSuccess: () => void }) => {
         <FormField
           control={form.control}
           name="category"
-          className="w-full"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Category</FormLabel>

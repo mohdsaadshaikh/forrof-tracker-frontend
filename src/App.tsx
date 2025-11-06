@@ -16,7 +16,7 @@ import Register from "./pages/auth/Register";
 import ResetPassword from "./pages/auth/ResetPassword";
 import Profile from "./pages/profile";
 import Setting from "./pages/settings";
-import ProtectedRoute from "./layout/app-layout/ProtectedRoute";
+// import ProtectedRoute from "./layout/app-layout/ProtectedRoute";
 import VerifySuccess from "./pages/auth/Verify-success";
 import AuthLayout from "./layout/auth-layout";
 
