@@ -72,7 +72,7 @@ const ForgotPassword = () => {
   };
 
   return (
-    <Card className="border-0 shadow-xl">
+    <Card className="border-0">
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl font-bold text-center">
           Forgot Password?

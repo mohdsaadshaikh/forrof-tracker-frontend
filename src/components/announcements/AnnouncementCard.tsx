@@ -40,8 +40,13 @@ const AnnouncementCard = ({
           <div className="flex-1">
             <CardTitle className="text-lg">{announcement.title}</CardTitle>
             <CardDescription className="mt-1">
-              {announcement.createdBy} •{" "}
-              {formatDistanceToNow(announcement.createdAt, { addSuffix: true })}
+              {typeof announcement.createdBy === "string"
+                ? announcement.createdBy
+                : announcement.createdBy.name}{" "}
+              •{" "}
+              {formatDistanceToNow(new Date(announcement.createdAt), {
+                addSuffix: true,
+              })}
             </CardDescription>
           </div>
           <Badge

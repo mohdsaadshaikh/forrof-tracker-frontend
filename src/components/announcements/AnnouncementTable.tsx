@@ -35,84 +35,92 @@ const AnnouncementTable = ({
   onDelete,
 }: AnnouncementTableProps) => {
   return (
-    <div className="hidden md:block border rounded-lg">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Title</TableHead>
-            <TableHead>Category</TableHead>
-            <TableHead>Department</TableHead>
-            {/* <TableHead>Created By</TableHead> */}
-            <TableHead>Date</TableHead>
-            <TableHead className="text-center pl-6!">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {announcements.length === 0 ? (
+    <div className="border rounded-lg overflow-hidden">
+      <div className="overflow-x-auto w-full ">
+        <Table className="min-w-[900px]">
+          <TableHeader>
             <TableRow>
-              <TableCell colSpan={6} className="text-center py-12">
-                <div className="flex flex-col items-center gap-2">
-                  <p className="text-muted-foreground">No announcements yet.</p>
-                  <p className="text-sm text-muted-foreground">
-                    Create your first announcement to get started!
-                  </p>
-                </div>
-              </TableCell>
+              <TableHead>Title</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Department</TableHead>
+              <TableHead>Created By</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
-          ) : (
-            announcements.map((announcement) => (
-              <TableRow
-                key={announcement.id}
-                className="cursor-pointer hover:bg-muted/50"
-              >
-                <TableCell className="font-medium">
-                  {announcement.title}
-                </TableCell>
-                <TableCell>
-                  <Badge
-                    variant="secondary"
-                    className={categoryColors[announcement.category]}
-                  >
-                    {announcement.category}
-                  </Badge>
-                </TableCell>
-                <TableCell>{announcement.department || "All"}</TableCell>
-                {/* <TableCell>{announcement.createdBy}</TableCell> */}
-                <TableCell className="text-muted-foreground">
-                  {formatDistanceToNow(announcement.createdAt, {
-                    addSuffix: true,
-                  })}
-                </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => onView(announcement)}
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => onEdit(announcement)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => onDelete(announcement.id)}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+          </TableHeader>
+          <TableBody>
+            {announcements.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-12">
+                  <div className="flex flex-col items-center gap-2">
+                    <p className="text-muted-foreground">
+                      No announcements yet.
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Create your first announcement to get started!
+                    </p>
                   </div>
                 </TableCell>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
+            ) : (
+              announcements.map((announcement) => (
+                <TableRow
+                  key={announcement.id}
+                  className="cursor-pointer hover:bg-muted/50"
+                >
+                  <TableCell className="font-medium">
+                    {announcement.title}
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant="secondary"
+                      className={categoryColors[announcement.category]}
+                    >
+                      {announcement.category}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{announcement.department || "All"}</TableCell>
+                  <TableCell>
+                    {typeof announcement.createdBy === "string"
+                      ? announcement.createdBy
+                      : announcement.createdBy.name}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {formatDistanceToNow(new Date(announcement.createdAt), {
+                      addSuffix: true,
+                    })}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onView(announcement)}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onEdit(announcement)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onDelete(announcement.id)}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 };

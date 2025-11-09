@@ -14,6 +14,7 @@ const AnnouncementHeader = ({ onCreateClick }: AnnouncementHeaderProps) => {
           Stay updated with company news and announcements
         </p>
       </div>
+
       <Button onClick={onCreateClick} className="w-full sm:w-auto">
         <Plus className="mr-2 h-4 w-4" />
         Create Announcement

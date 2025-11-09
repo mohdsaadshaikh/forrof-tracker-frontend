@@ -22,7 +22,7 @@ export const ActivityCard = ({
       <CardContent className="px-6">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
-            <p className="text-5xl font-medium">{value}</p>
+            <p className="text-5xl font-medium text-brand">{value}</p>
             <p className="text-sm font-medium text-muted-foreground">{title}</p>
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
               {trend.type === "up" && (
