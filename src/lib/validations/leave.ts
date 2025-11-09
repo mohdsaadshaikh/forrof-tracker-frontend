@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const leaveTypes = [
   "Sick Leave",
-  "Casual Leave", 
+  "Casual Leave",
   "Annual Leave",
   "Maternity Leave",
   "Paternity Leave",
@@ -22,13 +22,15 @@ export const departments = [
 
 export const leaveFormSchema = z.object({
   leaveType: z.enum(leaveTypes, {
-    required_error: "Please select a leave type",
+    message: "Please select a leave type",
   }),
-  startDate: z.date({
-    required_error: "Start date is required",
+
+  startDate: z.coerce.date({
+    message: "Start date is required",
   }),
-  endDate: z.date({
-    required_error: "End date is required",
+
+  endDate: z.coerce.date({
+    message: "End date is required",
   }),
   reason: z.string().min(10, "Reason must be at least 10 characters").max(500),
   attachmentUrl: z.string().optional(),

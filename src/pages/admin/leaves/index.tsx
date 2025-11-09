@@ -23,7 +23,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-const Leave = () => {
+const Leaves = () => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const [page, setPage] = useState(1);
@@ -206,4 +206,4 @@ const Leave = () => {
   );
 };
 
-export default Leave;
+export default Leaves;

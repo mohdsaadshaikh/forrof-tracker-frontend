@@ -9,7 +9,7 @@ import Announcements from "./pages/admin/announcements";
 import Attendance from "./pages/admin/attendance";
 import Dashboard from "./pages/admin/dashboard";
 import Employees from "./pages/admin/employees";
-import Leave from "./pages/admin/leave";
+import Leaves from "./pages/admin/leaves";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
@@ -48,7 +48,7 @@ const App = () => (
             <Route index element={<Dashboard />} />
             <Route path="/employees" element={<Employees />} />
             <Route path="/attendance" element={<Attendance />} />
-            <Route path="/leave" element={<Leave />} />
+            <Route path="/leave" element={<Leaves />} />
             <Route path="/announcements" element={<Announcements />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/setting" element={<Setting />} />
