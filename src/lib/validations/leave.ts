@@ -25,15 +25,19 @@ export const leaveFormSchema = z.object({
     message: "Please select a leave type",
   }),
 
-  startDate: z.coerce.date({
-    message: "Start date is required",
-  }),
+  startDate: z
+    .union([z.date(), z.undefined()])
+    .refine((val) => val instanceof Date, {
+      message: "Start date is required",
+    }),
 
-  endDate: z.coerce.date({
-    message: "End date is required",
-  }),
+  endDate: z
+    .union([z.date(), z.undefined()])
+    .refine((val) => val instanceof Date, {
+      message: "End date is required",
+    }),
+
   reason: z.string().min(10, "Reason must be at least 10 characters").max(500),
-  attachmentUrl: z.string().optional(),
 });
 
 export const leaveFiltersSchema = z.object({
