@@ -15,50 +15,68 @@ import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import ResetPassword from "./pages/auth/ResetPassword";
 import Profile from "./pages/profile";
-import Setting from "./pages/settings";
 import VerifySuccess from "./pages/auth/Verify-success";
 import AuthLayout from "./layout/auth-layout";
 import ProtectedRoute from "./layout/app-layout/ProtectedRoute";
+import { useRole } from "./hooks/useRole";
+import EmployeeDashboard from "./pages/employee/dashboard";
+import EmployeeLeaves from "./pages/employee/leaves";
+import EmployeeAnnouncements from "./pages/employee/announcements";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route element={<AuthLayout />}>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-          </Route>
-          <Route path="/verify-success" element={<VerifySuccess />} />
+const App = () => {
+  const { isAdmin, isEmployee } = useRole();
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route element={<AuthLayout />}>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+            </Route>
+            <Route path="/verify-success" element={<VerifySuccess />} />
 
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <AppLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<Dashboard />} />
-            <Route path="/employees" element={<Employees />} />
-            <Route path="/attendance" element={<Attendance />} />
-            <Route path="/leave" element={<Leaves />} />
-            <Route path="/announcements" element={<Announcements />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/setting" element={<Setting />} />
-          </Route>
-
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <AppLayout />
+                </ProtectedRoute>
+              }
+            >
+              {isAdmin && (
+                <>
+                  <Route index element={<Dashboard />} />
+                  <Route path="/employees" element={<Employees />} />
+                  <Route path="/attendance" element={<Attendance />} />
+                  <Route path="/leaves" element={<Leaves />} />
+                  <Route path="/announcements" element={<Announcements />} />
+                  <Route path="/profile" element={<Profile />} />
+                </>
+              )}
+              {isEmployee && (
+                <>
+                  <Route index element={<EmployeeDashboard />} />
+                  <Route path="/leaves" element={<EmployeeLeaves />} />
+                  <Route
+                    path="/announcements"
+                    element={<EmployeeAnnouncements />}
+                  />
+                </>
+              )}
+            </Route>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;

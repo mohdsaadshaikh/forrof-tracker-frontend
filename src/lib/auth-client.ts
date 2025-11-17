@@ -1,6 +1,6 @@
-// frontend/src/lib/auth-client.ts
-
 import { createAuthClient } from "better-auth/react";
+import { adminClient } from "better-auth/client/plugins";
+import { admin, employee, ac } from "./permission";
 
 export const authClient = createAuthClient({
   // baseURL: "http://localhost:3000",
@@ -8,6 +8,15 @@ export const authClient = createAuthClient({
   fetchOptions: {
     credentials: "include",
   },
+  plugins: [
+    adminClient({
+      ac,
+      roles: {
+        admin,
+        employee,
+      },
+    }),
+  ],
 });
 
 export const {
@@ -26,7 +35,7 @@ export type User = {
   name: string;
   email: string;
   emailVerified: boolean;
-  role: string;
+  role: "admin" | "employee";
   image?: string;
   createdAt: string;
   updatedAt: string;

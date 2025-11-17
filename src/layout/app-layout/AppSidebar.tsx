@@ -1,3 +1,4 @@
+// components/AppSidebar.tsx
 import {
   Sidebar,
   SidebarContent,
@@ -10,29 +11,71 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { signOut } from "@/lib/auth-client";
-import {
-  BarChart3,
-  Briefcase,
-  Calendar,
-  CalendarCheck,
-  LayoutDashboard,
-  LogOut,
-} from "lucide-react";
+import { LogOut } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useSession } from "@/lib/auth-client";
+import {
+  LayoutDashboard,
+  BarChart3,
+  CalendarCheck,
+  Briefcase,
+  Calendar,
+} from "lucide-react";
 
-const menuItems = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Employees", url: "/employees", icon: BarChart3 },
-  { title: "Attendance Tracking", url: "/attendance", icon: CalendarCheck },
-  { title: "Leave Management", url: "/leave", icon: Briefcase },
-  { title: "Announcements", url: "/announcements", icon: Calendar },
-];
+type MenuItem = {
+  url: string;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  adminTitle: string;
+  employeeTitle: string;
+  roles: string[];
+};
 
 export function AppSidebar() {
   const { open } = useSidebar();
   const location = useLocation();
   const navigate = useNavigate();
+  const { data: session } = useSession();
+
+  const MENU_ITEMS: MenuItem[] = [
+    {
+      url: "/",
+      icon: LayoutDashboard,
+      adminTitle: "Dashboard",
+      employeeTitle: "Dashboard",
+      roles: ["admin", "employee"],
+    },
+    {
+      url: "/employees",
+      icon: BarChart3,
+      adminTitle: "Employees",
+      employeeTitle: "Employees",
+      roles: ["admin"],
+    },
+    {
+      url: "/attendance",
+      icon: CalendarCheck,
+      adminTitle: "Attendance Tracking",
+      employeeTitle: "My Attendance",
+      roles: ["admin"],
+    },
+    {
+      url: "/leaves",
+      icon: Briefcase,
+      adminTitle: "Leave Management",
+      employeeTitle: "My Leaves",
+      roles: ["admin", "employee"],
+    },
+    {
+      url: "/announcements",
+      icon: Calendar,
+      adminTitle: "Announcements",
+      employeeTitle: "Company Updates",
+      roles: ["admin", "employee"],
+    },
+  ];
+
+  const userRole = session?.user.role || "employee";
 
   const handleLogout = async () => {
     await signOut();
@@ -53,39 +96,44 @@ export function AppSidebar() {
         </div>
 
         <SidebarGroup>
-          <SidebarGroupContent className="">
+          <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map((item) => {
-                const isActive = location.pathname === item.url;
+              {MENU_ITEMS.filter((item) => item.roles.includes(userRole)).map(
+                (item) => {
+                  const isActive = location.pathname === item.url;
+                  const displayTitle =
+                    userRole === "admin" ? item.adminTitle : item.employeeTitle;
 
-                return (
-                  <SidebarMenuItem
-                    key={item.title}
-                    className={`my-1 border-l-4 border-transparent ${
-                      isActive ? "border-l-4 border-brand" : ""
-                    }`}
-                  >
-                    <SidebarMenuButton
-                      size="lg"
-                      asChild
-                      className={`${
-                        isActive
-                          ? "bg-blue-50 rounded-none text-brand hover:bg-blue-50 hover:text-brand"
-                          : ""
-                      } `}
+                  return (
+                    <SidebarMenuItem
+                      key={item.url}
+                      className={`my-1 border-l-4 border-transparent ${
+                        isActive ? "border-l-4 border-brand" : ""
+                      }`}
                     >
-                      <Link to={item.url}>
-                        <item.icon className="h-[18px] w-[18px] mr-1" />
-                        <span className="text-[15px]">{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
+                      <SidebarMenuButton
+                        size="lg"
+                        asChild
+                        className={`${
+                          isActive
+                            ? "bg-blue-50 rounded-none text-brand hover:bg-blue-50 hover:text-brand"
+                            : ""
+                        }`}
+                      >
+                        <Link to={item.url}>
+                          <item.icon className="h-[18px] w-[18px] mr-1" />
+                          <span className="text-[15px]">{displayTitle}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                }
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>

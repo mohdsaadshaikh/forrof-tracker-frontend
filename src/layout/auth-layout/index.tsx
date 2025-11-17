@@ -21,7 +21,7 @@ const AuthLayout = () => {
         style={{ backgroundImage: `url('/imgs/brand-bg.png')` }}
       ></div>
 
-      <div className="flex-1 flex items-center justify-center p-8 bg-background">
+      <div className="flex-1 flex items-center justify-center bg-background">
         <div className="w-full max-w-md">
           <Suspense
             fallback={<p className="text-md font-medium loading-text"></p>}
