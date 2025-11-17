@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 
 export default function EmployeeAnnouncements() {
   const [search, setSearch] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage] = useState(1);
 
   const { data, isLoading } = useAnnouncements({
     page: currentPage,

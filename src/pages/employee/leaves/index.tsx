@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function EmployeeLeaves() {
   const [isApplyDialogOpen, setIsApplyDialogOpen] = useState(false);
   const [selectedLeave, setSelectedLeave] = useState<Leave | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage] = useState(1);
 
   const { data, isLoading } = useLeaveData({
     page: currentPage,
