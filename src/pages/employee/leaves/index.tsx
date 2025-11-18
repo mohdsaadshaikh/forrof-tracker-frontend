@@ -1,31 +1,47 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, CheckCircle, Clock, XCircle, FileText } from "lucide-react";
 import { ApplyLeaveDialog } from "@/components/leave/ApplyLeaveDialog";
-import { LeaveCard } from "@/components/leave/LeaveCard";
+import { EmployeeLeaveCard } from "@/components/leave/EmployeeLeaveCard";
+import { EditLeaveDialog } from "@/components/leave/EditLeaveDialog";
 import { ViewLeaveDialog } from "@/components/leave/ViewLeaveDialog";
-import { useLeaveData, type Leave } from "@/hooks/useLeaveData";
+import {
+  useMyLeaves,
+  useLeaveStats,
+  useDeleteLeave,
+  type Leave,
+} from "@/hooks/useLeaveData";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function EmployeeLeaves() {
   const [isApplyDialogOpen, setIsApplyDialogOpen] = useState(false);
   const [selectedLeave, setSelectedLeave] = useState<Leave | null>(null);
+  const [editingLeave, setEditingLeave] = useState<Leave | null>(null);
   const [currentPage] = useState(1);
 
-  const { data, isLoading } = useLeaveData({
+  const { data, isLoading } = useMyLeaves({
     page: currentPage,
     pageSize: 10,
-    status: "",
-    search: "",
-    leaveType: "",
-    department: "",
-    startDate: undefined,
-    endDate: undefined,
   });
+
+  const { data: stats } = useLeaveStats();
+  const deleteLeave = useDeleteLeave();
 
   const handleViewLeave = (leave: Leave) => {
     setSelectedLeave(leave);
+  };
+
+  const handleEditLeave = (leave: Leave) => {
+    setEditingLeave(leave);
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteLeave.mutateAsync(id);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   if (isLoading) {
@@ -40,6 +56,12 @@ export default function EmployeeLeaves() {
       </div>
     );
   }
+
+  const leaves = data?.data || [];
+  const totalLeaves = data?.meta?.total || 0;
+  const pendingCount = leaves.filter((l) => l.status === "PENDING").length;
+  const approvedCount = leaves.filter((l) => l.status === "APPROVED").length;
+  const rejectedCount = leaves.filter((l) => l.status === "REJECTED").length;
 
   return (
     <div className="space-y-6">
@@ -56,45 +78,88 @@ export default function EmployeeLeaves() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="p-4">
-          <p className="text-sm text-muted-foreground">Total Requests</p>
-          <p className="text-2xl font-bold">{data?.totalLeaves || 0}</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="p-6">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-sm text-brand/70 font-medium">
+                Total Requests
+              </p>
+              <p className="text-3xl font-bold mt-2 text-brand">
+                {totalLeaves}
+              </p>
+            </div>
+            <div className="p-2 bg-brand/10 rounded-lg">
+              <FileText className="h-5 w-5 text-brand" />
+            </div>
+          </div>
         </Card>
-        <Card className="p-4">
-          <p className="text-sm text-muted-foreground">Pending</p>
-          <p className="text-2xl font-bold text-yellow-600">
-            {data?.leaves.filter((l) => l.status === "Pending").length || 0}
-          </p>
+
+        <Card className="p-6">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-sm text-brand/70 font-medium">Pending</p>
+              <p className="text-3xl font-bold mt-2 text-brand">
+                {pendingCount}
+              </p>
+            </div>
+            <div className="p-2 bg-gray-200 rounded-lg">
+              <Clock className="h-5 w-5 text-gray-700" />
+            </div>
+          </div>
         </Card>
-        <Card className="p-4">
-          <p className="text-sm text-muted-foreground">Approved</p>
-          <p className="text-2xl font-bold text-green-600">
-            {data?.leaves.filter((l) => l.status === "Approved").length || 0}
-          </p>
+
+        <Card className="p-6">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-sm text-brand/70 font-medium">Approved</p>
+              <p className="text-3xl font-bold mt-2 text-brand">
+                {approvedCount}
+              </p>
+            </div>
+            <div className="p-2 bg-green-200 rounded-lg">
+              <CheckCircle className="h-5 w-5 text-green-700" />
+            </div>
+          </div>
         </Card>
-        <Card className="p-4">
-          <p className="text-sm text-muted-foreground">Rejected</p>
-          <p className="text-2xl font-bold text-red-600">
-            {data?.leaves.filter((l) => l.status === "Rejected").length || 0}
-          </p>
+
+        <Card className="p-6">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-sm text-brand/70 font-medium">Rejected</p>
+              <p className="text-3xl font-bold mt-2 text-brand">
+                {rejectedCount}
+              </p>
+            </div>
+            <div className="p-2 bg-red-200 rounded-lg">
+              <XCircle className="h-5 w-5 text-red-700" />
+            </div>
+          </div>
         </Card>
       </div>
 
+      {stats && (
+        <Card className="p-4 bg-brand/5 border-blue-200">
+          <p className="text-sm text-brand/70">Total Leave Days (Approved)</p>
+          <p className="text-2xl font-bold text-brand">
+            {stats.totalDays} days
+          </p>
+        </Card>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {data?.leaves.map((leave) => (
-          <LeaveCard
+        {leaves.map((leave) => (
+          <EmployeeLeaveCard
             key={leave.id}
             leave={leave}
             onView={handleViewLeave}
-            onApprove={() => {}}
-            onReject={() => {}}
-            onDelete={() => {}}
+            onEdit={handleEditLeave}
+            onDelete={handleDelete}
           />
         ))}
       </div>
 
-      {data?.leaves.length === 0 && (
+      {leaves.length === 0 && (
         <Card className="p-12 text-center">
           <p className="text-muted-foreground">No leave requests found</p>
           <Button onClick={() => setIsApplyDialogOpen(true)} className="mt-4">
@@ -106,6 +171,11 @@ export default function EmployeeLeaves() {
       <ApplyLeaveDialog
         open={isApplyDialogOpen}
         onOpenChange={setIsApplyDialogOpen}
+      />
+      <EditLeaveDialog
+        leave={editingLeave}
+        open={!!editingLeave}
+        onOpenChange={(open) => !open && setEditingLeave(null)}
       />
       <ViewLeaveDialog
         leave={selectedLeave}

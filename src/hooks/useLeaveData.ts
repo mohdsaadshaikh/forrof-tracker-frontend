@@ -1,104 +1,66 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import api, { type ApiError } from "@/lib/axios";
 import type {
   LeaveFormData,
   LeaveType,
   LeaveStatus,
-  Department,
 } from "@/lib/validations/leave";
+import { toast } from "sonner";
 
 export interface Leave {
   id: string;
-  employeeName: string;
   employeeId: string;
-  department: Department;
+  employee: {
+    id: string;
+    name: string;
+    email: string;
+  };
   leaveType: LeaveType;
   startDate: string;
   endDate: string;
   duration: number;
-  reason: string;
+  reason?: string;
   status: LeaveStatus;
-  appliedDate: string;
-  reviewedBy?: string;
-  reviewDate?: string;
-  attachmentUrl?: string;
+  approvedBy?: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  approvalNotes?: string;
+  approvalDate?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-// Generate dummy data
-const generateDummyLeaves = (): Leave[] => {
-  const employees = [
-    "John Doe",
-    "Jane Smith",
-    "Mike Johnson",
-    "Sarah Williams",
-    "David Brown",
-  ];
-  const types: LeaveType[] = [
-    "Sick Leave",
-    "Casual Leave",
-    "Annual Leave",
-    "Maternity Leave",
-  ];
-  const statuses: LeaveStatus[] = ["Pending", "Approved", "Rejected"];
-  const departments: Department[] = [
-    "Engineering",
-    "HR",
-    "Finance",
-    "Marketing",
-    "Sales",
-    "Operations",
-  ];
+export interface LeaveStats {
+  totalDays: number;
+  byType: Record<string, number>;
+}
 
-  return Array.from({ length: 50 }, (_, i) => ({
-    id: `leave-${i + 1}`,
-    employeeName: employees[Math.floor(Math.random() * employees.length)],
-    employeeId: `EMP${1000 + i}`,
-    department: departments[Math.floor(Math.random() * departments.length)],
-    leaveType: types[Math.floor(Math.random() * types.length)],
-    startDate: new Date(
-      2025,
-      0,
-      Math.floor(Math.random() * 28) + 1
-    ).toISOString(),
-    endDate: new Date(
-      2025,
-      0,
-      Math.floor(Math.random() * 28) + 5
-    ).toISOString(),
-    duration: Math.floor(Math.random() * 10) + 1,
-    reason: "Personal reasons requiring time off from work duties.",
-    status: statuses[Math.floor(Math.random() * statuses.length)],
-    appliedDate: new Date(
-      2025,
-      0,
-      Math.floor(Math.random() * 20) + 1
-    ).toISOString(),
-    reviewedBy:
-      statuses[Math.floor(Math.random() * statuses.length)] !== "Pending"
-        ? "Admin User"
-        : undefined,
-    reviewDate:
-      statuses[Math.floor(Math.random() * statuses.length)] !== "Pending"
-        ? new Date(2025, 0, Math.floor(Math.random() * 25) + 1).toISOString()
-        : undefined,
-  }));
-};
-
-const dummyLeaves = generateDummyLeaves();
+interface LeaveListResponse {
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+  data: Leave[];
+}
 
 interface UseLeaveDataParams {
-  page: number;
-  pageSize: number;
-  search: string;
-  leaveType: string;
-  status: string;
-  department: string;
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  leaveType?: string;
+  status?: string;
+  department?: string;
   startDate?: Date;
   endDate?: Date;
 }
 
 export const useLeaveData = ({
-  page,
-  pageSize,
+  page = 1,
+  pageSize = 10,
   search,
   leaveType,
   status,
@@ -119,97 +81,189 @@ export const useLeaveData = ({
       endDate,
     ],
     queryFn: async () => {
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      let filtered = [...dummyLeaves];
-
-      // Apply filters
+      const params = new URLSearchParams();
+      params.append("page", String(page));
+      params.append("limit", String(pageSize));
+      if (status && status !== "All") params.append("status", status);
+      if (leaveType && leaveType !== "All")
+        params.append("leaveType", leaveType);
+      if (department && department !== "All")
+        params.append("department", department);
+      if (startDate) params.append("startDate", startDate.toISOString());
+      if (endDate) params.append("endDate", endDate.toISOString());
+      const res = await api.get<LeaveListResponse>(
+        `/leaves?${params.toString()}`
+      );
+      const result = res.data;
+      let leaves = result.data || [];
+      // Client-side search filtering
       if (search) {
-        filtered = filtered.filter(
+        const q = search.toLowerCase();
+        leaves = leaves.filter(
           (leave) =>
-            leave.employeeName.toLowerCase().includes(search.toLowerCase()) ||
-            leave.employeeId.toLowerCase().includes(search.toLowerCase()) ||
-            leave.reason.toLowerCase().includes(search.toLowerCase())
+            leave.employee.name.toLowerCase().includes(q) ||
+            leave.employee.id.toLowerCase().includes(q) ||
+            leave.reason?.toLowerCase().includes(q)
         );
       }
-
-      if (leaveType && leaveType !== "All") {
-        filtered = filtered.filter((leave) => leave.leaveType === leaveType);
-      }
-
-      if (status && status !== "All") {
-        filtered = filtered.filter((leave) => leave.status === status);
-      }
-
-      if (department && department !== "All") {
-        filtered = filtered.filter((leave) => leave.department === department);
-      }
-
-      if (startDate) {
-        filtered = filtered.filter(
-          (leave) => new Date(leave.startDate) >= startDate
-        );
-      }
-
-      if (endDate) {
-        filtered = filtered.filter(
-          (leave) => new Date(leave.endDate) <= endDate
-        );
-      }
-
-      // Pagination
-      const start = (page - 1) * pageSize;
-      const end = start + pageSize;
-      const paginatedLeaves = filtered.slice(start, end);
-
       return {
-        leaves: paginatedLeaves,
-        totalPages: Math.ceil(filtered.length / pageSize),
-        totalLeaves: filtered.length,
+        leaves,
+        totalPages: result.meta?.totalPages || 1,
+        totalLeaves: result.meta?.total || 0,
       };
+    },
+  });
+};
+
+export const useMyLeaves = (filters?: {
+  page?: number;
+  pageSize?: number;
+  status?: string;
+}) => {
+  return useQuery({
+    queryKey: ["my-leaves", filters?.page, filters?.pageSize, filters?.status],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (filters?.page) params.append("page", String(filters.page));
+      if (filters?.pageSize) params.append("limit", String(filters.pageSize));
+      if (filters?.status && filters.status !== "All")
+        params.append("status", filters.status);
+      const res = await api.get<LeaveListResponse>(
+        `/leaves/my-leaves?${params.toString()}`
+      );
+      return res.data;
+    },
+  });
+};
+
+export const useLeaveStats = () => {
+  return useQuery({
+    queryKey: ["leave-stats"],
+    queryFn: async () => {
+      const res = await api.get<LeaveStats>("/leaves/stats");
+      return res.data;
     },
   });
 };
 
 export const useCreateLeave = () => {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (data: LeaveFormData) => {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      return { success: true, data };
+      if (!data.startDate || !data.endDate) {
+        toast.error("Start date aur end date zaroori hai bhai!");
+        throw new Error("Dates are missing");
+      }
+
+      // Ensure startDate and endDate are Date objects before calling toISOString()
+      const startDateObj =
+        data.startDate instanceof Date
+          ? data.startDate
+          : new Date(data.startDate);
+      const endDateObj =
+        data.endDate instanceof Date ? data.endDate : new Date(data.endDate);
+
+      const payload = {
+        leaveType: data.leaveType,
+        reason: data.reason || "",
+        startDate: startDateObj.toISOString(),
+        endDate: endDateObj.toISOString(),
+      };
+
+      const res = await api.post<Leave>("/leaves", payload);
+      return res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["leaves"] });
+      queryClient.invalidateQueries({ queryKey: ["my-leaves"] });
+      queryClient.invalidateQueries({ queryKey: ["leave-stats"] });
+    },
+    onError: (error: ApiError) => {
+      console.log(error);
+      toast.error(
+        error.response?.data?.message || "Failed to submit leave request"
+      );
     },
   });
 };
 
 export const useUpdateLeaveStatus = () => {
   const queryClient = useQueryClient();
-
   return useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: string }) => {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      return { success: true, id, status };
+    mutationFn: async ({
+      id,
+      status,
+      approvalNotes,
+    }: {
+      id: string;
+      status: string;
+      approvalNotes?: string;
+    }) => {
+      const res = await api.patch<Leave>(`/leaves/${id}/approve`, {
+        status,
+        approvalNotes,
+      });
+      return res.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["leaves"] });
+      queryClient.invalidateQueries({ queryKey: ["my-leaves"] });
+    },
+    onError: (error: ApiError) => {
+      toast.error(
+        error.response?.data?.message || "Failed to update leave status"
+      );
+    },
+  });
+};
+
+export const useUpdateLeave = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: Partial<LeaveFormData>;
+    }) => {
+      const payload: {
+        leaveType?: string;
+        reason?: string;
+        startDate?: string;
+        endDate?: string;
+      } = {};
+      if (data.leaveType) payload.leaveType = data.leaveType;
+      if (data.reason) payload.reason = data.reason;
+      if (data.startDate) payload.startDate = data.startDate.toISOString();
+      if (data.endDate) payload.endDate = data.endDate.toISOString();
+
+      const res = await api.put<Leave>(`/leaves/${id}`, payload);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["leaves"] });
+      queryClient.invalidateQueries({ queryKey: ["my-leaves"] });
+    },
+    onError: (error: ApiError) => {
+      toast.error(error.response?.data?.message || "Failed to update leave");
     },
   });
 };
 
 export const useDeleteLeave = () => {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (id: string) => {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      return { success: true, id };
+      await api.delete(`/leaves/${id}`);
+      return id;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["leaves"] });
+      queryClient.invalidateQueries({ queryKey: ["my-leaves"] });
+    },
+    onError: (error: ApiError) => {
+      toast.error(error.response?.data?.message || "Failed to delete leave");
     },
   });
 };

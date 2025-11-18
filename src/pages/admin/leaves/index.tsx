@@ -1,17 +1,8 @@
-import { useState } from "react";
-import { LeaveHeader } from "@/components/leave/LeaveHeader";
+import { ApplyLeaveDialog } from "@/components/leave/ApplyLeaveDialog";
+import { LeaveCard } from "@/components/leave/LeaveCard";
 import { LeaveFilters } from "@/components/leave/LeaveFilters";
 import { LeaveTable } from "@/components/leave/LeaveTable";
-import { LeaveCard } from "@/components/leave/LeaveCard";
-import { ApplyLeaveDialog } from "@/components/leave/ApplyLeaveDialog";
 import { ViewLeaveDialog } from "@/components/leave/ViewLeaveDialog";
-import {
-  useLeaveData,
-  useUpdateLeaveStatus,
-  useDeleteLeave,
-  type Leave,
-} from "@/hooks/useLeaveData";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   Pagination,
   PaginationContent,
@@ -20,8 +11,16 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useToast } from "@/hooks/use-toast";
+import {
+  useDeleteLeave,
+  useLeaveData,
+  useUpdateLeaveStatus,
+  type Leave,
+} from "@/hooks/useLeaveData";
+import { useState } from "react";
 
 const Leaves = () => {
   const { toast } = useToast();
@@ -94,11 +93,12 @@ const Leaves = () => {
 
   return (
     <div className="container space-y-6">
-      <LeaveHeader
-        onCreateClick={() => setCreateDialogOpen(true)}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
-      />
+      <div>
+        <h1 className="text-3xl font-bold">Leave Management</h1>
+        <p className="text-muted-foreground mt-1">
+          Manage employee leave requests
+        </p>
+      </div>
 
       <LeaveFilters
         search={search}
@@ -113,6 +113,8 @@ const Leaves = () => {
         onStartDateChange={setStartDate}
         endDate={endDate}
         onEndDateChange={setEndDate}
+        onViewModeChange={setViewMode}
+        viewMode={viewMode}
       />
 
       {isLoading ? (
@@ -134,9 +136,10 @@ const Leaves = () => {
                   key={leave.id}
                   leave={leave}
                   onView={handleView}
-                  onApprove={(id) => handleStatusChange(id, "Approved")}
-                  onReject={(id) => handleStatusChange(id, "Rejected")}
+                  onApprove={(id) => handleStatusChange(id, "APPROVED")}
+                  onReject={(id) => handleStatusChange(id, "REJECTED")}
                   onDelete={handleDelete}
+                  onStatusChange={handleStatusChange}
                 />
               ))}
             </div>

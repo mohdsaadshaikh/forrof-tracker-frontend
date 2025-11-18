@@ -4,7 +4,7 @@ import { admin, employee, ac } from "./permission";
 
 export const authClient = createAuthClient({
   // baseURL: "http://localhost:3000",
-  baseURL: "https://forrof-tracker-backend.vercel.app/",
+  baseURL: import.meta.env.VITE_SERVER_URL,
   fetchOptions: {
     credentials: "include",
   },
@@ -37,6 +37,7 @@ export type User = {
   emailVerified: boolean;
   role: "admin" | "employee";
   image?: string;
+  department?: "HR" | "IT" | "SALES" | "MARKETING" | "FINANCE" | "OPERATIONS";
   createdAt: string;
   updatedAt: string;
 };

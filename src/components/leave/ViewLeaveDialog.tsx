@@ -12,14 +12,31 @@ interface ViewLeaveDialogProps {
 
 const getStatusVariant = (status: string) => {
   switch (status) {
-    case "Approved":
+    case "APPROVED":
       return "default";
-    case "Rejected":
+    case "REJECTED":
       return "destructive";
-    case "Pending":
+    case "PENDING":
       return "secondary";
+    case "CANCELLED":
+      return "outline";
     default:
       return "outline";
+  }
+};
+
+const getStatusLabel = (status: string) => {
+  switch (status) {
+    case "APPROVED":
+      return "Approved";
+    case "REJECTED":
+      return "Rejected";
+    case "PENDING":
+      return "Pending";
+    case "CANCELLED":
+      return "Cancelled";
+    default:
+      return status;
   }
 };
 
@@ -40,11 +57,11 @@ export const ViewLeaveDialog = ({
       <div className="space-y-6">
         <div className="flex items-start justify-between">
           <div>
-            <h3 className="text-xl font-semibold">{leave.employeeName}</h3>
-            <p className="text-sm text-muted-foreground">{leave.employeeId}</p>
+            <h3 className="text-xl font-semibold">{leave.employee.name}</h3>
+            <p className="text-sm text-muted-foreground">{leave.employee.id}</p>
           </div>
           <Badge variant={getStatusVariant(leave.status)} className="text-sm">
-            {leave.status}
+            {getStatusLabel(leave.status)}
           </Badge>
         </div>
 
@@ -55,17 +72,7 @@ export const ViewLeaveDialog = ({
               <div>
                 <p className="text-sm font-medium">Leave Type</p>
                 <p className="text-sm text-muted-foreground">
-                  {leave.leaveType}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <User className="h-5 w-5 text-muted-foreground mt-0.5" />
-              <div>
-                <p className="text-sm font-medium">Department</p>
-                <p className="text-sm text-muted-foreground">
-                  {leave.department}
+                  {leave.leaveType.replace(/_/g, " ")}
                 </p>
               </div>
             </div>
@@ -103,34 +110,34 @@ export const ViewLeaveDialog = ({
 
           <div className="space-y-4">
             <div className="flex items-start gap-3">
-              <User className="h-5 w-5 text-muted-foreground mt-0.5" />
+              <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>
                 <p className="text-sm font-medium">Applied Date</p>
                 <p className="text-sm text-muted-foreground">
-                  {format(new Date(leave.appliedDate), "MMMM dd, yyyy")}
+                  {format(new Date(leave.createdAt), "MMMM dd, yyyy")}
                 </p>
               </div>
             </div>
 
-            {leave.reviewedBy && (
+            {leave.approvedBy && (
               <>
                 <div className="flex items-start gap-3">
                   <User className="h-5 w-5 text-muted-foreground mt-0.5" />
                   <div>
-                    <p className="text-sm font-medium">Reviewed By</p>
+                    <p className="text-sm font-medium">Approved By</p>
                     <p className="text-sm text-muted-foreground">
-                      {leave.reviewedBy}
+                      {leave.approvedBy.name}
                     </p>
                   </div>
                 </div>
 
-                {leave.reviewDate && (
+                {leave.approvalDate && (
                   <div className="flex items-start gap-3">
                     <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
                     <div>
-                      <p className="text-sm font-medium">Review Date</p>
+                      <p className="text-sm font-medium">Approval Date</p>
                       <p className="text-sm text-muted-foreground">
-                        {format(new Date(leave.reviewDate), "MMMM dd, yyyy")}
+                        {format(new Date(leave.approvalDate), "MMMM dd, yyyy")}
                       </p>
                     </div>
                   </div>
@@ -140,12 +147,23 @@ export const ViewLeaveDialog = ({
           </div>
         </div>
 
-        <div className="space-y-2 pt-4 border-t">
-          <p className="text-sm font-medium">Reason</p>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            {leave.reason}
-          </p>
-        </div>
+        {leave.reason && (
+          <div className="space-y-2 pt-4 border-t">
+            <p className="text-sm font-medium">Reason</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {leave.reason}
+            </p>
+          </div>
+        )}
+
+        {leave.approvalNotes && (
+          <div className="space-y-2 pt-4 border-t">
+            <p className="text-sm font-medium">Approval Notes</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {leave.approvalNotes}
+            </p>
+          </div>
+        )}
       </div>
     </ResponsiveDialog>
   );

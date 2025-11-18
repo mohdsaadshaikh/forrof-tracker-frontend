@@ -1,15 +1,20 @@
 import { z } from "zod";
 
 export const leaveTypes = [
-  "Sick Leave",
-  "Casual Leave",
-  "Annual Leave",
-  "Maternity Leave",
-  "Paternity Leave",
-  "Unpaid Leave",
+  "ANNUAL_LEAVE",
+  "MATERNITY_LEAVE",
+  "CASUAL_LEAVE",
+  "SICK_LEAVE",
+  "PERSONAL_LEAVE",
+  "UNPAID_LEAVE",
 ] as const;
 
-export const leaveStatuses = ["Pending", "Approved", "Rejected"] as const;
+export const leaveStatuses = [
+  "PENDING",
+  "APPROVED",
+  "REJECTED",
+  "CANCELLED",
+] as const;
 
 export const departments = [
   "Engineering",
@@ -25,19 +30,16 @@ export const leaveFormSchema = z.object({
     message: "Please select a leave type",
   }),
 
-  startDate: z
-    .union([z.date(), z.undefined()])
-    .refine((val) => val instanceof Date, {
-      message: "Start date is required",
-    }),
+  startDate: z.coerce.date(),
+  endDate: z.coerce.date(),
 
-  endDate: z
-    .union([z.date(), z.undefined()])
-    .refine((val) => val instanceof Date, {
-      message: "End date is required",
+  reason: z
+    .string({
+      message: "Please provide a reason for the leave",
+    })
+    .min(10, {
+      message: "Reason must be at least 10 characters long",
     }),
-
-  reason: z.string().min(10, "Reason must be at least 10 characters").max(500),
 });
 
 export const leaveFiltersSchema = z.object({

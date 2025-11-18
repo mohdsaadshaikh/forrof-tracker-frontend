@@ -1,5 +1,19 @@
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { useUpdateLeave, type Leave } from "@/hooks/useLeaveData";
+import { cn } from "@/lib/utils";
+import {
+  type LeaveFormData,
+  leaveFormSchema,
+  leaveTypes,
+} from "@/lib/validations/leave";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
@@ -20,32 +34,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
-import { useCreateLeave } from "@/hooks/useLeaveData";
 import ResponsiveDialog from "@/components/ResponsiveDialog";
-import { cn } from "@/lib/utils";
-import {
-  type LeaveFormData,
-  leaveFormSchema,
-  leaveTypes,
-} from "@/lib/validations/leave";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
-import { useForm } from "react-hook-form";
 
-interface ApplyLeaveDialogProps {
+interface EditLeaveDialogProps {
+  leave: Leave | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export const ApplyLeaveDialog = ({
+export const EditLeaveDialog = ({
+  leave,
   open,
   onOpenChange,
-}: ApplyLeaveDialogProps) => {
+}: EditLeaveDialogProps) => {
   const { toast } = useToast();
-  const createLeave = useCreateLeave();
+  const updateLeave = useUpdateLeave();
 
   const form = useForm<LeaveFormData>({
     // @ts-expect-error - zodResolver type inference limitation with preprocess
@@ -58,12 +61,27 @@ export const ApplyLeaveDialog = ({
     },
   });
 
+  useEffect(() => {
+    if (leave && open) {
+      form.reset({
+        leaveType: leave.leaveType,
+        startDate: new Date(leave.startDate),
+        endDate: new Date(leave.endDate),
+        reason: leave.reason || "",
+      });
+    }
+  }, [leave, open, form]);
+
   const onSubmit = async (data: LeaveFormData) => {
+    if (!leave) return;
     try {
-      await createLeave.mutateAsync(data);
+      await updateLeave.mutateAsync({
+        id: leave.id,
+        data,
+      });
       toast({
         title: "Success",
-        description: "Leave application submitted successfully",
+        description: "Leave updated successfully",
       });
       form.reset();
       onOpenChange(false);
@@ -71,7 +89,7 @@ export const ApplyLeaveDialog = ({
       console.error(error);
       toast({
         title: "Error",
-        description: "Failed to submit leave application",
+        description: "Failed to update leave",
         variant: "destructive",
       });
     }
@@ -156,7 +174,6 @@ export const ApplyLeaveDialog = ({
 
           <FormField
             // @ts-expect-error - cascading type errors from zodResolver
-
             control={form.control}
             name="endDate"
             render={({ field }) => (
@@ -226,8 +243,8 @@ export const ApplyLeaveDialog = ({
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={createLeave.isPending}>
-            {createLeave.isPending ? "Submitting..." : "Submit"}
+          <Button type="submit" disabled={updateLeave.isPending}>
+            {updateLeave.isPending ? "Updating..." : "Update Leave"}
           </Button>
         </div>
       </form>
@@ -238,8 +255,8 @@ export const ApplyLeaveDialog = ({
     <ResponsiveDialog
       open={open}
       onOpenChange={onOpenChange}
-      title="Apply for Leave"
-      description="Submit a new leave request"
+      title="Edit Leave Request"
+      description="Update your leave request details. You can only edit pending leaves."
     >
       <FormContent />
     </ResponsiveDialog>
