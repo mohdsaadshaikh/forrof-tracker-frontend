@@ -2,7 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Employee } from "@/hooks/useEmployees";
-
+import { Link } from "react-router-dom";
 interface EmployeeCardProps {
   employee: Employee;
 }
@@ -24,7 +24,13 @@ export const EmployeeCard = ({ employee }: EmployeeCardProps) => {
                 .join("")}
             </AvatarFallback>
           </Avatar>
-          <h3 className="font-semibold text-lg mb-2">{employee.name}</h3>
+          
+          <div className="flex flex-col font-semibold text-lg">
+   <Link to={`/employees/info/${employee.id}`} >
+  {employee.name}
+</Link>
+          </div>
+       
           <div className="space-y-1.5 text-sm w-full">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Role</span>
