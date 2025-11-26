@@ -17,7 +17,7 @@ import { Grid3x3, List, Search } from "lucide-react";
 import { useState } from "react";
 
 const Employees = () => {
-  const [viewMode, setViewMode] = useState<"grid" | "list">("list");
+  const [viewMode, setViewMode] = useState("list");
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [department, setDepartment] = useState("all");
@@ -35,14 +35,14 @@ const Employees = () => {
   );
 
   return (
-    <div className="space-y-6">
-      <div className="">
-        <h1 className="text-2xl font-semibold">Employees Details</h1>
+    <div className="space-y-6 p-2 sm:p-4">
+      <div>
+        <h1 className="text-xl sm:text-2xl font-semibold">Employees Details</h1>
       </div>
 
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-4 flex-1">
-          <div className="relative flex-1 max-w-md">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-4 flex-1 w-full">
+          <div className="relative flex-1 max-w-full sm:max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search"
@@ -56,8 +56,8 @@ const Employees = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div>
+        <div className="flex sm:flex-row flex-col items-center gap-2 self-end sm:self-auto">
+          <div className="flex ">
             <Button
               variant={viewMode === "grid" ? "default" : "outline"}
               size="icon"
@@ -77,6 +77,7 @@ const Employees = () => {
           </div>
 
           <EmployeeFilters
+          
             department={department}
             setDepartment={(val) => {
               setDepartment(val);
@@ -104,32 +105,34 @@ const Employees = () => {
       {isLoading ? (
         <div className="space-y-4">
           {viewMode === "grid" ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {Array.from({ length: 8 }).map((_, i) => (
                 <Skeleton key={i} className="h-[400px]" />
               ))}
             </div>
           ) : (
-            <Skeleton className="h-[500px]" />
+            <Skeleton className="h-[500px] w-full" />
           )}
         </div>
       ) : (
         <>
           {viewMode === "grid" ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {data?.employees.map((employee) => (
                 <EmployeeCard key={employee.id} employee={employee} />
               ))}
             </div>
           ) : (
-            <EmployeeTable employees={data?.employees || []} />
+            <div className="w-full overflow-x-auto">
+              <EmployeeTable employees={data?.employees || []} />
+            </div>
           )}
         </>
       )}
 
       {data && data.totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground w-24">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-2 ">
+          <p className="text-sm text-muted-foreground whitespace-nowrap">
             Page {page} of {data.totalPages}
           </p>
           <Pagination>
@@ -160,9 +163,7 @@ const Employees = () => {
               })}
               <PaginationItem>
                 <PaginationNext
-                  onClick={() =>
-                    setPage((p) => Math.min(data.totalPages, p + 1))
-                  }
+                  onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))}
                   className={
                     page === data.totalPages
                       ? "pointer-events-none opacity-50"

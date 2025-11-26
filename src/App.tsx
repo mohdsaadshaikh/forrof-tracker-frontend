@@ -22,6 +22,10 @@ import { useRole } from "./hooks/useRole";
 import EmployeeDashboard from "./pages/employee/dashboard";
 import EmployeeLeaves from "./pages/employee/leaves";
 import EmployeeAnnouncements from "./pages/employee/announcements";
+import EmployeeInfo from "./components/employees/EmployeesInfo";
+import Setting from "./pages/admin/setting";
+
+
 
 const queryClient = new QueryClient();
 
@@ -54,10 +58,12 @@ const App = () => {
                 <>
                   <Route index element={<Dashboard />} />
                   <Route path="/employees" element={<Employees />} />
+                  <Route path="/employees/info/:id" element={<EmployeeInfo/>}/>
                   <Route path="/attendance" element={<Attendance />} />
                   <Route path="/leaves" element={<Leaves />} />
                   <Route path="/announcements" element={<Announcements />} />
                   <Route path="/profile" element={<Profile />} />
+                  <Route path="/setting" element={<Setting/>} />
                 </>
               )}
               {isEmployee && (
@@ -68,6 +74,7 @@ const App = () => {
                     path="/announcements"
                     element={<EmployeeAnnouncements />}
                   />
+                  
                 </>
               )}
             </Route>

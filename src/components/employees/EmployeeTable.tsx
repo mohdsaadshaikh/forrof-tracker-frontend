@@ -1,6 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 // import { Checkbox } from "@/components/ui/checkbox";
+import { Link } from "react-router-dom";
 import {
   Table,
   TableBody,
@@ -54,7 +55,12 @@ export const EmployeeTable = ({ employees }: EmployeeTableProps) => {
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col">
-                    <span className="font-medium">{employee.name}</span>
+                   
+                    <div className="font-medium">
+   <Link to={`/employees/info/${employee.id}`} >
+  {employee.name}
+</Link>
+          </div>
                     <span className="text-xs">{employee.id}</span>
                   </div>
                 </div>
@@ -88,3 +94,11 @@ export const EmployeeTable = ({ employees }: EmployeeTableProps) => {
     </div>
   );
 };
+
+
+
+
+
+
+
+
