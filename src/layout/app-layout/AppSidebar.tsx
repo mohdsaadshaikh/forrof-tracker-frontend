@@ -73,6 +73,13 @@ export function AppSidebar() {
       employeeTitle: "Company Updates",
       roles: ["admin", "employee"],
     },
+    {
+      url: "/setting",
+      icon: Calendar,
+      adminTitle: "Setting",
+      employeeTitle: "Company Updates",
+      roles: ["admin", "employee"],
+    },
   ];
 
   const userRole = session?.user.role || "employee";

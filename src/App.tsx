@@ -23,6 +23,7 @@ import EmployeeDashboard from "./pages/employee/dashboard";
 import EmployeeLeaves from "./pages/employee/leaves";
 import EmployeeAnnouncements from "./pages/employee/announcements";
 import EmployeeInfo from "./components/employees/EmployeesInfo";
+import Setting from "./pages/admin/setting";
 
 
 
@@ -62,6 +63,7 @@ const App = () => {
                   <Route path="/leaves" element={<Leaves />} />
                   <Route path="/announcements" element={<Announcements />} />
                   <Route path="/profile" element={<Profile />} />
+                  <Route path="/setting" element={<Setting/>} />
                 </>
               )}
               {isEmployee && (
