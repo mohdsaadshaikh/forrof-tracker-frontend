@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/select";
 import { LayoutGrid, List, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DEPARTMENTS, DEPARTMENT_LABELS } from "@/lib/constants";
 
 interface AnnouncementFiltersProps {
   onSearchChange: (value: string) => void;
@@ -75,11 +76,11 @@ const AnnouncementFilters = ({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Departments</SelectItem>
-            <SelectItem value="IT">IT</SelectItem>
-            <SelectItem value="HR">HR</SelectItem>
-            <SelectItem value="Marketing">Marketing</SelectItem>
-            <SelectItem value="Sales">Sales</SelectItem>
-            <SelectItem value="Finance">Finance</SelectItem>
+            {Object.entries(DEPARTMENTS).map(([key, value]) => (
+              <SelectItem key={key} value={value}>
+                {DEPARTMENT_LABELS[value]}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>

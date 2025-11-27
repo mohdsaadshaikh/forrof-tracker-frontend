@@ -1,14 +1,21 @@
 import { createAuthClient } from "better-auth/react";
-import { adminClient } from "better-auth/client/plugins";
+import { adminClient, inferAdditionalFields } from "better-auth/client/plugins";
 import { admin, employee, ac } from "./permission";
 
 export const authClient = createAuthClient({
-  // baseURL: "http://localhost:3000",
   baseURL: import.meta.env.VITE_SERVER_URL,
   fetchOptions: {
     credentials: "include",
   },
+
   plugins: [
+    inferAdditionalFields({
+      user: {
+        isPasswordChanged: {
+          type: "boolean",
+        },
+      },
+    }),
     adminClient({
       ac,
       roles: {
@@ -28,19 +35,8 @@ export const {
   resetPassword,
   verifyEmail,
   changePassword,
+  updateUser,
 } = authClient;
-
-export type User = {
-  id: string;
-  name: string;
-  email: string;
-  emailVerified: boolean;
-  role: "admin" | "employee";
-  image?: string;
-  department?: "HR" | "IT" | "SALES" | "MARKETING" | "FINANCE" | "OPERATIONS";
-  createdAt: string;
-  updatedAt: string;
-};
 
 export type Session = {
   session: {
@@ -49,5 +45,19 @@ export type Session = {
     expiresAt: string;
     token: string;
   };
-  user: User;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    emailVerified: boolean;
+    role?: string;
+    image?: string | null;
+    department?: "HR" | "IT" | "SALES" | "MARKETING" | "FINANCE" | "OPERATIONS";
+    isPasswordChanged: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+    banned?: boolean | null;
+    banReason?: string | null;
+    banExpires?: Date | null;
+  };
 };

@@ -1,4 +1,6 @@
+import { authClient } from "@/lib/auth-client";
 import { useQuery } from "@tanstack/react-query";
+import { formatDistanceToNow } from "date-fns";
 
 export interface Employee {
   id: string;
@@ -7,43 +9,41 @@ export interface Employee {
   role: string;
   department: string;
   dateJoined: string;
-  location: string;
-  salary: number;
+  location?: string;
+  salary?: number;
   status: "Online" | "Offline";
   avatar: string;
 }
 
-const generateDummyEmployees = (): Employee[] => {
-  const roles = [
-    "Accountant",
-    "Senior Executive",
-    "Senior Manager",
-    "Developer",
-    "Designer",
-  ];
-  const departments = [
-    "IT Department",
-    "Marketing",
-    "Design",
-    "Sales",
-    "Development",
-  ];
-  const locations = ["Lahore", "Karachi", "Islamabad"];
-  const statuses: ("Online" | "Offline")[] = ["Online", "Offline"];
+const getInitials = (name: string): string => {
+  return name
+    .split(" ")
+    .filter((word) => isNaN(Number(word)))
+    .map((word) => word.charAt(0).toUpperCase())
+    .join("")
+    .slice(0, 2);
+};
 
-  return Array.from({ length: 50 }, (_, i) => ({
-    id: `2541${421 + i}`,
-    name: `Lisa Greg ${i + 1}`,
-    email: `lisa_greg${i + 1}@email.com`,
-    role: roles[i % roles.length],
-    department: departments[i % departments.length],
-    dateJoined: "30 July 2025",
-    location: locations[i % locations.length],
-    salary: 95000,
-    status: statuses[i % statuses.length],
-    avatar:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop",
-  }));
+const mapUserToEmployee = (user: {
+  id: string;
+  name: string;
+  email: string;
+  role?: string;
+  department?: string;
+  createdAt: Date | string;
+}): Employee => {
+  return {
+    id: user.id,
+    name: user.name || "Unknown",
+    email: user.email,
+    role: user.role || "employee",
+    department: user.department || "Unassigned",
+    dateJoined: formatDistanceToNow(new Date(user.createdAt), {
+      addSuffix: true,
+    }),
+    status: Math.random() > 0.5 ? "Online" : "Offline",
+    avatar: getInitials(user.name || ""),
+  };
 };
 
 export const useEmployees = (
@@ -56,37 +56,81 @@ export const useEmployees = (
 ) => {
   return useQuery({
     queryKey: ["employees", page, search, department, role, location, status],
-    queryFn: () => {
-      const allEmployees = generateDummyEmployees();
+    queryFn: async () => {
+      const itemsPerPage = 8;
 
-      const filtered = allEmployees.filter((emp) => {
-        const matchesSearch =
-          emp.name.toLowerCase().includes(search.toLowerCase()) ||
-          emp.email.toLowerCase().includes(search.toLowerCase());
-        const matchesDepartment = !department || emp.department === department;
-        const matchesRole = !role || emp.role === role;
-        const matchesLocation = !location || emp.location === location;
-        const matchesStatus = !status || emp.status === status;
+      const offset = (page - 1) * itemsPerPage;
 
-        return (
-          matchesSearch &&
-          matchesDepartment &&
-          matchesRole &&
-          matchesLocation &&
-          matchesStatus
-        );
+      const queryObj: Record<string, string | number> = {
+        limit: itemsPerPage,
+        offset: offset,
+        sortBy: "createdAt",
+        sortDirection: "desc",
+      };
+
+      if (search) {
+        queryObj.searchValue = search;
+        queryObj.searchField = "name";
+        queryObj.searchOperator = "contains";
+      }
+
+      if (department) {
+        queryObj.filterField = "department";
+        queryObj.filterValue = department;
+        queryObj.filterOperator = "eq";
+      }
+
+      if (role && !department) {
+        queryObj.filterField = "role";
+        queryObj.filterValue = role;
+        queryObj.filterOperator = "eq";
+      }
+
+      const { data: usersData, error } = await authClient.admin.listUsers({
+        query: queryObj,
       });
 
-      // Pagination
-      const itemsPerPage = 8;
-      const startIndex = (page - 1) * itemsPerPage;
-      const endIndex = startIndex + itemsPerPage;
-      const paginatedData = filtered.slice(startIndex, endIndex);
+      if (error) {
+        throw new Error("Failed to fetch employees");
+      }
+
+      if (!usersData || !usersData.users) {
+        return {
+          employees: [],
+          totalPages: 0,
+          total: 0,
+        };
+      }
+
+      let employees = usersData.users.map(mapUserToEmployee);
+
+      if (search) {
+        const searchLower = search.toLowerCase();
+        employees = employees.filter(
+          (emp) =>
+            emp.name.toLowerCase().includes(searchLower) ||
+            emp.email.toLowerCase().includes(searchLower)
+        );
+      }
+
+      // Apply role filter on client-side if department filter was used server-side
+      if (role && department) {
+        employees = employees.filter((emp) => emp.role === role);
+      }
+
+      // Apply status filter on client-side (computed field based on random state)
+      if (status) {
+        employees = employees.filter((emp) => emp.status === status);
+      }
+
+      // Use the total count from server response for pagination
+      const totalCount = usersData.total || 0;
+      const totalPages = Math.ceil(totalCount / itemsPerPage);
 
       return {
-        employees: paginatedData,
-        totalPages: Math.ceil(filtered.length / itemsPerPage),
-        total: filtered.length,
+        employees,
+        totalPages,
+        total: totalCount,
       };
     },
   });

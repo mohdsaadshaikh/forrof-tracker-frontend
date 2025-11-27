@@ -1,15 +1,24 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Employee } from "@/hooks/useEmployees";
+import { useNavigate } from "react-router-dom";
 
 interface EmployeeCardProps {
   employee: Employee;
 }
 
 export const EmployeeCard = ({ employee }: EmployeeCardProps) => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/employees/${employee.id}`);
+  };
+
   return (
-    <Card className="relative">
+    <Card
+      className="relative cursor-pointer hover:shadow-lg transition-shadow"
+      onClick={handleClick}
+    >
       <CardContent className="p-6">
         {/* <div className="absolute top-4 left-4">
           <Checkbox />
@@ -48,7 +57,7 @@ export const EmployeeCard = ({ employee }: EmployeeCardProps) => {
               <span className="text-muted-foreground">Date Joined</span>
               <span className="font-medium text-xs">{employee.dateJoined}</span>
             </div>
-            <div className="flex justify-between">
+            {/* <div className="flex justify-between">
               <span className="text-muted-foreground">Location</span>
               <span className="font-medium">{employee.location}</span>
             </div>
@@ -64,7 +73,7 @@ export const EmployeeCard = ({ employee }: EmployeeCardProps) => {
               >
                 {employee.status}
               </Badge>
-            </div>
+            </div> */}
           </div>
         </div>
       </CardContent>

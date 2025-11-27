@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import AppLayout from "./layout/app-layout";
+import { PasswordChangeGuard } from "./layout/PasswordChangeGuard";
 import NotFound from "./pages/NotFound";
 import Announcements from "./pages/admin/announcements";
 import Attendance from "./pages/admin/attendance";
@@ -22,6 +23,7 @@ import { useRole } from "./hooks/useRole";
 import EmployeeDashboard from "./pages/employee/dashboard";
 import EmployeeLeaves from "./pages/employee/leaves";
 import EmployeeAnnouncements from "./pages/employee/announcements";
+import EmployeeDetail from "./pages/admin/employees/[id]";
 
 const queryClient = new QueryClient();
 
@@ -46,18 +48,21 @@ const App = () => {
               path="/"
               element={
                 <ProtectedRoute>
-                  <AppLayout />
+                  <PasswordChangeGuard>
+                    <AppLayout />
+                  </PasswordChangeGuard>
                 </ProtectedRoute>
               }
             >
+              <Route path="/profile" element={<Profile />} />
               {isAdmin && (
                 <>
                   <Route index element={<Dashboard />} />
                   <Route path="/employees" element={<Employees />} />
+                  <Route path="/employees/:id" element={<EmployeeDetail />} />
                   <Route path="/attendance" element={<Attendance />} />
                   <Route path="/leaves" element={<Leaves />} />
                   <Route path="/announcements" element={<Announcements />} />
-                  <Route path="/profile" element={<Profile />} />
                 </>
               )}
               {isEmployee && (

@@ -1,29 +1,11 @@
 import { z } from "zod";
+import { DEPARTMENTS, LEAVE_TYPES, LEAVE_STATUSES } from "@/lib/constants";
 
-export const leaveTypes = [
-  "ANNUAL_LEAVE",
-  "MATERNITY_LEAVE",
-  "CASUAL_LEAVE",
-  "SICK_LEAVE",
-  "PERSONAL_LEAVE",
-  "UNPAID_LEAVE",
-] as const;
+export const leaveTypes = LEAVE_TYPES;
 
-export const leaveStatuses = [
-  "PENDING",
-  "APPROVED",
-  "REJECTED",
-  "CANCELLED",
-] as const;
+export const leaveStatuses = LEAVE_STATUSES;
 
-export const departments = [
-  "Engineering",
-  "HR",
-  "Finance",
-  "Marketing",
-  "Sales",
-  "Operations",
-] as const;
+export const departments = Object.values(DEPARTMENTS);
 
 export const leaveFormSchema = z.object({
   leaveType: z.enum(leaveTypes, {

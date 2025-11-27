@@ -1,4 +1,11 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { DEPARTMENTS, DEPARTMENT_LABELS } from "@/lib/constants";
 
 interface DashboardFiltersProps {
   timeRange: string;
@@ -41,9 +48,11 @@ export const DashboardFilters = ({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Departments</SelectItem>
-          <SelectItem value="it">IT Department</SelectItem>
-          <SelectItem value="marketing">Marketing</SelectItem>
-          <SelectItem value="sales">Sales</SelectItem>
+          {Object.entries(DEPARTMENTS).map(([key, value]) => (
+            <SelectItem key={key} value={value}>
+              {DEPARTMENT_LABELS[value]}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
 

@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/select";
 // import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import { DEPARTMENTS, DEPARTMENT_LABELS } from "@/lib/constants";
 
 interface UserSettingsFormProps {
   initialData: {
@@ -116,12 +117,11 @@ export const UserSettingsForm = ({ initialData }: UserSettingsFormProps) => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="IT Department">IT Department</SelectItem>
-                    <SelectItem value="Marketing">Marketing</SelectItem>
-                    <SelectItem value="Design">Design</SelectItem>
-                    <SelectItem value="Development">Development</SelectItem>
-                    <SelectItem value="Sales">Sales</SelectItem>
-                    <SelectItem value="HR">HR</SelectItem>
+                    {Object.entries(DEPARTMENTS).map(([key, value]) => (
+                      <SelectItem key={key} value={value}>
+                        {DEPARTMENT_LABELS[value]}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

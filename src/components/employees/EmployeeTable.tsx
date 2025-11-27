@@ -1,5 +1,4 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 // import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
@@ -10,12 +9,19 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { Employee } from "@/hooks/useEmployees";
+import { useNavigate } from "react-router-dom";
 
 interface EmployeeTableProps {
   employees: Employee[];
 }
 
 export const EmployeeTable = ({ employees }: EmployeeTableProps) => {
+  const navigate = useNavigate();
+
+  const handleRowClick = (employeeId: string) => {
+    navigate(`/employees/${employeeId}`);
+  };
+
   return (
     <div className="border rounded-lg overflow-x-auto w-full">
       <Table>
@@ -30,14 +36,18 @@ export const EmployeeTable = ({ employees }: EmployeeTableProps) => {
             <TableHead>Role</TableHead>
             <TableHead>Department</TableHead>
             <TableHead>Date Joined</TableHead>
-            <TableHead>Location</TableHead>
+            {/* <TableHead>Location</TableHead>
             <TableHead>Salary</TableHead>
-            <TableHead>Status</TableHead>
+            <TableHead>Status</TableHead> */}
           </TableRow>
         </TableHeader>
         <TableBody>
           {employees.map((employee) => (
-            <TableRow key={employee.id}>
+            <TableRow
+              key={employee.id}
+              className="cursor-pointer hover:bg-muted/50 transition-colors"
+              onClick={() => handleRowClick(employee.id)}
+            >
               {/* <TableCell>
                 <Checkbox />
               </TableCell> */}
@@ -65,7 +75,7 @@ export const EmployeeTable = ({ employees }: EmployeeTableProps) => {
               <TableCell>{employee.role}</TableCell>
               <TableCell>{employee.department}</TableCell>
               <TableCell>{employee.dateJoined}</TableCell>
-              <TableCell>{employee.location}</TableCell>
+              {/* <TableCell>{employee.location}</TableCell>
               <TableCell>${employee.salary.toLocaleString()}</TableCell>
               <TableCell>
                 <Badge
@@ -80,7 +90,7 @@ export const EmployeeTable = ({ employees }: EmployeeTableProps) => {
                 >
                   {employee.status}
                 </Badge>
-              </TableCell>
+              </TableCell> */}
             </TableRow>
           ))}
         </TableBody>
