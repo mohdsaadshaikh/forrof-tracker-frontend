@@ -1,228 +1,196 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSession } from "@/lib/auth-client";
-import {
-  AlertCircle,
-  Calendar,
-  CheckCircle,
-  Clock,
-  FileText,
-  XCircle,
-} from "lucide-react";
-import { Link } from "react-router-dom";
+import { EllipsisVertical, Calendar, MoveUpRight, MoveDownLeft, Pencil, UsersRound } from "lucide-react";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { useAnnouncements } from "@/hooks/useAnnouncements";
+import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { BarChart, CartesianGrid, XAxis, YAxis, Bar, ResponsiveContainer } from "recharts";
+
+const weeklyHoursData = [
+  { Days: "Mon", hours: 40 },
+  { Days: "Tue", hours: 25 },
+  { Days: "Wed", hours: 42 },
+  { Days: "Thu", hours: 78 },
+  { Days: "Fri", hours: 45 },
+  { Days: "Sat", hours: 10 },
+];
 
 export default function EmployeeDashboard() {
   const { data: session } = useSession();
   const userName = session?.user?.name || "Employee";
 
-  const stats = {
-    totalLeaves: 20,
-    usedLeaves: 5,
-    pendingLeaves: 2,
-    approvedLeaves: 3,
-    rejectedLeaves: 0,
-  };
-
-  const recentLeaves = [
-    {
-      id: 1,
-      type: "Sick Leave",
-      startDate: "2025-11-15",
-      endDate: "2025-11-16",
-      status: "Approved",
-      days: 2,
-    },
-    {
-      id: 2,
-      type: "Casual Leave",
-      startDate: "2025-11-20",
-      endDate: "2025-11-20",
-      status: "Pending",
-      days: 1,
-    },
-  ];
-
-  const upcomingHolidays = [
-    { id: 1, name: "Christmas", date: "2025-12-25" },
-    { id: 2, name: "New Year", date: "2026-01-01" },
-  ];
+ 
+  const { data, isLoading } = useAnnouncements();
+  const announcements = data?.announcements || [];
 
   return (
     <div className="space-y-6">
       {/* Welcome Section */}
-      <div>
-        <h1 className="text-3xl font-bold">Welcome back, {userName}!</h1>
-        <p className="text-muted-foreground mt-1">
-          Here's your attendance and leave overview
-        </p>
+      <div className="flex gap-4 py-12 bg-white rounded-2xl">
+        <div>
+          <div className="p-8 bg-slate-100 rounded-full w-fit ml-5">
+            <UsersRound className="h-10 w-10 text-blue-900" />
+          </div>
+        </div>
+        <div className="flex flex-col gap-2">
+          <h1 className="text-3xl font-bold tracking-tight">{userName}</h1>
+          <p className="text-muted-foreground text-base">Full Stack Developer</p>
+          <button className="flex items-center gap-2 w-fit border rounded-xl px-3 py-1 text-sm font-medium text-slate-400 border-slate-400">
+            Edit <Pencil className="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Leaves</p>
-                <p className="text-2xl font-bold">{stats.totalLeaves}</p>
-              </div>
-              <Calendar className="h-8 w-8 text-blue-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Used Leaves</p>
-                <p className="text-2xl font-bold">{stats.usedLeaves}</p>
-              </div>
-              <FileText className="h-8 w-8 text-red-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Pending</p>
-                <p className="text-2xl font-bold">{stats.pendingLeaves}</p>
-              </div>
-              <Clock className="h-8 w-8 text-yellow-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Approved</p>
-                <p className="text-2xl font-bold">{stats.approvedLeaves}</p>
-              </div>
-              <CheckCircle className="h-8 w-8 text-green-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Rejected</p>
-                <p className="text-2xl font-bold">{stats.rejectedLeaves}</p>
-              </div>
-              <XCircle className="h-8 w-8 text-red-500" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Leave Requests */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Recent Leave Requests</CardTitle>
-            <Button asChild size="sm" variant="outline">
-              <Link to="/employee/leaves">View All</Link>
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {recentLeaves.map((leave) => (
-                <div
-                  key={leave.id}
-                  className="flex items-start justify-between border-b pb-3 last:border-0"
-                >
-                  <div className="space-y-1">
-                    <p className="font-medium">{leave.type}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {leave.startDate} to {leave.endDate} ({leave.days} day
-                      {leave.days > 1 ? "s" : ""})
-                    </p>
-                  </div>
-                  <span
-                    className={`text-xs px-2 py-1 rounded-full ${
-                      leave.status === "Approved"
-                        ? "bg-green-100 text-green-800"
-                        : leave.status === "Pending"
-                        ? "bg-yellow-100 text-yellow-800"
-                        : "bg-red-100 text-red-800"
-                    }`}
-                  >
-                    {leave.status}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Upcoming Holidays */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Upcoming Holidays</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {upcomingHolidays.map((holiday) => (
-                <div
-                  key={holiday.id}
-                  className="flex items-center justify-between border-b pb-3 last:border-0"
-                >
-                  <div className="flex items-center gap-3">
-                    <AlertCircle className="h-5 w-5 text-blue-500" />
-                    <p className="font-medium">{holiday.name}</p>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {holiday.date}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button asChild className="h-auto py-6" variant="outline">
-              <Link
-                to="/employee/leaves"
-                className="flex flex-col items-center gap-2"
-              >
-                <FileText className="h-6 w-6" />
-                <span>Apply for Leave</span>
-              </Link>
-            </Button>
-            <Button asChild className="h-auto py-6" variant="outline">
-              <Link
-                to="/employee/announcements"
-                className="flex flex-col items-center gap-2"
-              >
-                <Calendar className="h-6 w-6" />
-                <span>View Announcements</span>
-              </Link>
-            </Button>
-            <Button asChild className="h-auto py-6" variant="outline">
-              <Link
-                to="/employee/profile"
-                className="flex flex-col items-center gap-2"
-              >
-                <FileText className="h-6 w-6" />
-                <span>Update Profile</span>
-              </Link>
-            </Button>
+        {/* Check-in */}
+        <div className="flex justify-between items-center bg-white p-4 rounded-2xl">
+          <div className="flex flex-col gap-1">
+            <p className="text-3xl text-indigo-900 font-semibold">9:30</p>
+            <p className="text-indigo-900 font-medium">CheckIn Today</p>
+            <p className="flex items-center gap-1 text-sm text-slate-400">
+              <span className="p-1 bg-red-200 rounded-full">
+                <MoveDownLeft className="h-3 w-3 text-red-600" />
+              </span>
+              30 Minutes Late
+            </p>
           </div>
-        </CardContent>
-      </Card>
+          <div className="relative bottom-7">
+            <div className="p-2 bg-indigo-100 rounded-full">
+              <Calendar className="h-5 w-5 text-indigo-900" />
+            </div>
+          </div>
+        </div>
+
+        {/* Check-out */}
+        <div className="flex justify-between items-center bg-white p-4 rounded-2xl">
+          <div className="flex flex-col gap-1">
+            <p className="text-3xl text-indigo-900 font-semibold">5:00</p>
+            <p className="text-indigo-900 font-medium w-fit whitespace-nowrap">CheckOut Today</p>
+            <p className="flex items-center gap-1 text-sm text-slate-400">
+              <span className="p-1 bg-green-200 rounded-full">
+                <MoveUpRight className="h-3 w-3 text-green-600" />
+              </span>
+              On Time
+            </p>
+          </div>
+          <div className="relative bottom-7">
+            <div className="p-2 bg-indigo-100 rounded-full">
+              <Calendar className="h-5 w-5 text-indigo-900" />
+            </div>
+          </div>
+        </div>
+
+        {/* Late Checks */}
+        <div className="flex justify-between items-center bg-white p-4 rounded-2xl">
+          <div className="flex flex-col gap-1">
+            <p className="text-3xl text-indigo-900 font-semibold">2</p>
+            <p className="text-indigo-900 font-medium">Late Checks</p>
+            <p className="flex items-center gap-2 text-sm text-slate-400">
+              <span className="p-1 bg-red-200 rounded-full">
+                <MoveDownLeft className="h-3 w-3 text-red-600" />
+              </span>
+              Decline
+            </p>
+          </div>
+          <div className="relative bottom-7">
+            <div className="p-2 bg-indigo-100 rounded-full">
+              <Calendar className="h-5 w-5 text-indigo-900" />
+            </div>
+          </div>
+        </div>
+
+        {/* Weekly Fine */}
+        <div className="flex justify-between items-center bg-white p-4 rounded-2xl">
+          <div className="flex flex-col gap-1">
+            <p className="text-3xl text-indigo-900 font-semibold">$20</p>
+            <p className="text-indigo-900 font-medium">Weekly Fine</p>
+            <p className="flex items-center gap-1 text-sm text-slate-400">
+              <span className="p-1 bg-red-200 rounded-full">
+                <MoveDownLeft className="h-3 w-3 text-red-600" />
+              </span>
+              Decline
+            </p>
+          </div>
+          <div className="relative bottom-7">
+            <div className="p-2 bg-indigo-100 rounded-full">
+              <Calendar className="h-5 w-5 text-indigo-900" />
+            </div>
+          </div>
+        </div>
+
+        {/* Leaves Pending */}
+        <div className="flex justify-between items-center bg-white p-4 rounded-2xl">
+          <div className="flex flex-col gap-1">
+            <p className="text-3xl text-indigo-900 font-semibold">02</p>
+            <p className="text-indigo-900 font-medium">Leaves Pending</p>
+            <p className="flex items-center gap-1 text-sm text-slate-400">
+              <span className="p-1 bg-red-200 rounded-full">
+                <MoveDownLeft className="h-3 w-3 text-red-600" />
+              </span>
+              Decline
+            </p>
+          </div>
+          <div className="relative bottom-7">
+            <div className="p-2 bg-indigo-100 rounded-full">
+              <Calendar className="h-5 w-5 text-indigo-900" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Section: Weekly Hours + Announcements */}
+      <div className="flex flex-col md:flex-row gap-6">
+        {/* Weekly Hours Chart */}
+        <div className="flex-1 rounded-lg">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-medium">Weekly Hours Logged</CardTitle>
+            </CardHeader>
+            <CardContent className="h-[250px] w-full p-4">
+              <ChartContainer
+                config={{ hours: { label: "Days", color: "hsl(var(--primary))" } }}
+                className="h-full w-full"
+              >
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={weeklyHoursData}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis dataKey="Days" />
+                    <YAxis />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Bar dataKey="hours" fill="#01339a" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Announcements */}
+        <div className="flex-1 bg-white p-6 rounded-lg shadow">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold">Announcements</h2>
+            <EllipsisVertical className="h-5 w-5 text-gray-500" />
+          </div>
+
+          {isLoading ? (
+            <p>Loading announcements...</p>
+          ) : announcements.length === 0 ? (
+            <p className="text-muted-foreground text-sm">No announcements yet.</p>
+          ) : (
+            <Accordion type="single" collapsible className="space-y-2">
+              {announcements.map((announcement) => (
+                <AccordionItem key={announcement.id} value={announcement.id} className="bg-gray-100 rounded-lg">
+                  <AccordionTrigger className="px-4 py-3 text-left font-medium">{announcement.title}</AccordionTrigger>
+                  <AccordionContent className="px-4 py-3 bg-gray-100 rounded-b-lg">
+                    {announcement.description || "No description available."}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
