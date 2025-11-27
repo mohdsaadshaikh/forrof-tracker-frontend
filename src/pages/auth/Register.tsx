@@ -39,6 +39,7 @@ const Register = () => {
           email: values.email,
           password: values.password,
           name: values.name,
+          isPasswordChanged: true,
         },
         {
           onResponse: () => {
