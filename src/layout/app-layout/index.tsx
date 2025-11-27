@@ -21,7 +21,7 @@ const AppLayout = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-slate-100">
+      <div className="min-h-screen flex w-full ">
         <AppSidebar />
         <main className="w-full">
           <Header />
