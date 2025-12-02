@@ -79,7 +79,7 @@ export function AppSidebar() {
       icon: Settings,
       adminTitle: "Settings",
       employeeTitle: "Settings",
-      roles: ["admin"],
+      roles: ["admin", "employee"],
     },
   ];
 
