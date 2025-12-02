@@ -21,6 +21,7 @@ import {
   CalendarCheck,
   Briefcase,
   Calendar,
+  Settings,
 } from "lucide-react";
 
 type MenuItem = {
@@ -72,6 +73,13 @@ export function AppSidebar() {
       adminTitle: "Announcements",
       employeeTitle: "Company Updates",
       roles: ["admin", "employee"],
+    },
+    {
+      url: "/settings",
+      icon: Settings,
+      adminTitle: "Settings",
+      employeeTitle: "Settings",
+      roles: ["admin"],
     },
   ];
 

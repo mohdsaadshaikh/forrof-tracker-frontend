@@ -24,6 +24,7 @@ import EmployeeDashboard from "./pages/employee/dashboard";
 import EmployeeLeaves from "./pages/employee/leaves";
 import EmployeeAnnouncements from "./pages/employee/announcements";
 import EmployeeDetail from "./pages/admin/employees/[id]";
+import Settings from "./pages/admin/settings";
 
 const queryClient = new QueryClient();
 
@@ -55,6 +56,7 @@ const App = () => {
               }
             >
               <Route path="/profile" element={<Profile />} />
+              <Route path="/settings" element={<Settings />} />
               {isAdmin && (
                 <>
                   <Route index element={<Dashboard />} />
@@ -63,6 +65,7 @@ const App = () => {
                   <Route path="/attendance" element={<Attendance />} />
                   <Route path="/leaves" element={<Leaves />} />
                   <Route path="/announcements" element={<Announcements />} />
+                  <Route path="/settings" element={<Settings />} />
                 </>
               )}
               {isEmployee && (
