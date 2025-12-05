@@ -57,6 +57,14 @@ export const EmployeeCard = ({ employee }: EmployeeCardProps) => {
               <span className="text-muted-foreground">Date Joined</span>
               <span className="font-medium text-xs">{employee.dateJoined}</span>
             </div>
+            {employee.salary && (
+              <div className="flex justify-between border-t pt-1.5">
+                <span className="text-muted-foreground">Salary</span>
+                <span className="font-medium text-green-600">
+                  ${employee.salary.toLocaleString()}
+                </span>
+              </div>
+            )}
             {/* <div className="flex justify-between">
               <span className="text-muted-foreground">Location</span>
               <span className="font-medium">{employee.location}</span>

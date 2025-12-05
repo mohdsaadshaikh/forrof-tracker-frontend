@@ -1,9 +1,4 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Bell, User, LogOut } from "lucide-react";
-import { useSession, signOut } from "@/lib/auth-client";
-import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +7,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useAuthState } from "@/hooks/useAuthState";
+import { signOut, useSession } from "@/lib/auth-client";
+import { Bell, LogOut, User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const Header = () => {
   const { data: session } = useSession();
@@ -70,7 +70,8 @@ const Header = () => {
   };
 
   const userName = session?.user?.name.split(" ")[0] || "User";
-  const userEmail = session?.user?.email.slice(0, 10) || "";
+  const userRole = session?.user?.role || "employee";
+  const userAvatar = session?.user?.image;
 
   return (
     <header className="h-16 border-b flex items-center md:justify-end justify-between px-4 sticky top-0 bg-background z-10">
@@ -82,12 +83,13 @@ const Header = () => {
           <DropdownMenuTrigger className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
             <div className="text-right">
               <p className="text-sm font-medium">{userName}</p>
-              <p className="text-xs text-muted-foreground">{userEmail}</p>
+              <p className="text-xs text-muted-foreground">{userRole}</p>
             </div>
             <Avatar>
-              {/* <AvatarImage src={session?.user?.image} /> */}
-              <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop" />
-              <AvatarFallback>{getInitials(userName)}</AvatarFallback>
+              <AvatarImage src={userAvatar ?? undefined} />
+              <AvatarFallback className="border border-primary">
+                {getInitials(userName)}
+              </AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">

@@ -1,34 +1,94 @@
+import ResponsiveDialog from "@/components/ResponsiveDialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Camera, X } from "lucide-react";
-import { useState } from "react";
+import api, { type ApiError } from "@/lib/axios";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Camera, Loader2 } from "lucide-react";
+import { useRef, useState } from "react";
+import ReactImageCrop, { type Crop, type PixelCrop } from "react-image-crop";
+import "react-image-crop/dist/ReactCrop.css";
+
+// import 'react-image-crop/src/ReactCrop.scss'
 import { toast } from "sonner";
 
 interface ProfileHeaderProps {
   name: string;
   email: string;
-  role: string;
+  department: string;
   avatarUrl?: string;
+  onAvatarUpdate?: (newUrl: string) => void;
+}
+
+interface UploadResponse {
+  message: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    image: string;
+    department: string;
+  };
 }
 
 export const ProfileHeader = ({
   name,
   email,
-  role,
+  department,
   avatarUrl,
+  onAvatarUpdate,
 }: ProfileHeaderProps) => {
   const [avatar, setAvatar] = useState(avatarUrl);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [crop, setCrop] = useState<Crop>({
+    unit: "%",
+    width: 50,
+    height: 50,
+    x: 25,
+    y: 25,
+  });
+  const [completedCrop, setCompletedCrop] = useState<PixelCrop | null>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+  const queryClient = useQueryClient();
+
+  const uploadMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append("image", file);
+
+      const res = await api.post<UploadResponse>(
+        "/user/upload-image",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      return res.data;
+    },
+    onSuccess: (data) => {
+      setAvatar(data.user.image);
+      toast.success("Avatar updated successfully");
+      setPreviewOpen(false);
+      setPreviewImage(null);
+      setCrop({
+        unit: "%",
+        width: 50,
+        height: 50,
+        x: 25,
+        y: 25,
+      });
+      onAvatarUpdate?.(data.user.image);
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
+    },
+    onError: (error: ApiError) => {
+      const errorMessage =
+        error?.response?.data?.message || "Failed to upload avatar";
+      toast.error(errorMessage);
+    },
+  });
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -40,8 +100,6 @@ export const ProfileHeader = ({
     if (!file.type.startsWith("image/"))
       return toast.error("Invalid image selected");
 
-    setSelectedFile(file);
-
     const reader = new FileReader();
     reader.onloadend = () => {
       setPreviewImage(reader.result as string);
@@ -50,25 +108,64 @@ export const ProfileHeader = ({
     reader.readAsDataURL(file);
   };
 
-  const handleConfirmUpload = () => {
-    if (previewImage) {
-      setAvatar(previewImage);
-      toast.success("Avatar updated");
-      setPreviewOpen(false);
-      setSelectedFile(null);
-      setPreviewImage(null);
+  const getCroppedImage = async (): Promise<File | null> => {
+    if (!completedCrop || !imgRef.current) return null;
+
+    const canvas = document.createElement("canvas");
+    const scaleX = imgRef.current.naturalWidth / imgRef.current.width;
+    const scaleY = imgRef.current.naturalHeight / imgRef.current.height;
+
+    // Ensure perfect square by using the smaller dimension
+    const size = Math.min(completedCrop.width, completedCrop.height);
+
+    canvas.width = size;
+    canvas.height = size;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
+
+    ctx.drawImage(
+      imgRef.current,
+      completedCrop.x * scaleX,
+      completedCrop.y * scaleY,
+      size * scaleX,
+      size * scaleY,
+      0,
+      0,
+      size,
+      size
+    );
+
+    return new Promise((resolve) => {
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const file = new File([blob], "avatar.jpg", { type: "image/jpeg" });
+          resolve(file);
+        } else {
+          resolve(null);
+        }
+      }, "image/jpeg");
+    });
+  };
+
+  const handleConfirmUpload = async () => {
+    const croppedFile = await getCroppedImage();
+    if (croppedFile) {
+      uploadMutation.mutate(croppedFile);
     }
   };
 
   const handleCancel = () => {
     setPreviewOpen(false);
     setPreviewImage(null);
-    setSelectedFile(null);
-  };
-
-  const handleRemoveAvatar = () => {
-    setAvatar(undefined);
-    toast.success("Avatar removed");
+    setCrop({
+      unit: "%",
+      width: 50,
+      height: 50,
+      x: 25,
+      y: 25,
+    });
+    setCompletedCrop(null);
   };
 
   const getInitials = (name: string) =>
@@ -101,17 +198,9 @@ export const ProfileHeader = ({
               accept="image/*"
               className="hidden"
               onChange={handleAvatarChange}
+              disabled={uploadMutation.isPending}
             />
           </label>
-
-          {avatar && (
-            <button
-              onClick={handleRemoveAvatar}
-              className="absolute top-0 left-0 w-8 h-8 flex items-center justify-center bg-destructive text-white rounded-full shadow hover:scale-105 transition"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
         </div>
 
         <div className="space-y-1">
@@ -119,42 +208,64 @@ export const ProfileHeader = ({
           <p className="text-muted-foreground">{email}</p>
 
           <span className="inline-flex items-center text-sm px-3 py-1 mt-2 rounded-md bg-muted font-medium">
-            {role}
+            {department}
           </span>
         </div>
       </div>
 
-      {/* Avatar Preview Dialog */}
-      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Preview Avatar</DialogTitle>
-            <DialogDescription>
-              Review and confirm your new avatar.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="flex justify-center py-6">
-            <Avatar className="w-32 h-32">
-              <AvatarImage src={previewImage || ""} />
-              <AvatarFallback>{getInitials(name)}</AvatarFallback>
-            </Avatar>
-          </div>
-
-          {selectedFile && (
-            <p className="text-sm text-muted-foreground text-center">
-              {selectedFile.name}
-            </p>
+      {/* Avatar Crop Dialog */}
+      <ResponsiveDialog
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+        title="Crop Avatar"
+        description="Adjust and crop your avatar image"
+      >
+        <div className="space-y-4">
+          {previewImage && (
+            <div className="flex justify-center">
+              <ReactImageCrop
+                crop={crop}
+                onChange={(c) => setCrop(c)}
+                onComplete={(c) => setCompletedCrop(c)}
+                aspect={1}
+                circularCrop
+                minWidth={100}
+                minHeight={100}
+              >
+                <img
+                  ref={imgRef}
+                  src={previewImage}
+                  alt="Crop preview"
+                  className="max-w-full max-h-96"
+                />
+              </ReactImageCrop>
+            </div>
           )}
 
-          <DialogFooter>
-            <Button variant="outline" onClick={handleCancel}>
+          <div className="flex gap-3 justify-end pt-4">
+            <Button
+              variant="outline"
+              onClick={handleCancel}
+              disabled={uploadMutation.isPending}
+            >
               Cancel
             </Button>
-            <Button onClick={handleConfirmUpload}>Confirm</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            <Button
+              onClick={handleConfirmUpload}
+              disabled={uploadMutation.isPending}
+            >
+              {uploadMutation.isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Uploading...
+                </>
+              ) : (
+                "Upload Avatar"
+              )}
+            </Button>
+          </div>
+        </div>
+      </ResponsiveDialog>
     </>
   );
 };

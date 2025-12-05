@@ -36,8 +36,8 @@ export const EmployeeTable = ({ employees }: EmployeeTableProps) => {
             <TableHead>Role</TableHead>
             <TableHead>Department</TableHead>
             <TableHead>Date Joined</TableHead>
-            {/* <TableHead>Location</TableHead>
             <TableHead>Salary</TableHead>
+            {/* <TableHead>Location</TableHead>
             <TableHead>Status</TableHead> */}
           </TableRow>
         </TableHeader>
@@ -75,8 +75,10 @@ export const EmployeeTable = ({ employees }: EmployeeTableProps) => {
               <TableCell>{employee.role}</TableCell>
               <TableCell>{employee.department}</TableCell>
               <TableCell>{employee.dateJoined}</TableCell>
+              <TableCell className="text-green-600 font-medium">
+                {employee.salary ? `$${employee.salary.toLocaleString()}` : "-"}
+              </TableCell>
               {/* <TableCell>{employee.location}</TableCell>
-              <TableCell>${employee.salary.toLocaleString()}</TableCell>
               <TableCell>
                 <Badge
                   variant={

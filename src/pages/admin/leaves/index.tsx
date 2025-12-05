@@ -1,8 +1,11 @@
 import { ApplyLeaveDialog } from "@/components/leave/ApplyLeaveDialog";
 import { LeaveCard } from "@/components/leave/LeaveCard";
 import { LeaveFilters } from "@/components/leave/LeaveFilters";
+import { LeaveStatsCards } from "@/components/leave/LeaveStatsCards";
 import { LeaveTable } from "@/components/leave/LeaveTable";
 import { ViewLeaveDialog } from "@/components/leave/ViewLeaveDialog";
+import ResponsiveDialog from "@/components/ResponsiveDialog";
+import { Button } from "@/components/ui/button";
 import {
   Pagination,
   PaginationContent,
@@ -36,6 +39,7 @@ const Leaves = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedLeave, setSelectedLeave] = useState<Leave | null>(null);
 
   const { data, isLoading } = useLeaveData({
@@ -70,12 +74,20 @@ const Leaves = () => {
   };
 
   const handleDelete = async (id: string) => {
+    setSelectedLeave(data?.leaves.find((leave) => leave.id === id) || null);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!selectedLeave) return;
     try {
-      await deleteLeave.mutateAsync(id);
+      await deleteLeave.mutateAsync(selectedLeave.id);
       toast({
         title: "Success",
         description: "Leave request deleted",
       });
+      setDeleteDialogOpen(false);
+      setSelectedLeave(null);
     } catch (error) {
       console.error(error);
       toast({
@@ -99,6 +111,8 @@ const Leaves = () => {
           Manage employee leave requests
         </p>
       </div>
+
+      <LeaveStatsCards />
 
       <LeaveFilters
         search={search}
@@ -205,6 +219,29 @@ const Leaves = () => {
         open={viewDialogOpen}
         onOpenChange={setViewDialogOpen}
       />
+      <ResponsiveDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        title="Delete Leave Request"
+        description="Are you sure you want to delete this leave request? This action cannot be undone."
+      >
+        <div className="flex justify-end gap-3 pt-4">
+          <Button
+            variant="outline"
+            onClick={() => setDeleteDialogOpen(false)}
+            disabled={deleteLeave.isPending}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={handleConfirmDelete}
+            disabled={deleteLeave.isPending}
+          >
+            {deleteLeave.isPending ? "Deleting..." : "Delete Leave"}
+          </Button>
+        </div>
+      </ResponsiveDialog>
     </div>
   );
 };

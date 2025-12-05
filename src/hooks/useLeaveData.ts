@@ -20,6 +20,7 @@ export interface Leave {
   endDate: string;
   duration: number;
   reason?: string;
+  prescriptionUrl?: string;
   status: LeaveStatus;
   approvedBy?: {
     id: string;
@@ -146,10 +147,29 @@ export const useLeaveStats = () => {
   });
 };
 
+export interface AdminLeaveStats {
+  onLeave: number;
+  approved: number;
+  pending: number;
+  rejected: number;
+}
+
+export const useAdminLeaveStats = () => {
+  return useQuery({
+    queryKey: ["admin-leave-stats"],
+    queryFn: async () => {
+      const res = await api.get<AdminLeaveStats>("/leaves/admin/stats");
+      return res.data;
+    },
+  });
+};
+
 export const useCreateLeave = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: LeaveFormData) => {
+    mutationFn: async (
+      data: LeaveFormData & { prescriptionFile?: File | null }
+    ) => {
       if (!data.startDate || !data.endDate) {
         toast.error("Start date aur end date zaroori hai bhai!");
         throw new Error("Dates are missing");
@@ -163,14 +183,22 @@ export const useCreateLeave = () => {
       const endDateObj =
         data.endDate instanceof Date ? data.endDate : new Date(data.endDate);
 
-      const payload = {
-        leaveType: data.leaveType,
-        reason: data.reason || "",
-        startDate: startDateObj.toISOString(),
-        endDate: endDateObj.toISOString(),
-      };
+      const formData = new FormData();
+      formData.append("leaveType", data.leaveType);
+      formData.append("reason", data.reason || "");
+      formData.append("startDate", startDateObj.toISOString());
+      formData.append("endDate", endDateObj.toISOString());
 
-      const res = await api.post<Leave>("/leaves", payload);
+      // Add prescription file if it exists
+      if (data.prescriptionFile) {
+        formData.append("prescription", data.prescriptionFile);
+      }
+
+      const res = await api.post<Leave>("/leaves", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       return res.data;
     },
     onSuccess: () => {

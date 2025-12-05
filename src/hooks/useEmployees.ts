@@ -31,6 +31,7 @@ const mapUserToEmployee = (user: {
   role?: string;
   department?: string;
   createdAt: Date | string;
+  salary?: number;
 }): Employee => {
   return {
     id: user.id,
@@ -41,6 +42,7 @@ const mapUserToEmployee = (user: {
     dateJoined: formatDistanceToNow(new Date(user.createdAt), {
       addSuffix: true,
     }),
+    salary: user.salary,
     status: Math.random() > 0.5 ? "Online" : "Offline",
     avatar: getInitials(user.name || ""),
   };

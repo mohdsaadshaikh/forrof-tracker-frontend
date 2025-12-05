@@ -32,8 +32,9 @@ import {
 } from "@/lib/validations/leave";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Upload, X } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { useState } from "react";
 
 interface ApplyLeaveDialogProps {
   open: boolean;
@@ -46,6 +47,7 @@ export const ApplyLeaveDialog = ({
 }: ApplyLeaveDialogProps) => {
   const { toast } = useToast();
   const createLeave = useCreateLeave();
+  const [prescriptionFile, setPrescriptionFile] = useState<File | null>(null);
 
   const form = useForm<LeaveFormData>({
     // @ts-expect-error - zodResolver type inference limitation with preprocess
@@ -55,17 +57,69 @@ export const ApplyLeaveDialog = ({
       startDate: undefined,
       endDate: undefined,
       reason: "",
+      prescriptionUrl: undefined,
     },
   });
 
+  const selectedLeaveType = form.watch("leaveType");
+  const isSickLeave = selectedLeaveType === "SICK_LEAVE";
+
+  const handlePrescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type (PDFs and images only)
+    const validTypes = [
+      "application/pdf",
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+    ];
+    if (!validTypes.includes(file.type)) {
+      return toast({
+        title: "Invalid file",
+        description: "Please upload a PDF or image file",
+        variant: "destructive",
+      });
+    }
+
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      return toast({
+        title: "File too large",
+        description: "Please upload a file smaller than 5MB",
+        variant: "destructive",
+      });
+    }
+
+    setPrescriptionFile(file);
+  };
+
+  const removePrescription = () => {
+    setPrescriptionFile(null);
+  };
+
   const onSubmit = async (data: LeaveFormData) => {
+    if (isSickLeave && !prescriptionFile) {
+      return toast({
+        title: "Prescription required",
+        description: "Please upload a prescription for sick leave",
+        variant: "destructive",
+      });
+    }
+
     try {
-      await createLeave.mutateAsync(data);
+      await createLeave.mutateAsync({
+        ...data,
+        prescriptionFile: isSickLeave ? prescriptionFile : null,
+      });
       toast({
         title: "Success",
         description: "Leave application submitted successfully",
       });
       form.reset();
+      removePrescription();
       onOpenChange(false);
     } catch (error) {
       console.error(error);
@@ -218,11 +272,61 @@ export const ApplyLeaveDialog = ({
           )}
         />
 
+        {/* Prescription Upload for Sick Leave */}
+        {isSickLeave && (
+          <div>
+            <label className="text-sm font-medium flex items-center gap-2 mb-2">
+              <span>Medical Prescription</span>
+              <span className="text-red-500">*</span>
+            </label>
+            <div className="space-y-3">
+              {prescriptionFile ? (
+                <div className="flex items-center justify-between p-3 bg-muted rounded-lg border border-green-500">
+                  <div className="flex items-center gap-2">
+                    <Upload className="w-4 h-4 text-green-600" />
+                    <span className="text-sm font-medium truncate">
+                      {prescriptionFile.name}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={removePrescription}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <label className="flex items-center justify-center p-6 border-2 border-dashed border-muted-foreground/25 rounded-lg cursor-pointer hover:border-primary transition">
+                  <input
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png,.gif,.webp"
+                    onChange={handlePrescriptionChange}
+                    className="hidden"
+                  />
+                  <div className="text-center">
+                    <Upload className="w-6 h-6 mx-auto mb-2 text-muted-foreground" />
+                    <p className="text-sm font-medium">
+                      Click to upload prescription
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      PDF or Image (max 5MB)
+                    </p>
+                  </div>
+                </label>
+              )}
+            </div>
+          </div>
+        )}
+
         <div className="flex justify-end gap-2 pt-4">
           <Button
             type="button"
             variant="outline"
-            onClick={() => onOpenChange(false)}
+            onClick={() => {
+              onOpenChange(false);
+              removePrescription();
+            }}
           >
             Cancel
           </Button>

@@ -1,7 +1,4 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
@@ -9,39 +6,60 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-// import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { updateUser } from "@/lib/auth-client";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { DEPARTMENTS, DEPARTMENT_LABELS } from "@/lib/constants";
 
 interface UserSettingsFormProps {
-  initialData: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    department: string;
-    role: string;
+  initialData?: {
+    name?: string;
+    email?: string;
+    phone?: string | null;
+    department?: string | null;
+    role?: string | null;
+    salary?: number | null;
+    address?: string | null;
   };
 }
 
 export const UserSettingsForm = ({ initialData }: UserSettingsFormProps) => {
-  const [formData, setFormData] = useState(initialData);
-  // const [notifications, setNotifications] = useState({
-  //   email: true,
-  //   push: false,
-  //   sms: false,
-  // });
+  const [formData, setFormData] = useState(
+    initialData || {
+      name: "",
+      email: "",
+      phone: null,
+      department: null,
+      role: null,
+      salary: null,
+      address: null,
+    }
+  );
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Update formData when initialData changes
+  useEffect(() => {
+    if (initialData) {
+      setFormData(initialData);
+    }
+  }, [initialData]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Settings updated successfully");
+    try {
+      // updateUser comes from better-auth client and accepts partial user fields
+      const updatePayload: Record<string, string | number | undefined> = {
+        name: formData.name,
+        phone: formData.phone ?? undefined,
+        address: formData.address ?? undefined,
+      };
+
+      await updateUser(updatePayload);
+      toast.success("Settings updated successfully");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to update settings");
+    }
   };
 
   return (
@@ -53,30 +71,16 @@ export const UserSettingsForm = ({ initialData }: UserSettingsFormProps) => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="first-name">First Name</Label>
-                <Input
-                  id="first-name"
-                  value={formData.firstName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, firstName: e.target.value })
-                  }
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="last-name">Last Name</Label>
-                <Input
-                  id="last-name"
-                  value={formData.lastName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, lastName: e.target.value })
-                  }
-                  required
-                />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
+                required
+              />
             </div>
 
             <div className="space-y-2">
@@ -85,9 +89,8 @@ export const UserSettingsForm = ({ initialData }: UserSettingsFormProps) => {
                 id="email"
                 type="email"
                 value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
+                readOnly
+                className="cursor-not-allowed opacity-75"
                 required
               />
             </div>
@@ -97,7 +100,7 @@ export const UserSettingsForm = ({ initialData }: UserSettingsFormProps) => {
               <Input
                 id="phone"
                 type="tel"
-                value={formData.phone}
+                value={formData.phone ?? ""}
                 onChange={(e) =>
                   setFormData({ ...formData, phone: e.target.value })
                 }
@@ -107,49 +110,45 @@ export const UserSettingsForm = ({ initialData }: UserSettingsFormProps) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="department">Department</Label>
-                <Select
-                  value={formData.department}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, department: value })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(DEPARTMENTS).map(([key, value]) => (
-                      <SelectItem key={key} value={value}>
-                        {DEPARTMENT_LABELS[value]}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Input
+                  id="department"
+                  value={formData.department ?? ""}
+                  readOnly
+                  className="cursor-not-allowed opacity-75"
+                />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="role">Role</Label>
-                <Select
-                  value={formData.role}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, role: value })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="HR Manager">HR Manager</SelectItem>
-                    <SelectItem value="Senior Developer">
-                      Senior Developer
-                    </SelectItem>
-                    <SelectItem value="Team Lead">Team Lead</SelectItem>
-                    <SelectItem value="Designer">Designer</SelectItem>
-                    <SelectItem value="Marketing Manager">
-                      Marketing Manager
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
+                <Input
+                  id="role"
+                  value={formData.role ?? ""}
+                  readOnly
+                  className="cursor-not-allowed opacity-75"
+                />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="salary">Salary</Label>
+              <Input
+                id="salary"
+                type="number"
+                value={formData.salary ?? ""}
+                readOnly
+                className="cursor-not-allowed opacity-75"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="address">Address</Label>
+              <Input
+                id="address"
+                value={formData.address ?? ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, address: e.target.value })
+                }
+              />
             </div>
 
             <Button type="submit" className="bg-brand hover:bg-brand/90">

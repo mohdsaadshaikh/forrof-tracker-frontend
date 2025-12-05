@@ -22,6 +22,8 @@ export const leaveFormSchema = z.object({
     .min(10, {
       message: "Reason must be at least 10 characters long",
     }),
+
+  prescriptionUrl: z.string().optional(),
 });
 
 export const leaveFiltersSchema = z.object({

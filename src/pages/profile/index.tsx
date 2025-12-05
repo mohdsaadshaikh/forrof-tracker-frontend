@@ -3,18 +3,10 @@ import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { ChangePasswordForm } from "@/components/profile/ChangePasswordForm";
 import { UserSettingsForm } from "@/components/profile/UserSettingsForm";
 import { ReportIssueForm } from "@/components/profile/ReportIssueForm";
+import { useSession } from "@/lib/auth-client";
 
 const Profile = () => {
-  const userData = {
-    name: "Gavano",
-    email: "gavano@forrof.com",
-    role: "HR Manager",
-    avatarUrl: "/placeholder.svg",
-    firstName: "Gavano",
-    lastName: "Manager",
-    phone: "+1 234 567 8900",
-    department: "HR",
-  };
+  const { data: session } = useSession();
 
   return (
     <div className="space-y-6">
@@ -26,10 +18,10 @@ const Profile = () => {
       </div>
 
       <ProfileHeader
-        name={userData.name}
-        email={userData.email}
-        role={userData.role}
-        avatarUrl={userData.avatarUrl}
+        name={session?.user?.name || "Not Specified"}
+        email={session?.user?.email || "Not Specified"}
+        department={session?.user?.department || "Not Specified"}
+        avatarUrl={session?.user?.image || undefined}
       />
 
       <Tabs defaultValue="settings" className="w-full">
@@ -41,14 +33,29 @@ const Profile = () => {
 
         <TabsContent value="settings" className="mt-6">
           <UserSettingsForm
-            initialData={{
-              firstName: userData.firstName,
-              lastName: userData.lastName,
-              email: userData.email,
-              phone: userData.phone,
-              department: userData.department,
-              role: userData.role,
-            }}
+            initialData={
+              session?.user
+                ? {
+                    name: session.user.name,
+                    email: session.user.email,
+                    phone:
+                      ((session.user as unknown as Record<string, unknown>)
+                        .phone as string | null) || null,
+                    department:
+                      ((session.user as unknown as Record<string, unknown>)
+                        .department as string | null) || null,
+                    role:
+                      ((session.user as unknown as Record<string, unknown>)
+                        .role as string | null) || null,
+                    salary:
+                      ((session.user as unknown as Record<string, unknown>)
+                        .salary as number | null) || null,
+                    address:
+                      ((session.user as unknown as Record<string, unknown>)
+                        .address as string | null) || null,
+                  }
+                : undefined
+            }
           />
         </TabsContent>
 
