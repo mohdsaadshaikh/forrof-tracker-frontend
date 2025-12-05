@@ -40,6 +40,10 @@ const Register = () => {
           password: values.password,
           name: values.name,
           isPasswordChanged: true,
+          department: "",
+          phone: "",
+          salary: 0,
+          address: "",
         },
         {
           onResponse: () => {
