@@ -5,7 +5,21 @@ export const importantLinkSchema = z.object({
     .string()
     .min(1, "Title is required")
     .max(100, "Title must be less than 100 characters"),
-  url: z.string().min(1, "URL is required").url("Please enter a valid URL"),
+  url: z
+    .string()
+    .min(1, "URL is required")
+    .refine(
+      (url) => {
+        // Simple regex that accepts domains with or without protocol
+        const urlRegex =
+          /^(https?:\/\/)?([\da-z.-]+)\.([\da-z.-]{2,6})(\/[\w .-]*)*\/?$/i;
+        return urlRegex.test(url);
+      },
+      {
+        message:
+          "Please enter a valid URL (e.g., example.com or https://example.com)",
+      }
+    ),
 });
 
 export const termsConditionSchema = z.object({

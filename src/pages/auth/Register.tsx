@@ -40,10 +40,6 @@ const Register = () => {
           password: values.password,
           name: values.name,
           isPasswordChanged: true,
-          department: "",
-          phone: "",
-          salary: 0,
-          address: "",
         },
         {
           onResponse: () => {
@@ -139,7 +135,6 @@ const Register = () => {
               <Input
                 id="password"
                 type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
                 {...register("password")}
                 className={
                   errors.password ? "border-destructive pr-10" : "pr-10"

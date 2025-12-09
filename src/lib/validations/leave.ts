@@ -21,6 +21,9 @@ export const leaveFormSchema = z.object({
     })
     .min(10, {
       message: "Reason must be at least 10 characters long",
+    })
+    .max(750, {
+      message: "Reason must be at most 750 characters long",
     }),
 
   prescriptionUrl: z.string().optional(),

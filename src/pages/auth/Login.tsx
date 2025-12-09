@@ -108,7 +108,6 @@ const Login = () => {
               <Input
                 id="password"
                 type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
                 {...register("password")}
                 className={
                   errors.password ? "border-destructive pr-10" : "pr-10"

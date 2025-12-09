@@ -205,6 +205,7 @@ export const useCreateLeave = () => {
       queryClient.invalidateQueries({ queryKey: ["leaves"] });
       queryClient.invalidateQueries({ queryKey: ["my-leaves"] });
       queryClient.invalidateQueries({ queryKey: ["leave-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-leave-stats"] });
     },
     onError: (error: ApiError) => {
       console.log(error);
@@ -236,6 +237,8 @@ export const useUpdateLeaveStatus = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["leaves"] });
       queryClient.invalidateQueries({ queryKey: ["my-leaves"] });
+      queryClient.invalidateQueries({ queryKey: ["leave-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-leave-stats"] });
     },
     onError: (error: ApiError) => {
       toast.error(
@@ -289,6 +292,8 @@ export const useDeleteLeave = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["leaves"] });
       queryClient.invalidateQueries({ queryKey: ["my-leaves"] });
+      queryClient.invalidateQueries({ queryKey: ["leave-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-leave-stats"] });
     },
     onError: (error: ApiError) => {
       toast.error(error.response?.data?.message || "Failed to delete leave");

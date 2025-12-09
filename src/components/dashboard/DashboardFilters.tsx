@@ -43,7 +43,7 @@ export const DashboardFilters = ({
       </Select>
 
       <Select value={department} onValueChange={onDepartmentChange}>
-        <SelectTrigger className="w-[150px] bg-primary text-primary-foreground">
+        <SelectTrigger className="w-[165px] bg-primary text-primary-foreground">
           <SelectValue placeholder="Department" />
         </SelectTrigger>
         <SelectContent>

@@ -5,15 +5,8 @@ import { LeaveStatsCards } from "@/components/leave/LeaveStatsCards";
 import { LeaveTable } from "@/components/leave/LeaveTable";
 import { ViewLeaveDialog } from "@/components/leave/ViewLeaveDialog";
 import ResponsiveDialog from "@/components/ResponsiveDialog";
+import { CustomPagination } from "@/components/CustomPagination";
 import { Button } from "@/components/ui/button";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useToast } from "@/hooks/use-toast";
@@ -166,47 +159,12 @@ const Leaves = () => {
             />
           )}
 
-          {data.totalPages > 1 && (
-            <Pagination className="mt-6">
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    className={
-                      page === 1
-                        ? "pointer-events-none opacity-50"
-                        : "cursor-pointer"
-                    }
-                  />
-                </PaginationItem>
-                {Array.from({ length: data.totalPages }, (_, i) => i + 1).map(
-                  (pageNum) => (
-                    <PaginationItem key={pageNum}>
-                      <PaginationLink
-                        onClick={() => setPage(pageNum)}
-                        isActive={page === pageNum}
-                        className="cursor-pointer"
-                      >
-                        {pageNum}
-                      </PaginationLink>
-                    </PaginationItem>
-                  )
-                )}
-                <PaginationItem>
-                  <PaginationNext
-                    onClick={() =>
-                      setPage((p) => Math.min(data.totalPages, p + 1))
-                    }
-                    className={
-                      page === data.totalPages
-                        ? "pointer-events-none opacity-50"
-                        : "cursor-pointer"
-                    }
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          )}
+          <CustomPagination
+            page={page}
+            totalPages={data.totalPages}
+            onPageChange={setPage}
+            showPageInfo
+          />
         </>
       )}
 

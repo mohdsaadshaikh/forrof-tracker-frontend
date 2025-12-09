@@ -27,6 +27,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface AddEmployeeModalProps {
   open: boolean;
@@ -39,6 +40,7 @@ export function AddEmployeeModal({
 }: AddEmployeeModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const form = useForm<EmployeeFormData>({
     resolver: zodResolver(employeeFormSchema),
@@ -60,6 +62,9 @@ export function AddEmployeeModal({
           department: data.department,
         },
       });
+
+      // Invalidate employees query to refetch the list
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
 
       toast({
         title: "Success",

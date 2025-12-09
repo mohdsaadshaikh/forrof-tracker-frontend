@@ -30,6 +30,7 @@ import {
   leaveFormSchema,
   leaveTypes,
 } from "@/lib/validations/leave";
+import { LEAVE_LABELS } from "@/lib/constants";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { CalendarIcon, Upload, X } from "lucide-react";
@@ -112,7 +113,7 @@ export const ApplyLeaveDialog = ({
     try {
       await createLeave.mutateAsync({
         ...data,
-        prescriptionFile: isSickLeave ? prescriptionFile : null,
+        prescriptionFile: prescriptionFile,
       });
       toast({
         title: "Success",
@@ -140,6 +141,7 @@ export const ApplyLeaveDialog = ({
       >
         <FormField
           // @ts-expect-error - cascading type errors from zodResolver
+
           control={form.control}
           name="leaveType"
           render={({ field }) => (
@@ -147,14 +149,14 @@ export const ApplyLeaveDialog = ({
               <FormLabel>Leave Type</FormLabel>
               <Select onValueChange={field.onChange} value={field.value || ""}>
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select leave type" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
                   {leaveTypes.map((type) => (
                     <SelectItem key={type} value={type}>
-                      {type}
+                      {LEAVE_LABELS[type]}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -272,52 +274,49 @@ export const ApplyLeaveDialog = ({
           )}
         />
 
-        {/* Prescription Upload for Sick Leave */}
-        {isSickLeave && (
-          <div>
-            <label className="text-sm font-medium flex items-center gap-2 mb-2">
-              <span>Medical Prescription</span>
-              <span className="text-red-500">*</span>
-            </label>
-            <div className="space-y-3">
-              {prescriptionFile ? (
-                <div className="flex items-center justify-between p-3 bg-muted rounded-lg border border-green-500">
-                  <div className="flex items-center gap-2">
-                    <Upload className="w-4 h-4 text-green-600" />
-                    <span className="text-sm font-medium truncate">
-                      {prescriptionFile.name}
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={removePrescription}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
+        <div>
+          <label className="text-sm font-medium flex items-center gap-2 mb-2">
+            <span>Medical Prescription</span>
+            <span className="text-red-500">*</span>
+          </label>
+          <div className="space-y-3">
+            {prescriptionFile ? (
+              <div className="flex items-center justify-between p-3 bg-muted rounded-lg border border-green-500">
+                <div className="flex items-center gap-2">
+                  <Upload className="w-4 h-4 text-green-600" />
+                  <span className="text-sm font-medium truncate">
+                    {prescriptionFile.name}
+                  </span>
                 </div>
-              ) : (
-                <label className="flex items-center justify-center p-6 border-2 border-dashed border-muted-foreground/25 rounded-lg cursor-pointer hover:border-primary transition">
-                  <input
-                    type="file"
-                    accept=".pdf,.jpg,.jpeg,.png,.gif,.webp"
-                    onChange={handlePrescriptionChange}
-                    className="hidden"
-                  />
-                  <div className="text-center">
-                    <Upload className="w-6 h-6 mx-auto mb-2 text-muted-foreground" />
-                    <p className="text-sm font-medium">
-                      Click to upload prescription
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      PDF or Image (max 5MB)
-                    </p>
-                  </div>
-                </label>
-              )}
-            </div>
+                <button
+                  type="button"
+                  onClick={removePrescription}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <label className="flex items-center justify-center p-6 border-2 border-dashed border-muted-foreground/25 rounded-lg cursor-pointer hover:border-primary transition">
+                <input
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png,.gif,.webp"
+                  onChange={handlePrescriptionChange}
+                  className="hidden"
+                />
+                <div className="text-center">
+                  <Upload className="w-6 h-6 mx-auto mb-2 text-muted-foreground" />
+                  <p className="text-sm font-medium">
+                    Click to upload prescription
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    PDF or Image (max 5MB)
+                  </p>
+                </div>
+              </label>
+            )}
           </div>
-        )}
+        </div>
 
         <div className="flex justify-end gap-2 pt-4">
           <Button

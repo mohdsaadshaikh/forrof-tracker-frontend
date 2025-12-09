@@ -221,7 +221,7 @@ export const ViewLeaveDialog = ({
           </div>
         )}
 
-        {leave.leaveType === "SICK_LEAVE" && leave.prescriptionUrl && (
+        {leave.prescriptionUrl && (
           <div className="space-y-2 pt-4 border-t">
             <p className="text-sm font-medium">Medical Prescription</p>
             <div className="flex gap-2">
