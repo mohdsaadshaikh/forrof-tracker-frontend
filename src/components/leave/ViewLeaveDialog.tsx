@@ -12,36 +12,6 @@ interface ViewLeaveDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const getStatusVariant = (status: string) => {
-  switch (status) {
-    case "APPROVED":
-      return "default";
-    case "REJECTED":
-      return "destructive";
-    case "PENDING":
-      return "secondary";
-    case "CANCELLED":
-      return "outline";
-    default:
-      return "outline";
-  }
-};
-
-const getStatusLabel = (status: string) => {
-  switch (status) {
-    case "APPROVED":
-      return "Approved";
-    case "REJECTED":
-      return "Rejected";
-    case "PENDING":
-      return "Pending";
-    case "CANCELLED":
-      return "Cancelled";
-    default:
-      return status;
-  }
-};
-
 export const ViewLeaveDialog = ({
   leave,
   open,
@@ -125,8 +95,16 @@ export const ViewLeaveDialog = ({
             <h3 className="text-xl font-semibold">{leave.employee.name}</h3>
             <p className="text-sm text-muted-foreground">{leave.employee.id}</p>
           </div>
-          <Badge variant={getStatusVariant(leave.status)} className="text-sm">
-            {getStatusLabel(leave.status)}
+          <Badge
+            className={
+              leave.status === "APPROVED"
+                ? "bg-green-500 hover:bg-green-600"
+                : leave.status === "REJECTED"
+                ? "bg-red-500 hover:bg-red-600"
+                : "bg-gray-200 hover:bg-gray-300 text-gray-800"
+            }
+          >
+            {leave.status}
           </Badge>
         </div>
 
@@ -213,7 +191,7 @@ export const ViewLeaveDialog = ({
         </div>
 
         {leave.reason && (
-          <div className="space-y-2 pt-4 border-t">
+          <div className="space-y-2 py-4 border-y">
             <p className="text-sm font-medium">Reason</p>
             <p className="text-sm text-muted-foreground leading-relaxed">
               {leave.reason}
@@ -222,7 +200,7 @@ export const ViewLeaveDialog = ({
         )}
 
         {leave.prescriptionUrl && (
-          <div className="space-y-2 pt-4 border-t">
+          <div className="space-y-2 pb-4 border-b">
             <p className="text-sm font-medium">Medical Prescription</p>
             <div className="flex gap-2">
               <Button
@@ -238,9 +216,42 @@ export const ViewLeaveDialog = ({
         )}
 
         {leave.approvalNotes && (
-          <div className="space-y-2 pt-4 border-t">
-            <p className="text-sm font-medium">Approval Notes</p>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+          <div
+            className={`pt-2 rounded-md p-3 space-y-2 border ${
+              leave.status === "APPROVED"
+                ? "bg-green-50 border-green-300"
+                : "bg-red-50 border-red-300"
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <h4
+                className={`font-semibold text-sm ${
+                  leave.status === "APPROVED"
+                    ? "text-green-900"
+                    : "text-red-900"
+                }`}
+              >
+                {leave.status === "APPROVED"
+                  ? "Approval Details"
+                  : "Rejection Details"}
+              </h4>
+              {leave.approvalDate && (
+                <span
+                  className={`text-xs ${
+                    leave.status === "APPROVED"
+                      ? "text-green-700"
+                      : "text-red-700"
+                  }`}
+                >
+                  {format(new Date(leave.approvalDate), "MMM dd, yyyy")}
+                </span>
+              )}
+            </div>
+            <p
+              className={`text-sm leading-relaxed ${
+                leave.status === "APPROVED" ? "text-green-800" : "text-red-800"
+              }`}
+            >
               {leave.approvalNotes}
             </p>
           </div>

@@ -16,7 +16,10 @@ export const loginSchema = z.object({
 });
 
 export const registerSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
+  name: z
+    .string()
+    .min(2, "Name must be at least 2 characters")
+    .regex(/^[a-zA-Z\s]+$/, "Name must contain only alphabets"),
   email: z.string().email("Please enter a valid email address"),
   password: passwordSchema,
 });

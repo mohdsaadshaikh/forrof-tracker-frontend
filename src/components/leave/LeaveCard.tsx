@@ -1,160 +1,143 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Eye, Trash2, Calendar, Clock } from "lucide-react";
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
-import { leaveStatuses } from "@/lib/validations/leave";
+import { Eye, Trash2, Calendar, Clock, Check, X } from "lucide-react";
+import { ApprovalDialog } from "@/components/leave/ApprovalDialog";
 import { format } from "date-fns";
 import { type Leave } from "@/hooks/useLeaveData";
 import { useSession } from "@/lib/auth-client";
+import { useState } from "react";
 
 interface LeaveCardProps {
   leave: Leave;
   onView: (leave: Leave) => void;
-  onApprove?: (id: string) => void;
-  onReject?: (id: string) => void;
   onDelete: (id: string) => void;
-  onStatusChange?: (id: string, status: string) => void;
+  onStatusChange?: (id: string, status: string, approvalNotes?: string) => void;
 }
-
-const getStatusVariant = (status: string) => {
-  switch (status) {
-    case "APPROVED":
-      return "default";
-    case "REJECTED":
-      return "destructive";
-    case "PENDING":
-      return "secondary";
-    case "CANCELLED":
-      return "outline";
-    default:
-      return "outline";
-  }
-};
-
-const getStatusClassName = (status: string) => {
-  if (status === "APPROVED") return "bg-green-500 hover:bg-green-600";
-  if (status === "REJECTED") return "bg-red-500 hover:bg-red-600";
-  if (status === "PENDING") return "bg-gray-200 hover:bg-gray-300";
-  return "";
-};
-
-const getStatusLabel = (status: string) => {
-  switch (status) {
-    case "APPROVED":
-      return "Approved";
-    case "REJECTED":
-      return "Rejected";
-    case "PENDING":
-      return "Pending";
-    case "CANCELLED":
-      return "Cancelled";
-    default:
-      return status;
-  }
-};
 
 export const LeaveCard = ({
   leave,
   onView,
-  onStatusChange,
   onDelete,
+  onStatusChange,
 }: LeaveCardProps) => {
   const { data: session } = useSession();
+  const [approvalDialogOpen, setApprovalDialogOpen] = useState(false);
+  const [actionType, setActionType] = useState<"APPROVE" | "REJECT">("APPROVE");
+
+  const handleApproveClick = () => {
+    setActionType("APPROVE");
+    setApprovalDialogOpen(true);
+  };
+
+  const handleRejectClick = () => {
+    setActionType("REJECT");
+    setApprovalDialogOpen(true);
+  };
+
+  const handleApprovalConfirm = (leaveId: string, notes: string) => {
+    const status = actionType === "APPROVE" ? "APPROVED" : "REJECTED";
+    onStatusChange?.(leaveId, status, notes);
+  };
+
   return (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardHeader>
-        <div className="flex justify-between items-start">
-          <h3 className="font-semibold text-lg">{leave.employee.name}</h3>
-          {session?.user.role === "admin" && (
-            <Select
-              value={leave.status}
-              onValueChange={(value) => onStatusChange?.(leave.id, value)}
+    <>
+      <Card className="hover:shadow-md transition-shadow">
+        <CardHeader>
+          <div className="flex justify-between items-start">
+            <h3 className="font-semibold text-lg">{leave.employee.name}</h3>
+            <Badge
+              className={
+                leave.status === "APPROVED"
+                  ? "bg-green-500 hover:bg-green-600"
+                  : leave.status === "REJECTED"
+                  ? "bg-red-500 hover:bg-red-600"
+                  : "bg-gray-200 hover:bg-gray-300 text-gray-800"
+              }
             >
-              <SelectTrigger className="w-[130px] h-9 border-0">
-                <Badge
-                  variant={getStatusVariant(leave.status)}
-                  className={`border-0 font-medium ${getStatusClassName(
-                    leave.status
-                  )}`}
-                >
-                  {getStatusLabel(leave.status)}
-                </Badge>
-              </SelectTrigger>
+              {leave.status}
+            </Badge>
+          </div>
+        </CardHeader>
 
-              <SelectContent>
-                {leaveStatuses.map((status) => (
-                  <SelectItem key={status} value={status}>
-                    <Badge
-                      variant={getStatusVariant(status)}
-                      className={`border-0 font-medium ${getStatusClassName(
-                        status
-                      )}`}
-                    >
-                      {getStatusLabel(status)}
-                    </Badge>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        <CardContent className="space-y-3">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="font-medium">Type:</span>
+              <span className="text-muted-foreground">
+                {leave.leaveType.replace(/_/g, " ")}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <span className="text-muted-foreground">
+                {format(new Date(leave.startDate), "MMM dd")} –{" "}
+                {format(new Date(leave.endDate), "MMM dd, yyyy")}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <Clock className="h-4 w-4 text-muted-foreground" />
+              <span className="text-muted-foreground">
+                {leave.duration} days
+              </span>
+            </div>
+          </div>
+
+          {leave.reason && (
+            <div className="pt-2 border-t">
+              <p className="text-xs text-muted-foreground">
+                <span className="font-bold">Reason:</span> {leave.reason}
+              </p>
+            </div>
           )}
-        </div>
-      </CardHeader>
 
-      <CardContent className="space-y-3">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2 text-sm">
-            <span className="font-medium">Type:</span>
-            <span className="text-muted-foreground">
-              {leave.leaveType.replace(/_/g, " ")}
-            </span>
+          <div className="flex gap-2 pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1"
+              onClick={() => onView(leave)}
+            >
+              <Eye className="h-4 w-4 mr-1" />
+              View
+            </Button>
+            {session?.user.role === "admin" && leave.status === "PENDING" && (
+              <>
+                <Button
+                  size="sm"
+                  className="bg-green-600 hover:bg-green-700"
+                  onClick={handleApproveClick}
+                >
+                  <Check className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={handleRejectClick}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onDelete(leave.id)}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
           </div>
-          <div className="flex items-center gap-2 text-sm">
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span className="text-muted-foreground">
-              {format(new Date(leave.startDate), "MMM dd")} –{" "}
-              {format(new Date(leave.endDate), "MMM dd, yyyy")}
-            </span>
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <Clock className="h-4 w-4 text-muted-foreground" />
-            <span className="text-muted-foreground">{leave.duration} days</span>
-          </div>
-        </div>
+        </CardContent>
+      </Card>
 
-        {leave.reason && (
-          <div className="pt-2 border-t">
-            <p className="text-xs text-muted-foreground">
-              <span className="font-bold">Reason:</span> {leave.reason}
-            </p>
-          </div>
-        )}
-
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="flex-1"
-            onClick={() => onView(leave)}
-          >
-            <Eye className="h-4 w-4 mr-1" />
-            View
-          </Button>
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onDelete(leave.id)}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+      <ApprovalDialog
+        open={approvalDialogOpen}
+        onOpenChange={setApprovalDialogOpen}
+        leaveId={leave.id}
+        employeeName={leave.employee.name}
+        actionType={actionType}
+        onConfirm={handleApprovalConfirm}
+      />
+    </>
   );
 };

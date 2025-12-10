@@ -1,0 +1,230 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Bell,
+  X,
+  CheckCircle,
+  LogOut,
+  FileText,
+  AlertCircle,
+  Loader2,
+} from "lucide-react";
+import { format } from "date-fns";
+import {
+  useServerNotifications,
+  useUnreadCount,
+  useMarkNotificationAsRead,
+  useMarkAllAsRead,
+  useDeleteNotification,
+  type ServerNotification,
+} from "@/hooks/useServerNotifications";
+
+const notificationConfig = {
+  "check-in": {
+    icon: CheckCircle,
+    gradient: "from-green-500 to-emerald-600",
+    bgGradient: "from-green-50 to-emerald-50",
+    borderColor: "border-green-200",
+    textColor: "text-green-900",
+    label: "Check In",
+  },
+  "check-out": {
+    icon: LogOut,
+    gradient: "from-blue-500 to-cyan-600",
+    bgGradient: "from-blue-50 to-cyan-50",
+    borderColor: "border-blue-200",
+    textColor: "text-blue-900",
+    label: "Check Out",
+  },
+  announcement: {
+    icon: FileText,
+    gradient: "from-indigo-500 to-blue-600",
+    bgGradient: "from-indigo-50 to-blue-50",
+    borderColor: "border-indigo-200",
+    textColor: "text-indigo-900",
+    label: "Announcement",
+  },
+  leave: {
+    icon: AlertCircle,
+    gradient: "from-rose-500 to-red-600",
+    bgGradient: "from-rose-50 to-red-50",
+    borderColor: "border-rose-200",
+    textColor: "text-rose-900",
+    label: "Leave",
+  },
+};
+
+export const NotificationCenter = () => {
+  const [open, setOpen] = useState(false);
+  const [page] = useState(1);
+
+  const { data: notificationsData, isLoading: isLoadingNotifications } =
+    useServerNotifications(page, 20);
+  const { data: unreadData } = useUnreadCount();
+  const markAsReadMutation = useMarkNotificationAsRead();
+  const markAllAsReadMutation = useMarkAllAsRead();
+  const deleteNotificationMutation = useDeleteNotification();
+
+  const notifications = notificationsData?.data || [];
+  const unreadCount = unreadData?.count || 0;
+
+  const NotificationItem = ({
+    notification,
+  }: {
+    notification: ServerNotification;
+  }) => {
+    const config =
+      notificationConfig[notification.type as keyof typeof notificationConfig];
+    const IconComponent = config.icon;
+
+    const handleMarkAsRead = () => {
+      if (!notification.isRead) {
+        markAsReadMutation.mutate(notification.id);
+      }
+    };
+
+    const handleDelete = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      deleteNotificationMutation.mutate(notification.id);
+    };
+
+    return (
+      <div
+        className={`px-4 py-2 rounded-lg border-2 ${config.borderColor} ${config.bgGradient} transition-all hover:shadow-md cursor-pointer`}
+        onClick={handleMarkAsRead}
+      >
+        <div className="flex gap-3">
+          {/* Icon with gradient background */}
+          <div
+            className={`shrink-0 h-9 w-9 rounded-md bg-linear-to-br ${config.gradient} flex items-center justify-center mt-1`}
+          >
+            <IconComponent className="h-[18px] w-[18px] text-white" />
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h4 className={`font-semibold text-sm ${config.textColor}`}>
+                    {config.label}
+                  </h4>
+                  {!notification.isRead && (
+                    <span
+                      className={`h-2 w-2 rounded-full bg-linear-to-r ${config.gradient}`}
+                    ></span>
+                  )}
+                </div>
+                <p className={`text-xs ${config.textColor} opacity-75 mt-1`}>
+                  {notification.message}
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 shrink-0"
+                onClick={handleDelete}
+                disabled={deleteNotificationMutation.isPending}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Footer with timestamp */}
+            <div className="flex items-center justify-between mt-2">
+              <span className={`text-xs ${config.textColor} opacity-60`}>
+                {format(new Date(notification.createdAt), "MMM dd, hh:mm a")}
+              </span>
+              {notification.data?.category && (
+                <span
+                  className={`text-xs font-medium px-2 py-1 rounded ${config.bgGradient} ${config.textColor}`}
+                >
+                  {notification.data.category}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button variant="ghost" size="icon" className="relative">
+          <Bell className="h-5! w-5!" />
+          {unreadCount > 0 && (
+            <span className="absolute top-0 right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-light">
+              {unreadCount > 9 ? "9+" : unreadCount}
+            </span>
+          )}
+        </Button>
+      </PopoverTrigger>
+
+      <PopoverContent className="w-96 p-0 overflow-hidden" align="end">
+        <div className="flex flex-col max-h-[520px]">
+          {/* Header */}
+          <div className="sticky top-0 z-10 bg-white border-b p-4 shrink-0">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Notifications</h2>
+              <span className="text-sm text-muted-foreground">
+                {unreadCount} unread
+              </span>
+            </div>
+          </div>
+
+          {/* Notifications List */}
+          {isLoadingNotifications ? (
+            <div className="flex flex-col items-center justify-center py-12 px-4">
+              <Loader2 className="h-8 w-8 text-muted-foreground animate-spin" />
+              <p className="text-sm text-muted-foreground mt-2">Loading...</p>
+            </div>
+          ) : notifications.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 px-4">
+              <Bell className="h-10 w-10 text-muted-foreground mb-2 opacity-50" />
+              <p className="text-sm text-muted-foreground">No notifications</p>
+            </div>
+          ) : (
+            <ScrollArea className="h-[400px] w-full">
+              <div className={`p-3 space-y-2 `}>
+                {notifications.map((notification) => (
+                  <NotificationItem
+                    key={notification.id}
+                    notification={notification}
+                  />
+                ))}
+              </div>
+            </ScrollArea>
+          )}
+          {unreadCount > 0 && (
+            <div className="p-3 w-full border-t">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => markAllAsReadMutation.mutate()}
+                className="w-full text-xs"
+                disabled={markAllAsReadMutation.isPending}
+              >
+                {markAllAsReadMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-3 w-3 mr-2 animate-spin" />
+                    Marking...
+                  </>
+                ) : (
+                  "Mark all as read"
+                )}
+              </Button>
+            </div>
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+};

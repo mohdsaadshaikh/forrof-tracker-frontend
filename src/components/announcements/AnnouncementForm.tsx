@@ -57,10 +57,19 @@ const AnnouncementForm = ({
 
   const onSubmit = async (data: AnnouncementFormData) => {
     try {
+      // Convert "all" to null for backend compatibility
+      const submitData = {
+        ...data,
+        department: data.department === "all" ? null : data.department,
+      };
+
       if (isEdit && announcement) {
-        await updateMutation.mutateAsync({ id: announcement.id, data });
+        await updateMutation.mutateAsync({
+          id: announcement.id,
+          data: submitData as AnnouncementFormData,
+        });
       } else {
-        await createMutation.mutateAsync(data);
+        await createMutation.mutateAsync(submitData as AnnouncementFormData);
       }
       form.reset();
       onSuccess();
@@ -150,9 +159,10 @@ const AnnouncementForm = ({
                     <SelectItem value="all">All Departments</SelectItem>
                     <SelectItem value="IT">IT</SelectItem>
                     <SelectItem value="HR">HR</SelectItem>
-                    <SelectItem value="Marketing">Marketing</SelectItem>
-                    <SelectItem value="Sales">Sales</SelectItem>
-                    <SelectItem value="Finance">Finance</SelectItem>
+                    <SelectItem value="MARKETING">Marketing</SelectItem>
+                    <SelectItem value="SALES">Sales</SelectItem>
+                    <SelectItem value="FINANCE">Finance</SelectItem>
+                    <SelectItem value="OPERATIONS">Operations</SelectItem>
                   </SelectContent>
                 </Select>
               </FormControl>

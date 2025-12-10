@@ -1,3 +1,4 @@
+import { NotificationCenter } from "@/components/NotificationCenter";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -10,7 +11,7 @@ import {
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useAuthState } from "@/hooks/useAuthState";
 import { signOut, useSession } from "@/lib/auth-client";
-import { Bell, LogOut, User } from "lucide-react";
+import { LogOut, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -77,8 +78,8 @@ const Header = () => {
     <header className="h-16 border-b flex items-center md:justify-end justify-between px-4 sticky top-0 bg-background z-10">
       <SidebarTrigger className="md:hidden" />
       <div className="flex items-center gap-4">
-        <Bell className="h-5 w-5 text-muted-foreground cursor-pointer hover:text-foreground transition-colors" />
-
+        {/* <Bell className="h-5 w-5 text-muted-foreground cursor-pointer hover:text-foreground transition-colors" /> */}
+        <NotificationCenter />
         <DropdownMenu>
           <DropdownMenuTrigger className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
             <div className="text-right">

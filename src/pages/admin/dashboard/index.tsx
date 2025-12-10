@@ -32,24 +32,28 @@ const Dashboard = () => {
       value: data?.stats.activeEmployees || 0,
       icon: Users,
       trend: { text: "2 new employees added", type: "neutral" as const },
+      color: "green" as const,
     },
     {
       title: "Inactive Employees",
       value: data?.stats.inactiveEmployees || 0,
       icon: UserMinus,
       trend: { text: "+5% Increase than yesterday", type: "up" as const },
+      color: "red" as const,
     },
     {
       title: "Laid Off Employees",
       value: data?.stats.laidOffEmployees || 0,
       icon: UserX,
       trend: { text: "+3% Increase than yesterday", type: "up" as const },
+      color: "red-light" as const,
     },
     {
       title: "Total Hours Logged",
       value: data?.stats.totalHoursLogged || 0,
       icon: Clock,
       trend: { text: "-10% Less than yesterday", type: "down" as const },
+      color: "blue" as const,
     },
   ];
 
@@ -59,28 +63,28 @@ const Dashboard = () => {
       value: data?.stats.checkInToday || 0,
       icon: LogIn,
       trend: { text: "-10% Less than yesterday", type: "down" as const },
-      highlighted: false,
+      color: "blue" as const,
     },
     {
       title: "CheckOut Today",
       value: data?.stats.checkOutToday || 0,
       icon: LogOut,
       trend: { text: "+3% Increase than yesterday", type: "up" as const },
-      highlighted: true,
+      color: "orange" as const,
     },
     {
       title: "Late CheckIn",
       value: data?.stats.lateCheckIn || 0,
       icon: Moon,
       trend: { text: "-10% Less than yesterday", type: "down" as const },
-      highlighted: false,
+      color: "yellow" as const,
     },
     {
       title: "On Leave",
       value: data?.stats.onLeave || 0,
       icon: Plane,
       trend: { text: "2% Increase than yesterday", type: "up" as const },
-      highlighted: false,
+      color: "purple" as const,
     },
   ];
 
@@ -154,4 +158,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-

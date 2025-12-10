@@ -14,43 +14,6 @@ interface EmployeeLeaveCardProps {
   onDelete: (id: string) => void;
 }
 
-const getStatusVariant = (status: string) => {
-  switch (status) {
-    case "APPROVED":
-      return "default";
-    case "REJECTED":
-      return "destructive";
-    case "PENDING":
-      return "secondary";
-    case "CANCELLED":
-      return "outline";
-    default:
-      return "outline";
-  }
-};
-
-const getStatusClassName = (status: string) => {
-  if (status === "APPROVED") return "bg-green-500 hover:bg-green-600";
-  if (status === "REJECTED") return "bg-red-500 hover:bg-red-600";
-  if (status === "PENDING") return "bg-gray-200 hover:bg-gray-300";
-  return "";
-};
-
-const getStatusLabel = (status: string) => {
-  switch (status) {
-    case "APPROVED":
-      return "Approved";
-    case "REJECTED":
-      return "Rejected";
-    case "PENDING":
-      return "Pending";
-    case "CANCELLED":
-      return "Cancelled";
-    default:
-      return status;
-  }
-};
-
 export const EmployeeLeaveCard = ({
   leave,
   onView,
@@ -68,12 +31,15 @@ export const EmployeeLeaveCard = ({
             {leave.leaveType.replace(/_/g, " ")}
           </h3>
           <Badge
-            variant={getStatusVariant(leave.status)}
-            className={`border-0 font-medium ${getStatusClassName(
-              leave.status
-            )}`}
+            className={
+              leave.status === "APPROVED"
+                ? "bg-green-500 hover:bg-green-600"
+                : leave.status === "REJECTED"
+                ? "bg-red-500 hover:bg-red-600"
+                : "bg-gray-200 hover:bg-gray-300 text-gray-800"
+            }
           >
-            {getStatusLabel(leave.status)}
+            {leave.status}
           </Badge>
         </div>
       </CardHeader>
@@ -101,14 +67,23 @@ export const EmployeeLeaveCard = ({
           </div>
         )}
 
-        {leave.approvalNotes && leave.status === "REJECTED" && (
-          <div className="pt-2 border-t bg-red-50 p-2 rounded">
-            <p className="text-xs text-red-800">
-              <span className="font-medium">Rejection reason:</span>{" "}
+        {/* {leave.approvalNotes && (
+          <div className="pt-2 border-t bg-red-50 rounded-lg p-3 space-y-2">
+            <div className="flex items-center justify-between">
+              <h4 className="font-semibold text-sm text-red-900">
+                Rejection Details
+              </h4>
+              {leave.approvalDate && (
+                <span className="text-xs text-red-700">
+                  {format(new Date(leave.approvalDate), "MMM dd, yyyy")}
+                </span>
+              )}
+            </div>
+            <p className="text-sm text-red-800 leading-relaxed">
               {leave.approvalNotes}
             </p>
           </div>
-        )}
+        )} */}
 
         <div className="flex gap-2">
           <Button

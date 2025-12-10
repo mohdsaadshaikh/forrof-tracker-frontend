@@ -49,9 +49,13 @@ const Leaves = () => {
   const updateStatus = useUpdateLeaveStatus();
   const deleteLeave = useDeleteLeave();
 
-  const handleStatusChange = async (id: string, newStatus: string) => {
+  const handleStatusChange = async (
+    id: string,
+    newStatus: string,
+    approvalNotes?: string
+  ) => {
     try {
-      await updateStatus.mutateAsync({ id, status: newStatus });
+      await updateStatus.mutateAsync({ id, status: newStatus, approvalNotes });
       toast({
         title: "Success",
         description: `Leave request ${newStatus.toLowerCase()}`,
@@ -97,7 +101,7 @@ const Leaves = () => {
   };
 
   return (
-    <div className="container space-y-6">
+    <div className="space-y-6 w-full">
       <div>
         <h1 className="text-3xl font-bold">Leave Management</h1>
         <p className="text-muted-foreground mt-1">
@@ -143,8 +147,6 @@ const Leaves = () => {
                   key={leave.id}
                   leave={leave}
                   onView={handleView}
-                  onApprove={(id) => handleStatusChange(id, "APPROVED")}
-                  onReject={(id) => handleStatusChange(id, "REJECTED")}
                   onDelete={handleDelete}
                   onStatusChange={handleStatusChange}
                 />

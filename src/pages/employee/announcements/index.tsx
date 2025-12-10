@@ -5,6 +5,7 @@ import { useEmployeeAnnouncements } from "@/hooks/useEmployeeAnnouncements";
 import EmployeeAnnouncementCard from "@/components/announcements/EmployeeAnnouncementCard";
 import { Input } from "@/components/ui/input";
 import { useSession } from "@/lib/auth-client";
+import { Search } from "lucide-react";
 
 export default function EmployeeAnnouncements() {
   const [search, setSearch] = useState("");
@@ -55,13 +56,15 @@ export default function EmployeeAnnouncements() {
           Stay updated with company-wide and department-specific announcements
         </p>
       </div>
-
-      <Input
-        placeholder="Search announcements..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="max-w-md"
-      />
+      <div className="relative flex-1 max-w-md">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Search announcements..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="max-w-md pl-10"
+        />
+      </div>
 
       <div className="space-y-4">
         {data?.announcements && data.announcements.length > 0 ? (
