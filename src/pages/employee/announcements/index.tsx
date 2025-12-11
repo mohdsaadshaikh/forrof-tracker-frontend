@@ -6,16 +6,18 @@ import EmployeeAnnouncementCard from "@/components/announcements/EmployeeAnnounc
 import { Input } from "@/components/ui/input";
 import { useSession } from "@/lib/auth-client";
 import { Search } from "lucide-react";
+import { useDebounce } from "use-debounce";
 
 export default function EmployeeAnnouncements() {
-  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch] = useDebounce(searchInput, 750);
   const [currentPage, setCurrentPage] = useState(1);
   const { data: session } = useSession();
 
   const { data, isLoading, isError, error } = useEmployeeAnnouncements({
     page: currentPage,
     pageSize: 10,
-    search,
+    search: debouncedSearch,
   });
 
   console.log("Session:", session);
@@ -60,8 +62,8 @@ export default function EmployeeAnnouncements() {
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           placeholder="Search announcements..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
           className="max-w-md pl-10"
         />
       </div>

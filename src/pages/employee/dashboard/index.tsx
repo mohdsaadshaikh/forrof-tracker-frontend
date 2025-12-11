@@ -10,12 +10,12 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { useAnnouncements } from "@/hooks/useAnnouncements";
+import { useEmployeeAnnouncements } from "@/hooks/useEmployeeAnnouncements";
 import {
   useEmployeeDashboardStats,
   useWeeklyHours,
 } from "@/hooks/useEmployeeDashboardStats";
-import { Clock, LogIn, LogOut, CheckCircle } from "lucide-react";
+import { CheckCircle, Clock, LogIn, LogOut } from "lucide-react";
 import {
   Bar,
   BarChart,
@@ -35,7 +35,7 @@ export default function EmployeeDashboard() {
   // const userName = session?.user?.name || "Employee";
 
   const { data: announcements, isLoading: isLoadingAnnouncements } =
-    useAnnouncements();
+    useEmployeeAnnouncements();
   const { data: dashboardStats, isLoading: isLoadingStats } =
     useEmployeeDashboardStats();
   const { data: weeklyHoursData } = useWeeklyHours();
