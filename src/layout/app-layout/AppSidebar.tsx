@@ -22,6 +22,8 @@ import {
   Briefcase,
   Calendar,
   Settings,
+  FolderOpen,
+  Building,
 } from "lucide-react";
 
 type MenuItem = {
@@ -54,6 +56,13 @@ export function AppSidebar() {
       roles: ["admin"],
     },
     {
+      url: "/departments",
+      icon: Building,
+      adminTitle: "Departments",
+      employeeTitle: "Departments",
+      roles: ["admin"],
+    },
+    {
       url: "/attendance",
       icon: CalendarCheck,
       adminTitle: "Attendance Tracking",
@@ -73,6 +82,13 @@ export function AppSidebar() {
       adminTitle: "Announcements",
       employeeTitle: "Company Updates",
       roles: ["admin", "employee"],
+    },
+    {
+      url: "/projects",
+      icon: FolderOpen,
+      adminTitle: "Projects",
+      employeeTitle: "Projects",
+      roles: ["admin"],
     },
     {
       url: "/settings",
