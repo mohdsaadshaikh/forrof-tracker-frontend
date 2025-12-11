@@ -47,8 +47,8 @@ export const useServerNotifications = (
       );
       return data;
     },
-    staleTime: 30000, // 30 seconds
-    refetchInterval: 30000, // Refetch every 30 seconds
+    staleTime: 120000, // 2 minutes
+    refetchInterval: 120000, // Refetch every 2
   });
 };
 

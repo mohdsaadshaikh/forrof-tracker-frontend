@@ -11,31 +11,51 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { useAnnouncements } from "@/hooks/useAnnouncements";
-import { Calendar, MoveDownLeft, MoveUpRight } from "lucide-react";
+import {
+  useEmployeeDashboardStats,
+  useWeeklyHours,
+} from "@/hooks/useEmployeeDashboardStats";
+import { Clock, LogIn, LogOut, CheckCircle } from "lucide-react";
 import {
   Bar,
   BarChart,
   CartesianGrid,
+  Cell,
   ResponsiveContainer,
   XAxis,
   YAxis,
 } from "recharts";
 
-const weeklyHoursData = [
-  { Days: "Mon", hours: 40 },
-  { Days: "Tue", hours: 25 },
-  { Days: "Wed", hours: 42 },
-  { Days: "Thu", hours: 78 },
-  { Days: "Fri", hours: 45 },
-  { Days: "Sat", hours: 10 },
-];
+const getBarColor = (day: string) => {
+  return day === "Sat" || day === "Sun" ? "#FF0000" : "#01339a";
+};
 
 export default function EmployeeDashboard() {
   // const { data: session } = useSession();
   // const userName = session?.user?.name || "Employee";
 
-  const { data, isLoading } = useAnnouncements();
-  const announcements = data?.announcements || [];
+  const { data: announcements, isLoading: isLoadingAnnouncements } =
+    useAnnouncements();
+  const { data: dashboardStats, isLoading: isLoadingStats } =
+    useEmployeeDashboardStats();
+  const { data: weeklyHoursData } = useWeeklyHours();
+
+  const announcementsList = announcements?.announcements || [];
+  const stats = dashboardStats || {
+    checkInTime: "N/A",
+    checkOutTime: "N/A",
+    leavesApproved: 0,
+    leavesPending: 0,
+  };
+  const chartData = weeklyHoursData || [
+    { Days: "Mon", hours: 0 },
+    { Days: "Tue", hours: 0 },
+    { Days: "Wed", hours: 0 },
+    { Days: "Thu", hours: 0 },
+    { Days: "Fri", hours: 0 },
+    { Days: "Sat", hours: 0 },
+    { Days: "Sun", hours: 0 },
+  ];
 
   return (
     <div className="space-y-6">
@@ -61,109 +81,96 @@ export default function EmployeeDashboard() {
       </Card> */}
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Check-in */}
-        <Card>
+        <Card className="bg-gradient-to-b from-blue-50 to-white">
           <CardContent>
             <div className="flex justify-between items-start">
               <div className="flex flex-col gap-1">
-                <p className="text-3xl text-indigo-900 font-semibold">9:30</p>
-                <p className="text-indigo-900 font-medium">CheckIn Today</p>
-                <p className="flex items-center gap-1 text-sm text-slate-400">
+                <p className="text-3xl text-blue-700 font-semibold">
+                  {isLoadingStats ? "..." : stats.checkInTime}
+                </p>
+                <p className="text-blue-700 font-medium">CheckIn Today</p>
+                {/* <p className="flex items-center gap-1 text-sm text-slate-400">
                   <span className="p-1 bg-red-200 rounded-full">
                     <MoveDownLeft className="h-3 w-3 text-red-600" />
                   </span>
                   30 Minutes Late
-                </p>
+                </p> */}
               </div>
-              <div className="p-2 bg-indigo-100 rounded-full">
-                <Calendar className="h-5 w-5 text-indigo-900" />
+              <div className="p-2 bg-blue-100 rounded-full">
+                <LogIn className="h-5 w-5 text-blue-600" />
               </div>
             </div>
           </CardContent>
         </Card>
 
         {/* Check-out */}
-        <Card>
+        <Card className="bg-gradient-to-b from-orange-50 to-white">
           <CardContent>
             <div className="flex justify-between items-start">
               <div className="flex flex-col gap-1">
-                <p className="text-3xl text-indigo-900 font-semibold">5:00</p>
-                <p className="text-indigo-900 font-medium w-fit whitespace-nowrap">
+                <p className="text-3xl text-orange-700 font-semibold">
+                  {isLoadingStats ? "..." : stats.checkOutTime}
+                </p>
+                <p className="text-orange-700 font-medium w-fit whitespace-nowrap">
                   CheckOut Today
                 </p>
-                <p className="flex items-center gap-1 text-sm text-slate-400">
+                {/* <p className="flex items-center gap-1 text-sm text-slate-400">
                   <span className="p-1 bg-green-200 rounded-full">
                     <MoveUpRight className="h-3 w-3 text-green-600" />
                   </span>
                   On Time
-                </p>
+                </p> */}
               </div>
-              <div className="p-2 bg-indigo-100 rounded-full">
-                <Calendar className="h-5 w-5 text-indigo-900" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Late Checks */}
-        <Card>
-          <CardContent>
-            <div className="flex justify-between items-start">
-              <div className="flex flex-col gap-1">
-                <p className="text-3xl text-indigo-900 font-semibold">2</p>
-                <p className="text-indigo-900 font-medium">Late Checks</p>
-                <p className="flex items-center gap-2 text-sm text-slate-400">
-                  <span className="p-1 bg-red-200 rounded-full">
-                    <MoveDownLeft className="h-3 w-3 text-red-600" />
-                  </span>
-                  Decline
-                </p>
-              </div>
-              <div className="p-2 bg-indigo-100 rounded-full">
-                <Calendar className="h-5 w-5 text-indigo-900" />
+              <div className="p-2 bg-orange-100 rounded-full">
+                <LogOut className="h-5 w-5 text-orange-600" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Weekly Fine */}
-        <Card>
+        {/* Leaves Approved */}
+        <Card className="bg-gradient-to-b from-green-50 to-white">
           <CardContent>
             <div className="flex justify-between items-start">
               <div className="flex flex-col gap-1">
-                <p className="text-3xl text-indigo-900 font-semibold">$20</p>
-                <p className="text-indigo-900 font-medium">Weekly Fine</p>
-                <p className="flex items-center gap-1 text-sm text-slate-400">
+                <p className="text-3xl text-green-700 font-semibold">
+                  {isLoadingStats ? "..." : stats.leavesApproved}
+                </p>
+                <p className="text-green-700 font-medium">Leaves Approved</p>
+                {/* <p className="flex items-center gap-2 text-sm text-slate-400">
                   <span className="p-1 bg-red-200 rounded-full">
                     <MoveDownLeft className="h-3 w-3 text-red-600" />
                   </span>
                   Decline
-                </p>
+                </p> */}
               </div>
-              <div className="p-2 bg-indigo-100 rounded-full">
-                <Calendar className="h-5 w-5 text-indigo-900" />
+              <div className="p-2 bg-green-100 rounded-full">
+                <CheckCircle className="h-5 w-5 text-green-600" />
               </div>
             </div>
           </CardContent>
         </Card>
 
         {/* Leaves Pending */}
-        <Card>
+        <Card className="bg-gradient-to-b from-purple-50 to-white">
           <CardContent>
             <div className="flex justify-between items-start">
               <div className="flex flex-col gap-1">
-                <p className="text-3xl text-indigo-900 font-semibold">02</p>
-                <p className="text-indigo-900 font-medium">Leaves Pending</p>
-                <p className="flex items-center gap-1 text-sm text-slate-400">
+                <p className="text-3xl text-purple-700 font-semibold">
+                  {isLoadingStats ? "..." : stats.leavesPending}
+                </p>
+                <p className="text-purple-700 font-medium">Leaves Pending</p>
+                {/* <p className="flex items-center gap-1 text-sm text-slate-400">
                   <span className="p-1 bg-red-200 rounded-full">
                     <MoveDownLeft className="h-3 w-3 text-red-600" />
                   </span>
                   Decline
-                </p>
+                </p> */}
               </div>
-              <div className="p-2 bg-indigo-100 rounded-full">
-                <Calendar className="h-5 w-5 text-indigo-900" />
+              <div className="p-2 bg-purple-100 rounded-full">
+                <Clock className="h-5 w-5 text-purple-600" />
               </div>
             </div>
           </CardContent>
@@ -188,12 +195,19 @@ export default function EmployeeDashboard() {
                 className="h-full w-full"
               >
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={weeklyHoursData}>
+                  <BarChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
                     <XAxis dataKey="Days" />
                     <YAxis />
                     <ChartTooltip content={<ChartTooltipContent />} />
-                    <Bar dataKey="hours" fill="#01339a" radius={[8, 8, 0, 0]} />
+                    <Bar dataKey="hours" radius={[8, 8, 0, 0]} fill="#01339a">
+                      {chartData.map((entry, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={getBarColor(entry.Days)}
+                        />
+                      ))}
+                    </Bar>
                   </BarChart>
                 </ResponsiveContainer>
               </ChartContainer>
@@ -212,15 +226,15 @@ export default function EmployeeDashboard() {
               </div>
             </CardHeader>
             <CardContent>
-              {isLoading ? (
+              {isLoadingAnnouncements ? (
                 <p>Loading announcements...</p>
-              ) : announcements.length === 0 ? (
+              ) : announcementsList.length === 0 ? (
                 <p className="text-muted-foreground text-sm">
                   No announcements yet.
                 </p>
               ) : (
                 <Accordion type="single" collapsible className="space-y-2">
-                  {announcements.map((announcement) => (
+                  {announcementsList.map((announcement) => (
                     <AccordionItem
                       key={announcement.id}
                       value={announcement.id}
