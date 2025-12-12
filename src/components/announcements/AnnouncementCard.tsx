@@ -63,7 +63,7 @@ const AnnouncementCard = ({
         </p>
         <div className="flex items-center justify-between">
           <span className="text-sm text-muted-foreground">
-            {announcement.department || "All Departments"}
+            {announcement.department?.name || "All"}
           </span>
           <div className="flex gap-2">
             <Button

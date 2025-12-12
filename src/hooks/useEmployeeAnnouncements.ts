@@ -7,7 +7,10 @@ export interface Announcement {
   title: string;
   description: string;
   category: "holiday" | "update" | "urgent" | "birthday" | "policy";
-  department?: string;
+  department?: {
+    id: string;
+    name: string;
+  };
   createdBy: {
     id: string;
     name: string;

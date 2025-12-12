@@ -68,7 +68,7 @@ const ViewAnnouncementDialog = ({
           {announcement.department && (
             <div className="flex items-center gap-2">
               <Building2 className="h-4 w-4" />
-              <span>{announcement.department}</span>
+              <span>{announcement.department.name}</span>
             </div>
           )}
         </div>
