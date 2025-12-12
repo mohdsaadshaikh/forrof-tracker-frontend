@@ -29,7 +29,7 @@ const Announcements = () => {
     useState<Announcement | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
-  const [departmentFilter, setDepartmentFilter] = useState("all");
+  const [departmentFilter, setDepartmentFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -104,6 +104,7 @@ const Announcements = () => {
           setDepartmentFilter(value);
           setCurrentPage(1);
         }}
+        departmentValue={departmentFilter}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
       />

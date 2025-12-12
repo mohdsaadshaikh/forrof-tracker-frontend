@@ -190,7 +190,7 @@ export default function EmployeeDashboard() {
             <CardContent className="h-[250px] w-full p-4">
               <ChartContainer
                 config={{
-                  hours: { label: "Days", color: "hsl(var(--primary))" },
+                  hours: { label: "Hours", color: "hsl(var(--primary))" },
                 }}
                 className="h-full w-full"
               >

@@ -5,7 +5,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DEPARTMENTS, DEPARTMENT_LABELS } from "@/lib/constants";
+import DepartmentSelect from "@/components/common/DepartmentSelect";
 
 interface EmployeeFiltersProps {
   department: string;
@@ -22,19 +22,13 @@ export const EmployeeFilters = ({
 }: EmployeeFiltersProps) => {
   return (
     <div className="flex gap-2">
-      <Select value={department} onValueChange={setDepartment}>
-        <SelectTrigger className="w-[180px] bg-primary text-primary-foreground">
-          <SelectValue placeholder="Team/Department" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Departments</SelectItem>
-          {Object.entries(DEPARTMENTS).map(([key, value]) => (
-            <SelectItem key={key} value={value}>
-              {DEPARTMENT_LABELS[value]}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <div className="">
+        <DepartmentSelect
+          value={department}
+          onValueChange={setDepartment}
+          showAllOption={true}
+        />
+      </div>
 
       <Select value={role} onValueChange={setRole}>
         <SelectTrigger className="w-[140px] bg-primary text-primary-foreground">

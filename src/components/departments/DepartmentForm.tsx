@@ -7,8 +7,7 @@ import ResponsiveDialog from "@/components/ResponsiveDialog";
 
 interface DepartmentFormData {
   name: string;
-  description: string;
-  isActive: boolean;
+  description?: string;
 }
 
 interface DepartmentFormProps {
@@ -17,8 +16,7 @@ interface DepartmentFormProps {
   department?: {
     id: string;
     name: string;
-    description: string;
-    isActive: boolean;
+    description?: string;
   } | null;
   onSubmit: (data: DepartmentFormData) => void;
 }
@@ -32,15 +30,13 @@ export function DepartmentForm({
   const [formData, setFormData] = React.useState<DepartmentFormData>({
     name: department?.name || "",
     description: department?.description || "",
-    isActive: department?.isActive ?? true,
   });
 
   React.useEffect(() => {
     if (department) {
       setFormData({
         name: department.name,
-        description: department.description,
-        isActive: department.isActive,
+        description: department.description || "",
       });
     }
   }, [department]);
@@ -83,28 +79,6 @@ export function DepartmentForm({
             className="mt-1"
             rows={3}
           />
-        </div>
-
-        {/* Head Name */}
-        {/* Removed - field no longer needed */}
-
-        {/* Budget */}
-        {/* Removed - field no longer needed */}
-
-        {/* Active Status */}
-        <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            id="isActive"
-            checked={formData.isActive}
-            onChange={(e) =>
-              setFormData({ ...formData, isActive: e.target.checked })
-            }
-            className="rounded"
-          />
-          <Label htmlFor="isActive" className="cursor-pointer">
-            Active Department
-          </Label>
         </div>
       </div>
 

@@ -18,6 +18,10 @@ export const authClient = createAuthClient({
           type: "string",
           required: false,
         },
+        departmentId: {
+          type: "string",
+          required: false,
+        },
         phone: {
           type: "string",
           required: false,

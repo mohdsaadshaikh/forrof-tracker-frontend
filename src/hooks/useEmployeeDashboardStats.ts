@@ -31,7 +31,6 @@ export const useEmployeeDashboardStats = () => {
       return data;
     },
     staleTime: 60000, // 1 minute
-    refetchInterval: 60000, // Refetch every 1 minute
   });
 };
 
@@ -45,6 +44,5 @@ export const useWeeklyHours = () => {
       return data;
     },
     staleTime: 60000, // 1 minute
-    refetchInterval: 60000, // Refetch every 1 minute
   });
 };

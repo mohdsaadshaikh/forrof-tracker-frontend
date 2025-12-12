@@ -1,7 +1,4 @@
 import { z } from "zod";
-import { DEPARTMENTS } from "@/lib/constants";
-
-export const departments = Object.values(DEPARTMENTS);
 
 export const roles = ["admin", "employee"] as const;
 
@@ -21,7 +18,7 @@ export const employeeFormSchema = z.object({
     .email({
       message: "Please enter a valid email address",
     }),
-  department: z.enum(departments, {
+  department: z.string({
     message: "Please select a department",
   }),
 });

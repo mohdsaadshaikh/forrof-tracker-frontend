@@ -1,11 +1,9 @@
 import { z } from "zod";
-import { DEPARTMENTS, LEAVE_TYPES, LEAVE_STATUSES } from "@/lib/constants";
+import { LEAVE_TYPES, LEAVE_STATUSES } from "@/lib/constants";
 
 export const leaveTypes = LEAVE_TYPES;
 
 export const leaveStatuses = LEAVE_STATUSES;
-
-export const departments = Object.values(DEPARTMENTS);
 
 export const leaveFormSchema = z.object({
   leaveType: z.enum(leaveTypes, {
@@ -33,7 +31,7 @@ export const leaveFiltersSchema = z.object({
   search: z.string(),
   leaveType: z.enum([...leaveTypes, "All"]),
   status: z.enum([...leaveStatuses, "All"]),
-  department: z.enum([...departments, "All"]),
+  department: z.string(),
   startDate: z.date().optional(),
   endDate: z.date().optional(),
 });
@@ -42,4 +40,3 @@ export type LeaveFormData = z.infer<typeof leaveFormSchema>;
 export type LeaveFiltersData = z.infer<typeof leaveFiltersSchema>;
 export type LeaveType = (typeof leaveTypes)[number];
 export type LeaveStatus = (typeof leaveStatuses)[number];
-export type Department = (typeof departments)[number];

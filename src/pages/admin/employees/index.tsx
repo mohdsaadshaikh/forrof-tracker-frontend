@@ -2,11 +2,15 @@ import { EmployeeCard } from "@/components/employees/EmployeeCard";
 import { EmployeeFilters } from "@/components/employees/EmployeeFilters";
 import { EmployeeTable } from "@/components/employees/EmployeeTable";
 import { AddEmployeeModal } from "@/components/employees/AddEmployeeModal";
+import { AssignDepartmentDialog } from "@/components/employees/AssignDepartmentDialog";
 import { CustomPagination } from "@/components/CustomPagination";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import ResponsiveDialog from "@/components/ResponsiveDialog";
 import { useEmployees } from "@/hooks/useEmployees";
+import { useRemoveEmployeeFromDepartment } from "@/hooks/useDepartments";
+import type { Employee } from "@/hooks/useEmployees";
 import { Grid3x3, List, Plus, Search } from "lucide-react";
 import { useState } from "react";
 import { useDebounce } from "use-debounce";
@@ -19,6 +23,12 @@ const Employees = () => {
   const [department, setDepartment] = useState("all");
   const [role, setRole] = useState("all");
   const [addEmployeeModalOpen, setAddEmployeeModalOpen] = useState(false);
+  const [assignDialogOpen, setAssignDialogOpen] = useState(false);
+  const [unassignDialogOpen, setUnassignDialogOpen] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
+    null
+  );
+  const removeMutation = useRemoveEmployeeFromDepartment();
 
   const { data, isLoading } = useEmployees(
     page,
@@ -141,7 +151,17 @@ const Employees = () => {
               ))}
             </div>
           ) : (
-            <EmployeeTable employees={data?.employees || []} />
+            <EmployeeTable
+              employees={data?.employees || []}
+              onAssignClick={(employee) => {
+                setSelectedEmployee(employee);
+                setAssignDialogOpen(true);
+              }}
+              onUnassignClick={(employee) => {
+                setSelectedEmployee(employee);
+                setUnassignDialogOpen(true);
+              }}
+            />
           )}
         </>
       )}
@@ -158,6 +178,48 @@ const Employees = () => {
         open={addEmployeeModalOpen}
         onOpenChange={setAddEmployeeModalOpen}
       />
+
+      {selectedEmployee && (
+        <>
+          <AssignDepartmentDialog
+            open={assignDialogOpen}
+            onOpenChange={setAssignDialogOpen}
+            employeeId={selectedEmployee.id}
+            employeeName={selectedEmployee.name}
+            currentDepartmentId={selectedEmployee.departmentId}
+          />
+
+          <ResponsiveDialog
+            open={unassignDialogOpen}
+            onOpenChange={setUnassignDialogOpen}
+            title="Remove from Department"
+            description={`Remove ${selectedEmployee.name} from ${selectedEmployee.department}?`}
+          >
+            <div className="flex gap-2 justify-end pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setUnassignDialogOpen(false)}
+                disabled={removeMutation.isPending}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  removeMutation.mutate(selectedEmployee.id, {
+                    onSuccess: () => {
+                      setUnassignDialogOpen(false);
+                    },
+                  });
+                }}
+                disabled={removeMutation.isPending}
+              >
+                {removeMutation.isPending ? "Removing..." : "Remove"}
+              </Button>
+            </div>
+          </ResponsiveDialog>
+        </>
+      )}
     </div>
   );
 };

@@ -8,7 +8,6 @@ import { useSession } from "@/lib/auth-client";
 const AppLayout = () => {
   const { data: session, isPending } = useSession();
   const navigate = useNavigate();
-  console.log("AppLayout Session:", session);
 
   if (!session) {
     navigate("/login");

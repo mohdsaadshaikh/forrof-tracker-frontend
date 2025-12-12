@@ -6,17 +6,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Edit2, Trash2, Users } from "lucide-react";
+import { Edit2, Trash2 } from "lucide-react";
 
 interface Department {
   id: string;
   name: string;
-  description: string;
-  employeeCount: number;
-  projectsCount: number;
-  isActive: boolean;
+  description?: string;
+  userCount?: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface DepartmentTableProps {
@@ -30,6 +29,10 @@ const DepartmentTable = ({
   onEdit,
   onDelete,
 }: DepartmentTableProps) => {
+  if (departments.length === 0) {
+    return null;
+  }
+
   return (
     <div className="border rounded-lg overflow-hidden">
       <div className="overflow-x-auto w-full">
@@ -37,9 +40,8 @@ const DepartmentTable = ({
           <TableHeader>
             <TableRow>
               <TableHead>Department Name</TableHead>
-              <TableHead>Employees</TableHead>
-              <TableHead>Projects</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>Description</TableHead>
+              <TableHead>Users</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -47,30 +49,17 @@ const DepartmentTable = ({
             {departments.map((department) => (
               <TableRow key={department.id}>
                 <TableCell>
-                  <div>
-                    <p className="font-medium">{department.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {department.description}
-                    </p>
-                  </div>
+                  <p className="font-medium">{department.name}</p>
                 </TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-1">
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium">
-                      {department.employeeCount}
-                    </span>
-                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {department.description || "-"}
+                  </p>
                 </TableCell>
                 <TableCell>
-                  <Badge variant="outline">{department.projectsCount}</Badge>
-                </TableCell>
-                <TableCell>
-                  <Badge
-                    variant={department.isActive ? "default" : "secondary"}
-                  >
-                    {department.isActive ? "Active" : "Inactive"}
-                  </Badge>
+                  <p className="text-sm font-medium">
+                    {department.userCount || 0}
+                  </p>
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-2">

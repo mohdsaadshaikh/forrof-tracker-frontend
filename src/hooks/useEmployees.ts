@@ -1,6 +1,7 @@
 import { authClient } from "@/lib/auth-client";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
+import api from "@/lib/axios";
 
 export interface Employee {
   id: string;
@@ -8,6 +9,7 @@ export interface Employee {
   email: string;
   role: string;
   department: string;
+  departmentId?: string;
   dateJoined: string;
   location?: string;
   salary?: number;
@@ -24,21 +26,55 @@ const getInitials = (name: string): string => {
     .slice(0, 2);
 };
 
-const mapUserToEmployee = (user: {
-  id: string;
-  name: string;
-  email: string;
-  role?: string;
-  department?: string;
-  createdAt: Date | string;
-  salary?: number;
-}): Employee => {
+// Fetch all departments and create a lookup map
+const fetchDepartmentMap = async (): Promise<Map<string, string>> => {
+  try {
+    const response = await api.get("/departments?limit=1000");
+    const departmentMap = new Map<string, string>();
+
+    response.data.data?.forEach((dept: { id: string; name: string }) => {
+      departmentMap.set(dept.id, dept.name);
+    });
+
+    return departmentMap;
+  } catch (error) {
+    console.error("Failed to fetch departments", error);
+    return new Map();
+  }
+};
+
+const mapUserToEmployee = (
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    role?: string;
+    department?: string;
+    departmentId?: string;
+    createdAt: Date | string;
+    salary?: number;
+  },
+  departmentMap: Map<string, string>
+): Employee => {
+  // Get department name from departmentId using the map, fallback to department field, then "Unassigned"
+  let departmentName = "Unassigned";
+  if (user.departmentId && departmentMap.has(user.departmentId)) {
+    departmentName = departmentMap.get(user.departmentId)!;
+  } else if (
+    user.department &&
+    user.department !== "-" &&
+    user.department !== "Unassigned"
+  ) {
+    departmentName = user.department;
+  }
+
   return {
     id: user.id,
     name: user.name || "Unknown",
     email: user.email,
     role: user.role || "employee",
-    department: user.department || "Unassigned",
+    department: departmentName,
+    departmentId: user.departmentId,
     dateJoined: formatDistanceToNow(new Date(user.createdAt), {
       addSuffix: true,
     }),
@@ -88,6 +124,9 @@ export const useEmployees = (
         queryObj.filterOperator = "eq";
       }
 
+      // Fetch departments first to build the lookup map
+      const departmentMap = await fetchDepartmentMap();
+
       const { data: usersData, error } = await authClient.admin.listUsers({
         query: queryObj,
       });
@@ -104,7 +143,9 @@ export const useEmployees = (
         };
       }
 
-      let employees = usersData.users.map(mapUserToEmployee);
+      let employees = usersData.users.map((user) =>
+        mapUserToEmployee(user, departmentMap)
+      );
 
       if (search) {
         const searchLower = search.toLowerCase();

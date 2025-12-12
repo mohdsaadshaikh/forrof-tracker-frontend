@@ -5,7 +5,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DEPARTMENTS, DEPARTMENT_LABELS } from "@/lib/constants";
+import DepartmentSelect from "../common/DepartmentSelect";
 
 interface DashboardFiltersProps {
   timeRange: string;
@@ -20,7 +20,6 @@ interface DashboardFiltersProps {
 
 export const DashboardFilters = ({
   timeRange,
-  department,
   project,
   employee,
   onTimeRangeChange,
@@ -42,19 +41,14 @@ export const DashboardFilters = ({
         </SelectContent>
       </Select>
 
-      <Select value={department} onValueChange={onDepartmentChange}>
-        <SelectTrigger className="w-[165px] bg-primary text-primary-foreground">
-          <SelectValue placeholder="Department" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Departments</SelectItem>
-          {Object.entries(DEPARTMENTS).map(([key, value]) => (
-            <SelectItem key={key} value={value}>
-              {DEPARTMENT_LABELS[value]}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <div className="">
+        <DepartmentSelect
+          value=""
+          onValueChange={onDepartmentChange}
+          placeholder="Department"
+          showAllOption={true}
+        />
+      </div>
 
       <Select value={project} onValueChange={onProjectChange}>
         <SelectTrigger className="w-[150px] bg-primary text-primary-foreground">

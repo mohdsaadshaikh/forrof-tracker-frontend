@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import DepartmentSelect from "@/components/common/DepartmentSelect";
 import {
   useCreateAnnouncement,
   useUpdateAnnouncement,
@@ -51,16 +52,16 @@ const AnnouncementForm = ({
       category:
         (announcement?.category as AnnouncementFormData["category"]) ??
         "update",
-      department: announcement?.department ?? "",
+      departmentId: announcement?.department?.id ?? "",
     },
   });
 
   const onSubmit = async (data: AnnouncementFormData) => {
     try {
-      // Convert "all" to null for backend compatibility
+      // Convert empty string to null for backend compatibility (means all departments)
       const submitData = {
         ...data,
-        department: data.department === "all" ? null : data.department,
+        departmentId: data.departmentId === "" ? null : data.departmentId,
       };
 
       if (isEdit && announcement) {
@@ -143,28 +144,19 @@ const AnnouncementForm = ({
 
         <FormField
           control={form.control}
-          name="department"
+          name="departmentId"
           render={({ field }) => (
             <FormItem className="w-full">
               <FormLabel>Department (Optional)</FormLabel>
               <FormControl>
-                <Select
+                <DepartmentSelect
+                  value={field.value ?? ""}
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select department" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Departments</SelectItem>
-                    <SelectItem value="IT">IT</SelectItem>
-                    <SelectItem value="HR">HR</SelectItem>
-                    <SelectItem value="MARKETING">Marketing</SelectItem>
-                    <SelectItem value="SALES">Sales</SelectItem>
-                    <SelectItem value="FINANCE">Finance</SelectItem>
-                    <SelectItem value="OPERATIONS">Operations</SelectItem>
-                  </SelectContent>
-                </Select>
+                  placeholder="Select department"
+                  showAllOption={true}
+                  variant="outline"
+                  width="w-full"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

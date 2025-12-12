@@ -1,101 +1,51 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import ResponsiveDialog from "@/components/ResponsiveDialog";
 import DepartmentHeader from "@/components/departments/DepartmentHeader";
 import DepartmentFilters from "@/components/departments/DepartmentFilters";
 import DepartmentTable from "@/components/departments/DepartmentTable";
 import DepartmentCard from "@/components/departments/DepartmentCard";
 import { DepartmentForm } from "@/components/departments/DepartmentForm";
-
-// Mock departments data
-const mockDepartments = [
-  {
-    id: "1",
-    name: "IT",
-    description: "Information Technology Department",
-    employeeCount: 15,
-    projectsCount: 8,
-    isActive: true,
-  },
-  {
-    id: "2",
-    name: "HR",
-    description: "Human Resources Department",
-    employeeCount: 8,
-    projectsCount: 3,
-    isActive: true,
-  },
-  {
-    id: "3",
-    name: "SALES",
-    description: "Sales and Business Development",
-    employeeCount: 12,
-    projectsCount: 5,
-    isActive: true,
-  },
-  {
-    id: "4",
-    name: "MARKETING",
-    description: "Marketing and Communications",
-    employeeCount: 10,
-    projectsCount: 4,
-    isActive: true,
-  },
-  {
-    id: "5",
-    name: "FINANCE",
-    description: "Financial Management and Accounting",
-    employeeCount: 7,
-    projectsCount: 2,
-    isActive: true,
-  },
-  {
-    id: "6",
-    name: "OPERATIONS",
-    description: "Operations and Business Process",
-    employeeCount: 11,
-    projectsCount: 6,
-    isActive: true,
-  },
-];
-
-interface Department {
-  id: string;
-  name: string;
-  description: string;
-  employeeCount: number;
-  projectsCount: number;
-  isActive: boolean;
-}
-
-interface DepartmentFormData {
-  name: string;
-  description: string;
-  isActive: boolean;
-}
+import {
+  useDepartments,
+  useCreateDepartment,
+  useUpdateDepartment,
+  useDeleteDepartment,
+  type Department,
+  type DepartmentFormData,
+} from "@/hooks/useDepartments";
 
 export default function DepartmentsPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deletingDepartmentId, setDeletingDepartmentId] = useState<
+    string | null
+  >(null);
   const [editingDepartment, setEditingDepartment] = useState<Department | null>(
     null
   );
-  const [departments, setDepartments] = useState(mockDepartments);
-  const [isLoading] = useState(false);
 
-  const filteredDepartments = departments.filter((dept) => {
-    const matchesSearch =
-      dept.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      dept.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus =
-      statusFilter === "all" ||
-      (statusFilter === "active" && dept.isActive) ||
-      (statusFilter === "inactive" && !dept.isActive);
+  // API hooks
+  const { data, isLoading } = useDepartments({ search: searchQuery });
+  const createMutation = useCreateDepartment();
+  const updateMutation = useUpdateDepartment();
+  const deleteMutation = useDeleteDepartment();
 
-    return matchesSearch && matchesStatus;
-  });
+  const departments = data?.data || [];
+
+  const filteredDepartments = useMemo(() => {
+    return departments.filter((dept) => {
+      const matchesSearch =
+        dept.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (dept.description?.toLowerCase().includes(searchQuery.toLowerCase()) ??
+          false);
+      return matchesSearch;
+    });
+  }, [departments, searchQuery]);
 
   const handleCreateClick = () => {
     setEditingDepartment(null);
@@ -107,29 +57,33 @@ export default function DepartmentsPage() {
     setCreateDialogOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    setDepartments(departments.filter((d) => d.id !== id));
+  const handleDeleteClick = (id: string) => {
+    setDeletingDepartmentId(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (deletingDepartmentId) {
+      deleteMutation.mutate(deletingDepartmentId);
+      setDeleteDialogOpen(false);
+      setDeletingDepartmentId(null);
+    }
   };
 
   const handleSubmit = (formData: DepartmentFormData) => {
     if (editingDepartment) {
-      setDepartments(
-        departments.map((d) =>
-          d.id === editingDepartment.id ? { ...d, ...formData } : d
-        )
-      );
+      updateMutation.mutate({
+        id: editingDepartment.id,
+        data: formData,
+      });
     } else {
-      setDepartments([
-        ...departments,
-        {
-          id: String(departments.length + 1),
-          ...formData,
-          employeeCount: 0,
-          projectsCount: 0,
-        },
-      ]);
+      createMutation.mutate(formData);
     }
   };
+
+  const deletingDepartment = departments.find(
+    (d) => d.id === deletingDepartmentId
+  );
 
   if (isLoading) {
     return (
@@ -150,7 +104,6 @@ export default function DepartmentsPage() {
 
       <DepartmentFilters
         onSearchChange={setSearchQuery}
-        onStatusChange={setStatusFilter}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
       />
@@ -159,7 +112,7 @@ export default function DepartmentsPage() {
         <DepartmentTable
           departments={filteredDepartments}
           onEdit={handleEdit}
-          onDelete={handleDelete}
+          onDelete={handleDeleteClick}
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -168,7 +121,7 @@ export default function DepartmentsPage() {
               key={department.id}
               department={department}
               onEdit={handleEdit}
-              onDelete={handleDelete}
+              onDelete={handleDeleteClick}
             />
           ))}
         </div>
@@ -188,6 +141,26 @@ export default function DepartmentsPage() {
         department={editingDepartment}
         onSubmit={handleSubmit}
       />
+
+      <ResponsiveDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        title="Delete Department"
+        description={`Are you sure you want to delete "${deletingDepartment?.name}"? This action cannot be undone.`}
+      >
+        <div className="flex justify-end gap-3 pt-4">
+          <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={handleConfirmDelete}
+            disabled={deleteMutation.isPending}
+          >
+            {deleteMutation.isPending ? "Deleting..." : "Delete"}
+          </Button>
+        </div>
+      </ResponsiveDialog>
     </div>
   );
 }

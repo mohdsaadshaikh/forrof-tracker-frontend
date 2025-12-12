@@ -8,7 +8,11 @@ export interface Announcement {
   title: string;
   description: string;
   category: "holiday" | "update" | "urgent" | "birthday" | "hr" | "policy";
-  department?: string;
+  departmentId?: string;
+  department?: {
+    id: string;
+    name: string;
+  } | null;
   createdBy: {
     id: string;
     name: string;
@@ -44,8 +48,12 @@ export const useAnnouncements = (filters?: AnnouncementsFilters) => {
       if (filters?.pageSize) params.append("limit", String(filters.pageSize));
       if (filters?.category && filters.category !== "all")
         params.append("category", filters.category);
-      if (filters?.department && filters.department !== "all")
-        params.append("department", filters.department);
+      if (
+        filters?.department &&
+        filters.department !== "" &&
+        filters.department !== "all"
+      )
+        params.append("departmentId", filters.department);
 
       const res = await api.get(`/announcements?${params.toString()}`);
       const result = res.data;

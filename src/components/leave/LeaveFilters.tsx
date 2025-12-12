@@ -13,11 +13,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  departments,
-  leaveStatuses,
-  leaveTypes,
-} from "@/lib/validations/leave";
+import DepartmentSelect from "@/components/common/DepartmentSelect";
+import { leaveStatuses, leaveTypes } from "@/lib/validations/leave";
 import { format } from "date-fns";
 import {
   Calendar as CalendarIcon,
@@ -152,19 +149,12 @@ export const LeaveFilters = ({
           </SelectContent>
         </Select>
 
-        <Select value={department} onValueChange={onDepartmentChange}>
-          <SelectTrigger className="bg-primary text-primary-foreground">
-            <SelectValue placeholder="Department" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="All">All Departments</SelectItem>
-            {departments.map((dept) => (
-              <SelectItem key={dept} value={dept}>
-                {dept}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <DepartmentSelect
+          value={department}
+          onValueChange={onDepartmentChange}
+          placeholder="Department"
+          showAllOption={false}
+        />
       </div>
     </div>
   );

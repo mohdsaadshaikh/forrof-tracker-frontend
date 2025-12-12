@@ -1,24 +1,15 @@
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { LayoutGrid, List, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface DepartmentFiltersProps {
   onSearchChange: (value: string) => void;
-  onStatusChange: (value: string) => void;
   viewMode: "list" | "grid";
   onViewModeChange: (mode: "list" | "grid") => void;
 }
 
 const DepartmentFilters = ({
   onSearchChange,
-  onStatusChange,
   viewMode,
   onViewModeChange,
 }: DepartmentFiltersProps) => {
@@ -52,17 +43,6 @@ const DepartmentFilters = ({
             <List className="h-4 w-4" />
           </Button>
         </div>
-
-        <Select onValueChange={onStatusChange}>
-          <SelectTrigger className="w-full sm:w-[180px] bg-primary text-primary-foreground!">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="inactive">Inactive</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
     </div>
   );

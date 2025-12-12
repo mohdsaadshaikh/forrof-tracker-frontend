@@ -9,17 +9,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import DepartmentSelect from "@/components/common/DepartmentSelect";
 import { useToast } from "@/hooks/use-toast";
 import { authClient } from "@/lib/auth-client";
 import {
-  departments,
   employeeFormSchema,
   type EmployeeFormData,
 } from "@/lib/validations/employee";
@@ -47,7 +40,7 @@ export function AddEmployeeModal({
     defaultValues: {
       name: "",
       email: "",
-      department: "HR",
+      department: "",
     },
   });
 
@@ -164,24 +157,14 @@ export function AddEmployeeModal({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Department</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  disabled={isLoading}
-                >
-                  <FormControl>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select a department" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {departments.map((dept) => (
-                      <SelectItem key={dept} value={dept}>
-                        {dept}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <FormControl>
+                  <DepartmentSelect
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    placeholder="Select a department"
+                    disabled={isLoading}
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}

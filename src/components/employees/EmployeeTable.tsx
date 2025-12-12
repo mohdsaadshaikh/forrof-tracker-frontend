@@ -8,15 +8,41 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type { Employee } from "@/hooks/useEmployees";
 import { useNavigate } from "react-router-dom";
+import { UserPlus, UserMinus } from "lucide-react";
 
 interface EmployeeTableProps {
   employees: Employee[];
+  onAssignClick?: (employee: Employee) => void;
+  onUnassignClick?: (employee: Employee) => void;
 }
 
-export const EmployeeTable = ({ employees }: EmployeeTableProps) => {
+export const EmployeeTable = ({
+  employees,
+  onAssignClick,
+  onUnassignClick,
+}: EmployeeTableProps) => {
   const navigate = useNavigate();
+
+  const handleAssignClick = (employee: Employee) => {
+    if (onAssignClick) {
+      onAssignClick(employee);
+    }
+  };
+
+  const handleRemoveClick = (employee: Employee) => {
+    if (onUnassignClick) {
+      onUnassignClick(employee);
+    }
+  };
 
   const handleRowClick = (employeeId: string) => {
     navigate(`/employees/${employeeId}`);
@@ -37,6 +63,7 @@ export const EmployeeTable = ({ employees }: EmployeeTableProps) => {
             <TableHead>Department</TableHead>
             <TableHead>Date Joined</TableHead>
             <TableHead>Salary</TableHead>
+            <TableHead className="text-right">Manage</TableHead>
             {/* <TableHead>Location</TableHead>
             <TableHead>Status</TableHead> */}
           </TableRow>
@@ -77,6 +104,48 @@ export const EmployeeTable = ({ employees }: EmployeeTableProps) => {
               <TableCell>{employee.dateJoined}</TableCell>
               <TableCell className="text-green-600 font-medium">
                 {employee.salary ? `$${employee.salary.toLocaleString()}` : "-"}
+              </TableCell>
+              <TableCell className="text-right">
+                <TooltipProvider>
+                  <div className="flex items-center justify-end gap-2">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAssignClick(employee);
+                          }}
+                        >
+                          <UserPlus className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Assign to Department</TooltipContent>
+                    </Tooltip>
+                    {employee.department &&
+                      employee.department !== "-" &&
+                      employee.department !== "Unassigned" && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveClick(employee);
+                              }}
+                            >
+                              <UserMinus className="h-4 w-4 text-red-500" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            Remove from Department
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
+                  </div>
+                </TooltipProvider>
               </TableCell>
               {/* <TableCell>{employee.location}</TableCell>
               <TableCell>

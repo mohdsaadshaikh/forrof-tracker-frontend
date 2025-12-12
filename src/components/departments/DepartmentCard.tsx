@@ -1,15 +1,14 @@
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Edit2, Trash2, Users, Briefcase } from "lucide-react";
+import { Edit2, Trash2 } from "lucide-react";
 
 interface Department {
   id: string;
   name: string;
-  description: string;
-  employeeCount: number;
-  projectsCount: number;
-  isActive: boolean;
+  description?: string;
+  userCount?: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface DepartmentCardProps {
@@ -31,29 +30,12 @@ const DepartmentCard = ({
           <div className="flex-1">
             <h3 className="font-semibold text-lg">{department.name}</h3>
             <p className="text-sm text-muted-foreground">
-              {department.description}
+              {department.description || "No description"}
             </p>
-          </div>
-          <Badge variant={department.isActive ? "default" : "secondary"}>
-            {department.isActive ? "Active" : "Inactive"}
-          </Badge>
-        </div>
-
-        {/* Info Grid */}
-        <div className="grid grid-cols-2 gap-3 text-sm border-t pt-3">
-          <div>
-            <div className="flex items-center gap-1 text-muted-foreground text-xs">
-              <Users className="h-3 w-3" />
-              Employees
-            </div>
-            <p className="font-medium mt-1">{department.employeeCount}</p>
-          </div>
-          <div>
-            <div className="flex items-center gap-1 text-muted-foreground text-xs">
-              <Briefcase className="h-3 w-3" />
-              Projects
-            </div>
-            <p className="font-medium mt-1">{department.projectsCount}</p>
+            <p className="text-sm font-medium text-foreground mt-2">
+              {department.userCount || 0}{" "}
+              {department.userCount === 1 ? "person" : "people"}
+            </p>
           </div>
         </div>
 

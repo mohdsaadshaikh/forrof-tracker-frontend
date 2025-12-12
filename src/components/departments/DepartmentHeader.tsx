@@ -11,7 +11,7 @@ const DepartmentHeader = ({ onCreateClick }: DepartmentHeaderProps) => {
       <div>
         <h1 className="text-3xl font-bold">Departments</h1>
         <p className="text-muted-foreground mt-1">
-          Manage departments and allocate budgets
+          Manage your organization departments
         </p>
       </div>
 

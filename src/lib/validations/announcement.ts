@@ -19,7 +19,7 @@ export const announcementFormSchema = z.object({
     .min(1, "Description is required")
     .max(2000, "Description must be less than 2000 characters"),
   category: announcementCategorySchema,
-  department: z.string().optional(),
+  departmentId: z.string().optional(),
   publishDate: z.date().optional(),
   // sendEmail: z.boolean().default(false),
 });

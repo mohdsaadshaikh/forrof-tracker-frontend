@@ -8,12 +8,13 @@ import {
 } from "@/components/ui/select";
 import { LayoutGrid, List, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DEPARTMENTS, DEPARTMENT_LABELS } from "@/lib/constants";
+import DepartmentSelect from "@/components/common/DepartmentSelect";
 
 interface AnnouncementFiltersProps {
   onSearchChange: (value: string) => void;
   onCategoryChange: (value: string) => void;
   onDepartmentChange: (value: string) => void;
+  departmentValue?: string;
   viewMode: "list" | "grid";
   onViewModeChange: (mode: "list" | "grid") => void;
 }
@@ -22,6 +23,7 @@ const AnnouncementFilters = ({
   onSearchChange,
   onCategoryChange,
   onDepartmentChange,
+  departmentValue = "",
   viewMode,
   onViewModeChange,
 }: AnnouncementFiltersProps) => {
@@ -70,19 +72,14 @@ const AnnouncementFilters = ({
             <SelectItem value="policy">Policy</SelectItem>
           </SelectContent>
         </Select>
-        <Select onValueChange={onDepartmentChange}>
-          <SelectTrigger className="w-full sm:w-[180px] bg-primary text-primary-foreground!">
-            <SelectValue placeholder="Department" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Departments</SelectItem>
-            {Object.entries(DEPARTMENTS).map(([key, value]) => (
-              <SelectItem key={key} value={value}>
-                {DEPARTMENT_LABELS[value]}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="">
+          <DepartmentSelect
+            value={departmentValue}
+            onValueChange={onDepartmentChange}
+            placeholder="Department"
+            showAllOption={true}
+          />
+        </div>
       </div>
     </div>
   );

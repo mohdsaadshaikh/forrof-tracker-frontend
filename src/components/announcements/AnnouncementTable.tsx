@@ -79,7 +79,9 @@ const AnnouncementTable = ({
                       {announcement.category}
                     </Badge>
                   </TableCell>
-                  <TableCell>{announcement.department || "All"}</TableCell>
+                  <TableCell>
+                    {announcement.department?.name || "All"}
+                  </TableCell>
                   <TableCell>
                     {typeof announcement.createdBy === "string"
                       ? announcement.createdBy
