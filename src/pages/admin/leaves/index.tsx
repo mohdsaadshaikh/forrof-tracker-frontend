@@ -1,3 +1,4 @@
+import { CustomPagination } from "@/components/CustomPagination";
 import { ApplyLeaveDialog } from "@/components/leave/ApplyLeaveDialog";
 import { LeaveCard } from "@/components/leave/LeaveCard";
 import { LeaveFilters } from "@/components/leave/LeaveFilters";
@@ -5,7 +6,6 @@ import { LeaveStatsCards } from "@/components/leave/LeaveStatsCards";
 import { LeaveTable } from "@/components/leave/LeaveTable";
 import { ViewLeaveDialog } from "@/components/leave/ViewLeaveDialog";
 import ResponsiveDialog from "@/components/ResponsiveDialog";
-import { CustomPagination } from "@/components/CustomPagination";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -26,7 +26,6 @@ const Leaves = () => {
   const [search, setSearch] = useState("");
   const [leaveType, setLeaveType] = useState("All");
   const [status, setStatus] = useState("All");
-  const [department, setDepartment] = useState("All");
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
@@ -41,7 +40,6 @@ const Leaves = () => {
     search,
     leaveType,
     status,
-    department,
     startDate,
     endDate,
   });
@@ -118,8 +116,6 @@ const Leaves = () => {
         onLeaveTypeChange={setLeaveType}
         status={status}
         onStatusChange={setStatus}
-        department={department}
-        onDepartmentChange={setDepartment}
         startDate={startDate}
         onStartDateChange={setStartDate}
         endDate={endDate}
