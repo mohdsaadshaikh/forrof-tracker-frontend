@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useDebounce } from "use-debounce";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,94 +12,122 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
 import ResponsiveDialog from "@/components/ResponsiveDialog";
-
-const DEPARTMENTS = ["IT", "HR", "SALES", "MARKETING", "FINANCE", "OPERATIONS"];
-
-// Mock employees data
-const MOCK_EMPLOYEES = [
-  { id: "1", name: "John Doe", department: "IT" },
-  { id: "2", name: "Jane Smith", department: "IT" },
-  { id: "3", name: "Mike Johnson", department: "HR" },
-  { id: "4", name: "Sarah Williams", department: "SALES" },
-  { id: "5", name: "Tom Brown", department: "IT" },
-];
-
-interface Employee {
-  id: string;
-  name: string;
-  department: string;
-}
-
-interface ProjectFormData {
-  name: string;
-  description: string;
-  department: string;
-  assignedUsers: Employee[];
-  isActive: boolean;
-}
+import DepartmentSelect from "@/components/common/DepartmentSelect";
+import { useEmployees } from "@/hooks/useEmployees";
+import {
+  useCreateProject,
+  useUpdateProject,
+  type Project,
+} from "@/hooks/useProject";
+import {
+  projectFormSchema,
+  type ProjectFormData,
+} from "@/lib/validations/project";
 
 interface ProjectFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  project?: {
-    id: string;
-    name: string;
-    description: string;
-    department: string;
-    assignedUsers: number | Employee[];
-    isActive: boolean;
-  } | null;
-  onSubmit?: (data: ProjectFormData) => void;
+  project?: Project | null;
 }
 
-export function ProjectForm({
-  open,
-  onOpenChange,
-  project,
-  onSubmit,
-}: ProjectFormProps) {
-  const [formData, setFormData] = useState({
-    name: project?.name || "",
-    description: project?.description || "",
-    department: project?.department || "",
-    assignedUsers: Array.isArray(project?.assignedUsers)
-      ? project.assignedUsers
-      : [],
-    isActive: project?.isActive ?? true,
+export function ProjectForm({ open, onOpenChange, project }: ProjectFormProps) {
+  const [employeeSearch, setEmployeeSearchState] = useState("");
+  const [debouncedSearch] = useDebounce(employeeSearch, 750);
+
+  const form = useForm<ProjectFormData>({
+    resolver: zodResolver(projectFormSchema),
+    mode: "onChange",
+    defaultValues: {
+      name: project?.name || "",
+      description: project?.description || "",
+      departmentId: project?.departmentId || "",
+      status: project?.status || "ACTIVE",
+      memberIds: project?.members?.map((m) => m.id) || [],
+    },
   });
 
-  const [employeeSearch, setEmployeeSearch] = useState("");
+  const { data: employeesData } = useEmployees(
+    1,
+    debouncedSearch,
+    "",
+    "",
+    "",
+    ""
+  );
+  const createProjectMutation = useCreateProject();
+  const updateProjectMutation = useUpdateProject();
 
-  const availableEmployees = MOCK_EMPLOYEES.filter(
-    (emp) =>
-      emp.name.toLowerCase().includes(employeeSearch.toLowerCase()) &&
-      !formData.assignedUsers.find((u: Employee) => u.id === emp.id)
+  useEffect(() => {
+    if (project) {
+      form.reset({
+        name: project.name,
+        description: project.description || "",
+        departmentId: project.departmentId || "",
+        memberIds: project.members.map((m) => m.id),
+        status: project.status,
+      });
+    } else {
+      form.reset({
+        name: "",
+        description: "",
+        departmentId: "",
+        memberIds: [],
+        status: "ACTIVE",
+      });
+    }
+  }, [project, open, form]);
+
+  const memberIds = form.watch("memberIds") || [];
+
+  const availableEmployees = (employeesData?.employees || []).filter(
+    (emp) => !memberIds.includes(emp.id)
   );
 
-  const handleAddEmployee = (employee: Employee) => {
-    setFormData({
-      ...formData,
-      assignedUsers: [...formData.assignedUsers, employee],
-    });
-    setEmployeeSearch("");
+  const selectedMembers = (employeesData?.employees || []).filter((emp) =>
+    memberIds.includes(emp.id)
+  );
+
+  const handleAddEmployee = (employeeId: string) => {
+    const currentMembers = form.getValues("memberIds") || [];
+    form.setValue("memberIds", [...currentMembers, employeeId]);
   };
 
   const handleRemoveEmployee = (employeeId: string) => {
-    setFormData({
-      ...formData,
-      assignedUsers: formData.assignedUsers.filter(
-        (u: Employee) => u.id !== employeeId
-      ),
-    });
+    const currentMembers = form.getValues("memberIds") || [];
+    form.setValue(
+      "memberIds",
+      currentMembers.filter((id) => id !== employeeId)
+    );
   };
 
-  const handleSubmit = () => {
-    onSubmit?.(formData);
-    onOpenChange(false);
+  const onSubmit = async (data: ProjectFormData) => {
+    try {
+      if (project) {
+        await updateProjectMutation.mutateAsync({
+          id: project.id,
+          data,
+        });
+      } else {
+        await createProjectMutation.mutateAsync(data);
+      }
+      form.reset();
+      setEmployeeSearchState("");
+      onOpenChange(false);
+    } catch (error) {
+      console.error("Error saving project:", error);
+    }
   };
 
   return (
@@ -106,126 +137,170 @@ export function ProjectForm({
       title={project ? "Edit Project" : "Create Project"}
       description={project ? "Update project details" : "Add a new project"}
     >
-      <div className="space-y-4">
-        {/* Project Name */}
-        <div>
-          <Label>Project Name</Label>
-          <Input
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            placeholder="Enter project name"
-            className="mt-1"
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          {/* Project Name */}
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Project Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter project name" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
 
-        {/* Description */}
-        <div>
-          <Label>Description</Label>
-          <Textarea
-            value={formData.description}
-            onChange={(e) =>
-              setFormData({ ...formData, description: e.target.value })
-            }
-            placeholder="Enter project description"
-            className="mt-1"
-            rows={3}
+          {/* Description */}
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Description</FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Enter project description"
+                    {...field}
+                    rows={3}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
 
-        {/* Department */}
-        <div>
-          <Label>Department</Label>
-          <Select
-            value={formData.department}
-            onValueChange={(value) =>
-              setFormData({ ...formData, department: value })
-            }
-          >
-            <SelectTrigger className="mt-1">
-              <SelectValue placeholder="Select department" />
-            </SelectTrigger>
-            <SelectContent>
-              {DEPARTMENTS.map((dept) => (
-                <SelectItem key={dept} value={dept}>
-                  {dept}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+          {/* Department */}
+          <FormField
+            control={form.control}
+            name="departmentId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Department</FormLabel>
+                <FormControl>
+                  <DepartmentSelect
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    placeholder="Select department"
+                    variant="outline"
+                    width="w-full"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        {/* Assign Users */}
-        <div>
-          <Label>Assign Users</Label>
-          <div className="mt-2 space-y-2">
-            {/* Employee Search */}
-            <div className="relative">
-              <Input
-                placeholder="Search and add employees..."
-                value={employeeSearch}
-                onChange={(e) => setEmployeeSearch(e.target.value)}
-                className="text-sm"
-              />
-              {employeeSearch && availableEmployees.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded-md shadow-lg z-10 max-h-48 overflow-y-auto">
-                  {availableEmployees.map((emp) => (
-                    <button
-                      key={emp.id}
-                      onClick={() => handleAddEmployee(emp)}
-                      className="w-full text-left px-3 py-2 hover:bg-accent text-sm"
-                    >
-                      <div className="font-medium">{emp.name}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {emp.department}
-                      </div>
-                    </button>
+          {/* Status */}
+          <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Status</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="ACTIVE">Active</SelectItem>
+                    <SelectItem value="INACTIVE">Inactive</SelectItem>
+                    <SelectItem value="COMPLETED">Completed</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Assign Users */}
+          <div>
+            <Label>Assign Team Members</Label>
+            <div className="mt-2 space-y-2">
+              {/* Employee Search */}
+              <div className="relative">
+                <Input
+                  placeholder="Search and add employees..."
+                  onChange={(e) => setEmployeeSearchState(e.target.value)}
+                  className="text-sm"
+                />
+                {employeeSearch && availableEmployees.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded-md shadow-lg z-10 max-h-48 overflow-y-auto">
+                    {availableEmployees.map((emp) => (
+                      <button
+                        key={emp.id}
+                        type="button"
+                        onClick={() => handleAddEmployee(emp.id)}
+                        className="w-full text-left px-3 py-2 hover:bg-accent text-sm"
+                      >
+                        <div className="font-medium">{emp.name}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {emp.email}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Assigned Users */}
+              {selectedMembers.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {selectedMembers.map((user) => (
+                    <Badge key={user.id} variant="secondary" className="gap-1">
+                      {user.name}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveEmployee(user.id)}
+                        className="ml-1"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
                   ))}
                 </div>
               )}
             </div>
-
-            {/* Assigned Users */}
-            {formData.assignedUsers.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {formData.assignedUsers.map((user: Employee) => (
-                  <Badge key={user.id} variant="secondary" className="gap-1">
-                    {user.name}
-                    <button
-                      onClick={() => handleRemoveEmployee(user.id)}
-                      className="hover:opacity-70"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-            )}
           </div>
-        </div>
 
-        {/* Active Status */}
-        <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            id="isActive"
-            checked={formData.isActive}
-            onChange={(e) =>
-              setFormData({ ...formData, isActive: e.target.checked })
-            }
-            className="rounded"
-          />
-          <Label htmlFor="isActive" className="cursor-pointer">
-            Active Project
-          </Label>
-        </div>
-      </div>
-
-      <div className="flex gap-2 pt-6 justify-end">
-        <Button variant="outline" onClick={() => onOpenChange(false)}>
-          Cancel
-        </Button>
-        <Button onClick={handleSubmit}>{project ? "Update" : "Create"}</Button>
-      </div>
+          {/* Action Buttons */}
+          <div className="flex gap-2 justify-end pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={
+                createProjectMutation.isPending ||
+                updateProjectMutation.isPending
+              }
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={
+                createProjectMutation.isPending ||
+                updateProjectMutation.isPending
+              }
+            >
+              {createProjectMutation.isPending ||
+              updateProjectMutation.isPending
+                ? "Saving..."
+                : project
+                ? "Update"
+                : "Create"}
+            </Button>
+          </div>
+        </form>
+      </Form>
     </ResponsiveDialog>
   );
 }

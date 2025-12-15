@@ -9,21 +9,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Edit2, Trash2 } from "lucide-react";
-
-interface Project {
-  id: string;
-  name: string;
-  description: string;
-  department: string;
-  assignedUsers: number;
-  totalHours: number;
-  isActive: boolean;
-}
+import type { Project } from "@/hooks/useProject";
 
 interface ProjectTableProps {
   projects: Project[];
   onEdit: (project: Project) => void;
-  onDelete: (id: string) => void;
+  onDelete: (project: Project) => void;
 }
 
 export default function ProjectTable({
@@ -31,6 +22,19 @@ export default function ProjectTable({
   onEdit,
   onDelete,
 }: ProjectTableProps) {
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "ACTIVE":
+        return "default";
+      case "INACTIVE":
+        return "secondary";
+      case "COMPLETED":
+        return "outline";
+      default:
+        return "secondary";
+    }
+  };
+
   return (
     <div className="border rounded-lg overflow-hidden">
       <div className="overflow-x-auto w-full">
@@ -52,12 +56,14 @@ export default function ProjectTable({
                   <div>
                     <p className="font-medium">{project.name}</p>
                     <p className="text-sm text-muted-foreground">
-                      {project.description}
+                      {project.description || "No description"}
                     </p>
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant="outline">{project.department}</Badge>
+                  <Badge variant="outline">
+                    {project.department?.name || "Unassigned"}
+                  </Badge>
                 </TableCell>
                 <TableCell>
                   <span className="font-medium">{project.assignedUsers}</span>
@@ -66,8 +72,8 @@ export default function ProjectTable({
                   <span className="font-medium">{project.totalHours}h</span>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={project.isActive ? "default" : "secondary"}>
-                    {project.isActive ? "Active" : "Inactive"}
+                  <Badge variant={getStatusColor(project.status)}>
+                    {project.status}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
@@ -82,7 +88,7 @@ export default function ProjectTable({
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => onDelete(project.id)}
+                      onClick={() => onDelete(project)}
                     >
                       <Trash2 className="h-4 w-4 text-red-500" />
                     </Button>

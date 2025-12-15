@@ -128,6 +128,7 @@ export const AttendanceFilters = ({
                   selected={date}
                   onSelect={onDateChange}
                   initialFocus
+                  disabled={(date) => date > new Date()}
                 />
               </PopoverContent>
             </Popover>
