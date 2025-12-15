@@ -113,12 +113,12 @@ export const useEmployees = (
       }
 
       if (department) {
-        queryObj.filterField = "department";
+        queryObj.filterField = "departmentId";
         queryObj.filterValue = department;
         queryObj.filterOperator = "eq";
       }
 
-      if (role && !department) {
+      if (role) {
         queryObj.filterField = "role";
         queryObj.filterValue = role;
         queryObj.filterOperator = "eq";

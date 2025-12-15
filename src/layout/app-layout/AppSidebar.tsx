@@ -63,6 +63,13 @@ export function AppSidebar() {
       roles: ["admin"],
     },
     {
+      url: "/projects",
+      icon: FolderOpen,
+      adminTitle: "Projects",
+      employeeTitle: "Projects",
+      roles: ["admin"],
+    },
+    {
       url: "/attendance",
       icon: CalendarCheck,
       adminTitle: "Attendance Tracking",
@@ -83,13 +90,7 @@ export function AppSidebar() {
       employeeTitle: "Company Updates",
       roles: ["admin", "employee"],
     },
-    {
-      url: "/projects",
-      icon: FolderOpen,
-      adminTitle: "Projects",
-      employeeTitle: "Projects",
-      roles: ["admin"],
-    },
+
     {
       url: "/settings",
       icon: Settings,

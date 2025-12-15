@@ -133,7 +133,6 @@ const AnnouncementForm = ({
                   <SelectItem value="update">Company Update</SelectItem>
                   <SelectItem value="urgent">Urgent Notice</SelectItem>
                   <SelectItem value="birthday">Birthday</SelectItem>
-                  <SelectItem value="hr">HR Announcement</SelectItem>
                   <SelectItem value="policy">Policy Update</SelectItem>
                 </SelectContent>
               </Select>

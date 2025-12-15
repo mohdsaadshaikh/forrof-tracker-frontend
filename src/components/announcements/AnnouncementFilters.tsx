@@ -68,7 +68,6 @@ const AnnouncementFilters = ({
             <SelectItem value="update">Update</SelectItem>
             <SelectItem value="urgent">Urgent</SelectItem>
             <SelectItem value="birthday">Birthday</SelectItem>
-            <SelectItem value="hr">HR</SelectItem>
             <SelectItem value="policy">Policy</SelectItem>
           </SelectContent>
         </Select>

@@ -5,7 +5,6 @@ export const announcementCategorySchema = z.enum([
   "update",
   "urgent",
   "birthday",
-  "hr",
   "policy",
 ]);
 

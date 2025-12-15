@@ -16,9 +16,4 @@ export const LEAVE_LABELS: Record<string, string> = {
   UNPAID_LEAVE: "Unpaid Leave",
 };
 
-export const LEAVE_STATUSES = [
-  "PENDING",
-  "APPROVED",
-  "REJECTED",
-  "CANCELLED",
-] as const;
+export const LEAVE_STATUSES = ["PENDING", "APPROVED", "REJECTED"] as const;

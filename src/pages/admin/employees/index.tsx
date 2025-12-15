@@ -11,7 +11,7 @@ import ResponsiveDialog from "@/components/ResponsiveDialog";
 import { useEmployees } from "@/hooks/useEmployees";
 import { useRemoveEmployeeFromDepartment } from "@/hooks/useDepartments";
 import type { Employee } from "@/hooks/useEmployees";
-import { Grid3x3, List, Plus, Search } from "lucide-react";
+import { Grid3x3, List, Plus, Search, Users } from "lucide-react";
 import { useState } from "react";
 import { useDebounce } from "use-debounce";
 
@@ -145,23 +145,59 @@ const Employees = () => {
       ) : (
         <>
           {viewMode === "grid" ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {data?.employees.map((employee) => (
-                <EmployeeCard key={employee.id} employee={employee} />
-              ))}
-            </div>
+            <>
+              {data?.employees && data.employees.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {data.employees.map((employee) => (
+                    <EmployeeCard key={employee.id} employee={employee} />
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-lg border bg-card p-12">
+                  <div className="flex flex-col items-center justify-center text-center">
+                    <Users className="h-12 w-12 text-muted-foreground" />
+                    <h3 className="mt-4 text-lg font-semibold">
+                      No employees found
+                    </h3>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      {debouncedSearch || department !== "all" || role !== "all"
+                        ? "Try adjusting your filters or search criteria"
+                        : "Start by adding your first employee"}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </>
           ) : (
-            <EmployeeTable
-              employees={data?.employees || []}
-              onAssignClick={(employee) => {
-                setSelectedEmployee(employee);
-                setAssignDialogOpen(true);
-              }}
-              onUnassignClick={(employee) => {
-                setSelectedEmployee(employee);
-                setUnassignDialogOpen(true);
-              }}
-            />
+            <>
+              {data?.employees && data.employees.length > 0 ? (
+                <EmployeeTable
+                  employees={data.employees || []}
+                  onAssignClick={(employee) => {
+                    setSelectedEmployee(employee);
+                    setAssignDialogOpen(true);
+                  }}
+                  onUnassignClick={(employee) => {
+                    setSelectedEmployee(employee);
+                    setUnassignDialogOpen(true);
+                  }}
+                />
+              ) : (
+                <div className="rounded-lg border bg-card p-12">
+                  <div className="flex flex-col items-center justify-center text-center">
+                    <Users className="h-12 w-12 text-muted-foreground" />
+                    <h3 className="mt-4 text-lg font-semibold">
+                      No employees found
+                    </h3>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      {debouncedSearch || department !== "all" || role !== "all"
+                        ? "Try adjusting your filters or search criteria"
+                        : "Start by adding your first employee"}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </>
       )}

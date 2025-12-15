@@ -13,7 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import DepartmentSelect from "@/components/common/DepartmentSelect";
 import { leaveStatuses, leaveTypes } from "@/lib/validations/leave";
 import { format } from "date-fns";
 import {
@@ -30,8 +29,6 @@ interface LeaveFiltersProps {
   onLeaveTypeChange: (value: string) => void;
   status: string;
   onStatusChange: (value: string) => void;
-  department: string;
-  onDepartmentChange: (value: string) => void;
   startDate?: Date;
   onStartDateChange: (date?: Date) => void;
   endDate?: Date;
@@ -47,8 +44,6 @@ export const LeaveFilters = ({
   onLeaveTypeChange,
   status,
   onStatusChange,
-  department,
-  onDepartmentChange,
   startDate,
   onStartDateChange,
   endDate,
@@ -87,6 +82,33 @@ export const LeaveFilters = ({
               <List className="h-4 w-4" />
             </Button>
           </div>
+          <Select value={leaveType} onValueChange={onLeaveTypeChange}>
+            <SelectTrigger className="bg-primary text-primary-foreground">
+              <SelectValue placeholder="Leave Type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">All Types</SelectItem>
+              {leaveTypes.map((type) => (
+                <SelectItem key={type} value={type}>
+                  {type.replace(/_/g, " ")}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={status} onValueChange={onStatusChange}>
+            <SelectTrigger className="bg-primary text-primary-foreground">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">All Status</SelectItem>
+              {leaveStatuses.map((stat) => (
+                <SelectItem key={stat} value={stat}>
+                  {stat.replace(/_/g, " ")}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
           <Popover>
             <PopoverTrigger asChild>
@@ -118,43 +140,6 @@ export const LeaveFilters = ({
             </PopoverContent>
           </Popover>
         </div>
-      </div>
-
-      <div className="flex gap-2">
-        <Select value={leaveType} onValueChange={onLeaveTypeChange}>
-          <SelectTrigger className="bg-primary text-primary-foreground">
-            <SelectValue placeholder="Leave Type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="All">All Types</SelectItem>
-            {leaveTypes.map((type) => (
-              <SelectItem key={type} value={type}>
-                {type.replace(/_/g, " ")}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select value={status} onValueChange={onStatusChange}>
-          <SelectTrigger className="bg-primary text-primary-foreground">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="All">All Status</SelectItem>
-            {leaveStatuses.map((stat) => (
-              <SelectItem key={stat} value={stat}>
-                {stat.replace(/_/g, " ")}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <DepartmentSelect
-          value={department}
-          onValueChange={onDepartmentChange}
-          placeholder="Department"
-          showAllOption={false}
-        />
       </div>
     </div>
   );
