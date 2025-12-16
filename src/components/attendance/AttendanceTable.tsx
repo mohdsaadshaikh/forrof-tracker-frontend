@@ -1,6 +1,7 @@
 import { type AttendanceRecord } from "@/hooks/useAttendanceData";
 import { StatusBadge } from "./StatusBadge";
 import { format } from "date-fns";
+import { formatWorkHours } from "@/lib/utils";
 import {
   Table,
   TableBody,
@@ -135,7 +136,7 @@ export const AttendanceTable = ({ data, isLoading }: AttendanceTableProps) => {
                   : "-"}
               </TableCell>
               <TableCell className="text-sm font-medium">
-                {record.workHours}
+                {formatWorkHours(record.workHours)}
               </TableCell>
             </TableRow>
           ))}

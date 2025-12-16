@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { formatWorkHours } from "@/lib/utils";
 import { Edit2, Trash2 } from "lucide-react";
 import type { Project } from "@/hooks/useProject";
 
@@ -69,7 +70,9 @@ export default function ProjectTable({
                   <span className="font-medium">{project.assignedUsers}</span>
                 </TableCell>
                 <TableCell>
-                  <span className="font-medium">{project.totalHours}h</span>
+                  <span className="font-medium">
+                    {formatWorkHours(project.totalHours)}
+                  </span>
                 </TableCell>
                 <TableCell>
                   <Badge variant={getStatusColor(project.status)}>

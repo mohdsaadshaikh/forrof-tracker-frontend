@@ -7,9 +7,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import DepartmentSelect from "../common/DepartmentSelect";
 import { Search, List, LayoutGrid } from "lucide-react";
-
-const DEPARTMENTS = ["IT", "HR", "SALES", "MARKETING", "FINANCE", "OPERATIONS"];
 
 interface ProjectFiltersProps {
   onSearchChange: (query: string) => void;
@@ -57,19 +56,13 @@ export default function ProjectFilters({
           </Button>
         </div>
 
-        <Select onValueChange={onDepartmentChange} defaultValue="all">
-          <SelectTrigger className="w-full sm:w-[180px] bg-primary text-primary-foreground!">
-            <SelectValue placeholder="Department" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Departments</SelectItem>
-            {DEPARTMENTS.map((dept) => (
-              <SelectItem key={dept} value={dept}>
-                {dept}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <DepartmentSelect
+          value=""
+          onValueChange={onDepartmentChange}
+          placeholder="Department"
+          showAllOption={true}
+          width="w-[180px]"
+        />
 
         <Select onValueChange={onStatusChange} defaultValue="all">
           <SelectTrigger className="w-full sm:w-[180px] bg-primary text-primary-foreground!">
@@ -77,8 +70,9 @@ export default function ProjectFilters({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="inactive">Inactive</SelectItem>
+            <SelectItem value="ACTIVE">Active</SelectItem>
+            <SelectItem value="INACTIVE">Inactive</SelectItem>
+            <SelectItem value="COMPLETED">Completed</SelectItem>
           </SelectContent>
         </Select>
       </div>

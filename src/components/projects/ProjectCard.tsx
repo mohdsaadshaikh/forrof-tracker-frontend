@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Edit2, Trash2 } from "lucide-react";
+import { formatWorkHours } from "@/lib/utils";
 import type { Project } from "@/hooks/useProject";
 
 interface ProjectCardProps {
@@ -57,7 +58,9 @@ export default function ProjectCard({
           </div>
           <div>
             <p className="text-muted-foreground">Total Hours</p>
-            <p className="font-medium mt-1">{project.totalHours}h</p>
+            <p className="font-medium mt-1">
+              {formatWorkHours(project.totalHours)}
+            </p>
           </div>
         </div>
 

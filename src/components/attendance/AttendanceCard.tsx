@@ -1,6 +1,7 @@
 import { type AttendanceRecord } from "@/hooks/useAttendanceData";
 import { StatusBadge } from "./StatusBadge";
 import { format } from "date-fns";
+import { formatWorkHours } from "@/lib/utils";
 
 interface AttendanceCardProps {
   record: AttendanceRecord;
@@ -50,7 +51,9 @@ export const AttendanceCard = ({ record }: AttendanceCardProps) => {
         {/* Work Hours */}
         <div className="pt-4 border-t">
           <p className="text-xs text-muted-foreground">Work Hours</p>
-          <p className="text-2xl font-bold mt-1">{record.workHours}</p>
+          <p className="text-2xl font-bold mt-1">
+            {formatWorkHours(record.workHours)}
+          </p>
         </div>
       </div>
     </div>
