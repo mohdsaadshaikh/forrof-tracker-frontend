@@ -42,7 +42,11 @@ export const useAttendanceData = (filters: AttendanceFilters) => {
       const params = new URLSearchParams();
 
       if (filters.date) {
-        params.append("date", filters.date.toISOString());
+        // Send date as YYYY-MM-DD string to avoid timezone issues
+        const year = filters.date.getFullYear();
+        const month = String(filters.date.getMonth() + 1).padStart(2, "0");
+        const day = String(filters.date.getDate()).padStart(2, "0");
+        params.append("date", `${year}-${month}-${day}`);
       }
       if (filters.department) {
         params.append("department", filters.department);
@@ -72,7 +76,11 @@ export const useAttendanceSummary = (date?: Date) => {
     queryFn: async () => {
       const params = new URLSearchParams();
       if (date) {
-        params.append("date", date.toISOString());
+        // Send date as YYYY-MM-DD string to avoid timezone issues
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        params.append("date", `${year}-${month}-${day}`);
       }
 
       const response = await api.get(
@@ -88,7 +96,11 @@ export const useExportAttendance = () => {
     const params = new URLSearchParams();
 
     if (filters.date) {
-      params.append("date", filters.date.toISOString());
+      // Send date as YYYY-MM-DD string to avoid timezone issues
+      const year = filters.date.getFullYear();
+      const month = String(filters.date.getMonth() + 1).padStart(2, "0");
+      const day = String(filters.date.getDate()).padStart(2, "0");
+      params.append("date", `${year}-${month}-${day}`);
     }
     if (filters.department) {
       params.append("department", filters.department);

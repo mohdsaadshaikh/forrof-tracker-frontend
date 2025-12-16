@@ -34,6 +34,10 @@ export const authClient = createAuthClient({
           type: "string",
           required: false,
         },
+        isProfileCompleted: {
+          type: "boolean",
+          required: false,
+        },
       },
     }),
     adminClient({
@@ -77,6 +81,7 @@ export type Session = {
     phone?: string | null;
     address?: string | null;
     salary?: number | null;
+    isProfileCompleted?: boolean;
     createdAt: Date;
     updatedAt: Date;
     banned?: boolean | null;

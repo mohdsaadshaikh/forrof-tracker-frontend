@@ -2,8 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import api from "@/lib/axios";
 
 interface EmployeeDashboardStats {
-  checkInTime: string;
-  checkOutTime: string;
+  checkInTime: string | null;
+  checkOutTime: string | null;
   leavesApproved: number;
   leavesPending: number;
   todaySession: {

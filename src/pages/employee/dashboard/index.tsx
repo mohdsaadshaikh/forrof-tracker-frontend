@@ -25,6 +25,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { format } from "date-fns";
 
 const getBarColor = (day: string) => {
   return day === "Sat" || day === "Sun" ? "#FF0000" : "#01339a";
@@ -42,8 +43,8 @@ export default function EmployeeDashboard() {
 
   const announcementsList = announcements?.announcements || [];
   const stats = dashboardStats || {
-    checkInTime: "N/A",
-    checkOutTime: "N/A",
+    checkInTime: null,
+    checkOutTime: null,
     leavesApproved: 0,
     leavesPending: 0,
   };
@@ -56,6 +57,16 @@ export default function EmployeeDashboard() {
     { Days: "Sat", hours: 0 },
     { Days: "Sun", hours: 0 },
   ];
+
+  // Format check-in time with user's local timezone
+  const formattedCheckInTime = stats.checkInTime
+    ? format(new Date(stats.checkInTime), "hh:mm a")
+    : "N/A";
+
+  // Format check-out time with user's local timezone
+  const formattedCheckOutTime = stats.checkOutTime
+    ? format(new Date(stats.checkOutTime), "hh:mm a")
+    : "N/A";
 
   return (
     <div className="space-y-6">
@@ -88,7 +99,7 @@ export default function EmployeeDashboard() {
             <div className="flex justify-between items-start">
               <div className="flex flex-col gap-1">
                 <p className="text-3xl text-blue-700 font-semibold">
-                  {isLoadingStats ? "..." : stats.checkInTime}
+                  {isLoadingStats ? "..." : formattedCheckInTime}
                 </p>
                 <p className="text-blue-700 font-medium">CheckIn Today</p>
                 {/* <p className="flex items-center gap-1 text-sm text-slate-400">
@@ -111,7 +122,7 @@ export default function EmployeeDashboard() {
             <div className="flex justify-between items-start">
               <div className="flex flex-col gap-1">
                 <p className="text-3xl text-orange-700 font-semibold">
-                  {isLoadingStats ? "..." : stats.checkOutTime}
+                  {isLoadingStats ? "..." : formattedCheckOutTime}
                 </p>
                 <p className="text-orange-700 font-medium w-fit whitespace-nowrap">
                   CheckOut Today
