@@ -136,7 +136,7 @@ export const AttendanceTable = ({ data, isLoading }: AttendanceTableProps) => {
                   : "-"}
               </TableCell>
               <TableCell className="text-sm font-medium">
-                {formatWorkHours(record.workHours)}
+                {formatWorkHours(Number(record.workHours))}
               </TableCell>
             </TableRow>
           ))}

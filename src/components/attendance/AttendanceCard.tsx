@@ -52,7 +52,7 @@ export const AttendanceCard = ({ record }: AttendanceCardProps) => {
         <div className="pt-4 border-t">
           <p className="text-xs text-muted-foreground">Work Hours</p>
           <p className="text-2xl font-bold mt-1">
-            {formatWorkHours(record.workHours)}
+            {formatWorkHours(Number(record.workHours))}
           </p>
         </div>
       </div>
