@@ -5,7 +5,7 @@ export interface AttendanceRecord {
   id: string;
   employeeName: string;
   department: string | null;
-  status: "Online" | "Offline" | "Absent";
+  status: "Online" | "Offline" | "Absent" | "Break";
   checkInTime: string | null;
   checkOutTime: string | null;
   workHours: string;
@@ -24,6 +24,7 @@ export interface AttendanceSummary {
   online: number;
   offline: number;
   absent: number;
+  break: number;
 }
 
 export interface AttendanceFilters {

@@ -17,20 +17,23 @@ import {
 } from "@/components/ui/tooltip";
 import type { Employee } from "@/hooks/useEmployees";
 import { useNavigate } from "react-router-dom";
-import { UserPlus, UserMinus } from "lucide-react";
+import { UserPlus, UserMinus, DollarSign } from "lucide-react";
 
 interface EmployeeTableProps {
   employees: Employee[];
   onAssignClick?: (employee: Employee) => void;
   onUnassignClick?: (employee: Employee) => void;
+  onSalaryClick?: (employee: Employee) => void;
 }
 
 export const EmployeeTable = ({
   employees,
   onAssignClick,
   onUnassignClick,
+  onSalaryClick,
 }: EmployeeTableProps) => {
   const navigate = useNavigate();
+  console.log("Employees:", employees);
 
   const handleAssignClick = (employee: Employee) => {
     if (onAssignClick) {
@@ -44,7 +47,13 @@ export const EmployeeTable = ({
     }
   };
 
-  const handleRowClick = (employeeId: string) => {
+  const handleSalaryClick = (employee: Employee) => {
+    if (onSalaryClick) {
+      onSalaryClick(employee);
+    }
+  };
+
+  const handleClick = (employeeId: string) => {
     navigate(`/employees/${employeeId}`);
   };
 
@@ -72,8 +81,7 @@ export const EmployeeTable = ({
           {employees.map((employee) => (
             <TableRow
               key={employee.id}
-              className="cursor-pointer hover:bg-muted/50 transition-colors"
-              onClick={() => handleRowClick(employee.id)}
+              className="hover:bg-muted/50 transition-colors"
             >
               {/* <TableCell>
                 <Checkbox />
@@ -91,7 +99,12 @@ export const EmployeeTable = ({
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col">
-                    <span className="font-medium">{employee.name}</span>
+                    <span
+                      className="font-medium hover:underline cursor-pointer"
+                      onClick={() => handleClick(employee.id)}
+                    >
+                      {employee.name}
+                    </span>
                     <span className="text-xs">{employee.id}</span>
                   </div>
                 </div>
@@ -103,7 +116,40 @@ export const EmployeeTable = ({
               <TableCell>{employee.department}</TableCell>
               <TableCell>{employee.dateJoined}</TableCell>
               <TableCell className="text-green-600 font-medium">
-                {employee.salary ? `$${employee.salary.toLocaleString()}` : "-"}
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      {employee.salary ? (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSalaryClick(employee);
+                          }}
+                          className="hover:underline cursor-pointer text-left"
+                        >
+                          PKR {employee.salary.toLocaleString()}
+                        </button>
+                      ) : (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSalaryClick(employee);
+                          }}
+                        >
+                          <DollarSign className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {employee.salary
+                        ? "Click to edit salary"
+                        : "Click to add salary"}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </TableCell>
               <TableCell className="text-right">
                 <TooltipProvider>

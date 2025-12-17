@@ -3,6 +3,7 @@ import { EmployeeFilters } from "@/components/employees/EmployeeFilters";
 import { EmployeeTable } from "@/components/employees/EmployeeTable";
 import { AddEmployeeModal } from "@/components/employees/AddEmployeeModal";
 import { AssignDepartmentDialog } from "@/components/employees/AssignDepartmentDialog";
+import { SalaryEditDialog } from "@/components/employeeInfo/SalaryEditDialog";
 import { CustomPagination } from "@/components/CustomPagination";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +26,7 @@ const Employees = () => {
   const [addEmployeeModalOpen, setAddEmployeeModalOpen] = useState(false);
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [unassignDialogOpen, setUnassignDialogOpen] = useState(false);
+  const [salaryDialogOpen, setSalaryDialogOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
     null
   );
@@ -181,6 +183,10 @@ const Employees = () => {
                     setSelectedEmployee(employee);
                     setUnassignDialogOpen(true);
                   }}
+                  onSalaryClick={(employee) => {
+                    setSelectedEmployee(employee);
+                    setSalaryDialogOpen(true);
+                  }}
                 />
               ) : (
                 <div className="rounded-lg border bg-card p-12">
@@ -255,6 +261,17 @@ const Employees = () => {
             </div>
           </ResponsiveDialog>
         </>
+      )}
+
+      {selectedEmployee && (
+        <SalaryEditDialog
+          open={salaryDialogOpen}
+          onOpenChange={setSalaryDialogOpen}
+          employee={selectedEmployee}
+          onSalaryUpdate={async () => {
+            setSalaryDialogOpen(false);
+          }}
+        />
       )}
     </div>
   );

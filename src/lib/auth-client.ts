@@ -14,10 +14,6 @@ export const authClient = createAuthClient({
         isPasswordChanged: {
           type: "boolean",
         },
-        department: {
-          type: "string",
-          required: false,
-        },
         departmentId: {
           type: "string",
           required: false,
@@ -76,7 +72,7 @@ export type Session = {
     emailVerified: boolean;
     role?: string;
     image?: string | null;
-    department?: "HR" | "IT" | "SALES" | "MARKETING" | "FINANCE" | "OPERATIONS";
+    departmentId?: string | null;
     isPasswordChanged: boolean;
     phone?: string | null;
     address?: string | null;

@@ -15,10 +15,7 @@ export const EmployeeCard = ({ employee }: EmployeeCardProps) => {
   };
 
   return (
-    <Card
-      className="relative cursor-pointer hover:shadow-lg transition-shadow"
-      onClick={handleClick}
-    >
+    <Card className="relative hover:shadow-lg transition-shadow">
       <CardContent className="p-6">
         {/* <div className="absolute top-4 left-4">
           <Checkbox />
@@ -33,7 +30,12 @@ export const EmployeeCard = ({ employee }: EmployeeCardProps) => {
                 .join("")}
             </AvatarFallback>
           </Avatar>
-          <h3 className="font-semibold text-lg mb-2">{employee.name}</h3>
+          <h3
+            className="font-semibold text-lg mb-2 hover:underline cursor-pointer"
+            onClick={handleClick}
+          >
+            {employee.name}
+          </h3>
           <div className="space-y-1.5 text-sm w-full">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Role</span>
@@ -61,7 +63,7 @@ export const EmployeeCard = ({ employee }: EmployeeCardProps) => {
               <div className="flex justify-between border-t pt-1.5">
                 <span className="text-muted-foreground">Salary</span>
                 <span className="font-medium text-green-600">
-                  ${employee.salary.toLocaleString()}
+                  PKR {employee.salary.toLocaleString()}
                 </span>
               </div>
             )}

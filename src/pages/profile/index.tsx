@@ -1,12 +1,45 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { ChangePasswordForm } from "@/components/profile/ChangePasswordForm";
-import { UserSettingsForm } from "@/components/profile/UserSettingsForm";
+import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { ReportIssueForm } from "@/components/profile/ReportIssueForm";
+import { UserSettingsForm } from "@/components/profile/UserSettingsForm";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSession } from "@/lib/auth-client";
+import api from "@/lib/axios";
+import { useQuery } from "@tanstack/react-query";
 
 const Profile = () => {
   const { data: session } = useSession();
+
+  const deptId = session?.user
+    ? ((session.user as unknown as Record<string, unknown>).departmentId as
+        | string
+        | undefined)
+    : undefined;
+
+  // Fetch all departments and create a lookup map (same approach as useEmployees)
+  const { data: department = "Not Assigned" } = useQuery({
+    queryKey: ["departments-for-profile"],
+    queryFn: async () => {
+      if (!deptId) {
+        return "Not Assigned";
+      }
+
+      try {
+        const response = await api.get("/departments?limit=1000");
+        const departmentMap = new Map<string, string>();
+
+        response.data.data?.forEach((dept: { id: string; name: string }) => {
+          departmentMap.set(dept.id, dept.name);
+        });
+
+        return departmentMap.get(deptId) || "Not Assigned";
+      } catch (error) {
+        console.error("Failed to fetch departments", error);
+        return "Not Assigned";
+      }
+    },
+    enabled: !!deptId,
+  });
 
   return (
     <div className="space-y-6">
@@ -20,7 +53,7 @@ const Profile = () => {
       <ProfileHeader
         name={session?.user?.name || "Not Specified"}
         email={session?.user?.email || "Not Specified"}
-        department={session?.user?.department || "Not Specified"}
+        department={department}
         avatarUrl={session?.user?.image || undefined}
       />
 
@@ -41,9 +74,7 @@ const Profile = () => {
                     phone:
                       ((session.user as unknown as Record<string, unknown>)
                         .phone as string | null) || null,
-                    department:
-                      ((session.user as unknown as Record<string, unknown>)
-                        .department as string | null) || null,
+                    department: department,
                     role:
                       ((session.user as unknown as Record<string, unknown>)
                         .role as string | null) || null,
