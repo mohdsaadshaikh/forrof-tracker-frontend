@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { TrendingUp, TrendingDown, type LucideIcon } from "lucide-react";
+import { type LucideIcon } from "lucide-react";
 
 type ColorVariant =
   | "green"
@@ -55,10 +55,10 @@ interface StatCardProps {
   title: string;
   value: string | number;
   icon: LucideIcon;
-  trend: {
-    text: string;
-    type: "up" | "down" | "neutral";
-  };
+  // trend: {
+  //   text: string;
+  //   type: "up" | "down" | "neutral";
+  // };
   color?: ColorVariant;
 }
 
@@ -66,7 +66,7 @@ export const StatCard = ({
   title,
   value,
   icon: Icon,
-  trend,
+  // trend,
   color = "blue",
 }: StatCardProps) => {
   const config = colorConfig[color];
@@ -78,7 +78,7 @@ export const StatCard = ({
           <div className="space-y-2">
             <p className={`text-5xl font-medium ${config.text}`}>{value}</p>
             <p className="text-sm font-medium text-muted-foreground">{title}</p>
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            {/* <div className="flex items-center gap-1 text-xs text-muted-foreground">
               {trend.type === "up" && (
                 <TrendingUp className="h-3 w-3 text-red-500" />
               )}
@@ -86,7 +86,7 @@ export const StatCard = ({
                 <TrendingDown className="h-3 w-3 text-green-500" />
               )}
               <span>{trend.text}</span>
-            </div>
+            </div> */}
           </div>
           <div className={`p-3 rounded-full ${config.icon}`}>
             <Icon className="h-5 w-5" />

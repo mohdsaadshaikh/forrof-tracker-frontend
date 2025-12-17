@@ -1,76 +1,84 @@
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { format } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
 import DepartmentSelect from "../common/DepartmentSelect";
+import ProjectSelect from "../common/ProjectSelect";
 
 interface DashboardFiltersProps {
-  timeRange: string;
   department: string;
   project: string;
-  employee: string;
-  onTimeRangeChange: (value: string) => void;
+  startDate?: Date;
+  endDate?: Date;
   onDepartmentChange: (value: string) => void;
   onProjectChange: (value: string) => void;
-  onEmployeeChange: (value: string) => void;
+  onStartDateChange: (date?: Date) => void;
+  onEndDateChange: (date?: Date) => void;
 }
 
 export const DashboardFilters = ({
-  timeRange,
+  department,
   project,
-  employee,
-  onTimeRangeChange,
+  startDate,
+  endDate,
   onDepartmentChange,
   onProjectChange,
-  onEmployeeChange,
+  onStartDateChange,
+  onEndDateChange,
 }: DashboardFiltersProps) => {
   return (
-    <div className="flex justify-end gap-3 flex-wrap">
-      <Select value={timeRange} onValueChange={onTimeRangeChange}>
-        <SelectTrigger className="w-[150px] bg-primary text-primary-foreground">
-          <SelectValue placeholder="Time Range" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Time</SelectItem>
-          <SelectItem value="today">Today</SelectItem>
-          <SelectItem value="week">This Week</SelectItem>
-          <SelectItem value="month">This Month</SelectItem>
-        </SelectContent>
-      </Select>
-
+    <div className="flex justify-end gap-2 flex-wrap">
       <div className="">
         <DepartmentSelect
-          value=""
-          onValueChange={onDepartmentChange}
+          value={department === "all" ? "" : department}
+          onValueChange={(val) => onDepartmentChange(val === "" ? "all" : val)}
           placeholder="Department"
           showAllOption={true}
         />
       </div>
 
-      <Select value={project} onValueChange={onProjectChange}>
-        <SelectTrigger className="w-[150px] bg-primary text-primary-foreground">
-          <SelectValue placeholder="Project" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Projects</SelectItem>
-          <SelectItem value="project1">Project 1</SelectItem>
-          <SelectItem value="project2">Project 2</SelectItem>
-        </SelectContent>
-      </Select>
+      <ProjectSelect
+        value={project === "all" ? "" : project}
+        onValueChange={(val) => onProjectChange(val === "" ? "all" : val)}
+        placeholder="Project"
+        showAllOption={true}
+      />
 
-      <Select value={employee} onValueChange={onEmployeeChange}>
-        <SelectTrigger className="w-[150px] bg-primary text-primary-foreground">
-          <SelectValue placeholder="Employee" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Employees</SelectItem>
-          <SelectItem value="emp1">Employee 1</SelectItem>
-          <SelectItem value="emp2">Employee 2</SelectItem>
-        </SelectContent>
-      </Select>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="default" className="font-normal">
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            {startDate && endDate ? (
+              <span>
+                {format(startDate, "dd MMM")} -{" "}
+                {format(endDate, "dd MMM, yyyy")}
+              </span>
+            ) : (
+              <span>Date Range</span>
+            )}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="end">
+          <Calendar
+            mode="range"
+            selected={{ from: startDate, to: endDate }}
+            onSelect={(range) => {
+              const { from, to } = range || {};
+              onStartDateChange(from || undefined);
+              onEndDateChange(to || undefined);
+            }}
+            disabled={(date) => date > new Date()}
+            numberOfMonths={2}
+            className="rounded-md border"
+            initialFocus
+          />
+        </PopoverContent>
+      </Popover>
     </div>
   );
 };

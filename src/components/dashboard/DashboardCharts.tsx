@@ -6,12 +6,12 @@ import {
   YAxis,
   CartesianGrid,
   ResponsiveContainer,
-  Area,
-  AreaChart,
-  PieChart,
-  Pie,
-  Cell,
-  Legend,
+  // Area,
+  // AreaChart,
+  // PieChart,
+  // Pie,
+  // Cell,
+  // Legend,
 } from "recharts";
 import {
   ChartContainer,
@@ -21,17 +21,17 @@ import {
 
 interface DashboardChartsProps {
   weeklyHoursData: Array<{ week: string; hours: number; percentage: string }>;
-  projectHoursData: Array<{ week: string; estimated: number; logged: number }>;
-  lateArrivalsData: Array<{ name: string; value: number; color: string }>;
+  // projectHoursData: Array<{ week: string; estimated: number; logged: number }>;
+  // lateArrivalsData: Array<{ name: string; value: number; color: string }>;
 }
 
 export const DashboardCharts = ({
   weeklyHoursData,
-  projectHoursData,
-  lateArrivalsData,
-}: DashboardChartsProps) => {
+}: // projectHoursData,
+// lateArrivalsData,
+DashboardChartsProps) => {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1">
       {/* Average Working Hours */}
       <Card>
         <CardHeader>
@@ -68,7 +68,7 @@ export const DashboardCharts = ({
       </Card>
 
       {/* Project-wise Hours */}
-      <Card>
+      {/*<Card>
         <CardHeader>
           <CardTitle className="text-base font-medium">
             Project-wise hours
@@ -119,14 +119,13 @@ export const DashboardCharts = ({
                   // fill="hsl(var(--chart-2))"
                   fill="#01339a"
                   fillOpacity={0.6}
-                /> */}
+                /> 
               </AreaChart>
             </ResponsiveContainer>
           </ChartContainer>
         </CardContent>
       </Card>
 
-      {/* Late Arrivals Distribution */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base font-medium">
@@ -193,7 +192,8 @@ export const DashboardCharts = ({
             </ResponsiveContainer>
           </ChartContainer>
         </CardContent>
-      </Card>
+      </Card> 
+*/}
     </div>
   );
 };
