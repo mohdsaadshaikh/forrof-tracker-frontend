@@ -1,4 +1,3 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { UserAvatar } from "@/components/common/UserAvatar";
 import {
   Table,

@@ -20,7 +20,6 @@ import { format } from "date-fns";
 import { useRole } from "@/hooks/useRole";
 import {
   useServerNotifications,
-  useUnreadCount,
   useMarkNotificationAsRead,
   useMarkAllAsRead,
   useDeleteNotification,
@@ -70,7 +69,6 @@ export const NotificationCenter = () => {
 
   const { data: notificationsData, isLoading: isLoadingNotifications } =
     useServerNotifications(page, 20);
-  const { data: unreadData } = useUnreadCount();
   const markAsReadMutation = useMarkNotificationAsRead();
   const markAllAsReadMutation = useMarkAllAsRead();
   const deleteNotificationMutation = useDeleteNotification();
