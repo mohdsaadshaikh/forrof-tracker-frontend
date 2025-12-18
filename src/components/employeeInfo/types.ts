@@ -49,6 +49,8 @@ export interface UserProfile {
 
 export interface RawUserData {
   id: string;
+  uniqueId?: string;
+  image?: string | null;
   name: string;
   email: string;
   phone?: string | null;
@@ -67,6 +69,8 @@ export interface RawUserData {
 
 export interface Employee {
   id: string;
+  uniqueId?: string;
+  avatar?: string | null;
   name: string;
   email: string;
   phone: string;

@@ -18,7 +18,7 @@ export const employeeFormSchema = z.object({
     .email({
       message: "Please enter a valid email address",
     }),
-  department: z.string({
+  departmentId: z.string({
     message: "Please select a department",
   }),
 });

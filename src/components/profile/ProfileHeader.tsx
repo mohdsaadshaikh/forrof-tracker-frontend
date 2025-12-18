@@ -1,5 +1,5 @@
 import ResponsiveDialog from "@/components/ResponsiveDialog";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/common/UserAvatar";
 import { Button } from "@/components/ui/button";
 import api, { type ApiError } from "@/lib/axios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -180,12 +180,15 @@ export const ProfileHeader = ({
     <>
       <div className="rounded-xl border bg-card/30 backdrop-blur-sm p-8 flex items-center gap-8 max-w-2xl">
         <div className="relative">
-          <Avatar className="w-28 h-28 border border-border rounded-full shadow-sm">
-            <AvatarImage src={avatar} className="object-cover" />
-            <AvatarFallback className="text-3xl font-medium bg-muted">
-              {getInitials(name)}
-            </AvatarFallback>
-          </Avatar>
+          <UserAvatar
+            src={avatar}
+            alt={name}
+            initials={getInitials(name)}
+            size="xl"
+            className="border border-border shadow-sm"
+            imageClassName="object-cover"
+            fallbackClassName="bg-muted"
+          />
 
           <label
             htmlFor="avatar-upload"

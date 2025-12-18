@@ -14,7 +14,9 @@ export const AttendanceCard = ({ record }: AttendanceCardProps) => {
         {/* Employee Info */}
         <div>
           <h3 className="font-semibold text-lg">{record.employeeName}</h3>
-          <p className="text-xs text-muted-foreground mt-1">{record.id}</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {record.uniqueId}
+          </p>
         </div>
 
         {/* Department & Status */}

@@ -1,5 +1,5 @@
 import { NotificationCenter } from "@/components/NotificationCenter";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/common/UserAvatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -86,12 +86,13 @@ const Header = () => {
               <p className="text-sm font-medium">{userName}</p>
               <p className="text-xs text-muted-foreground">{userRole}</p>
             </div>
-            <Avatar>
-              <AvatarImage src={userAvatar ?? undefined} />
-              <AvatarFallback className="border border-primary">
-                {getInitials(userName)}
-              </AvatarFallback>
-            </Avatar>
+            <UserAvatar
+              src={userAvatar}
+              alt={userName}
+              initials={getInitials(userName)}
+              size="md"
+              className="border border-primary"
+            />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>

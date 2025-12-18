@@ -1,5 +1,5 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-// import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardContent } from "@/components/ui/card";
+import { UserAvatar } from "@/components/common/UserAvatar";
 import {
   Table,
   TableBody,
@@ -89,15 +89,15 @@ export const EmployeeTable = ({
               {/* <TableCell className="font-medium">{employee.id}</TableCell> */}
               <TableCell>
                 <div className="flex items-center gap-3">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={employee.avatar} alt={employee.name} />
-                    <AvatarFallback>
-                      {employee.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")}
-                    </AvatarFallback>
-                  </Avatar>
+                  <UserAvatar
+                    src={employee.avatar}
+                    alt={employee.name}
+                    initials={employee.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")}
+                    size="sm"
+                  />
                   <div className="flex flex-col">
                     <span
                       className="font-medium hover:underline cursor-pointer"
@@ -105,7 +105,9 @@ export const EmployeeTable = ({
                     >
                       {employee.name}
                     </span>
-                    <span className="text-xs">{employee.id}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {employee.uniqueId}
+                    </span>
                   </div>
                 </div>
               </TableCell>

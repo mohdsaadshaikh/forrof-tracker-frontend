@@ -53,6 +53,8 @@ export const transformUserData = (userData: RawUserData): Employee => {
 
   return {
     id: userData.id,
+    uniqueId: userData.uniqueId,
+    avatar: userData.image,
     name: userData.name || "Unknown",
     email: userData.email,
     phone: userData.phone || "N/A",

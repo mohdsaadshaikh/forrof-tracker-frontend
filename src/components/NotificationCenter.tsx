@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -16,6 +17,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { format } from "date-fns";
+import { useRole } from "@/hooks/useRole";
 import {
   useServerNotifications,
   useUnreadCount,
@@ -63,6 +65,8 @@ const notificationConfig = {
 export const NotificationCenter = () => {
   const [open, setOpen] = useState(false);
   const [page] = useState(1);
+  const navigate = useNavigate();
+  const { isAdmin } = useRole();
 
   const { data: notificationsData, isLoading: isLoadingNotifications } =
     useServerNotifications(page, 20);
@@ -72,7 +76,34 @@ export const NotificationCenter = () => {
   const deleteNotificationMutation = useDeleteNotification();
 
   const notifications = notificationsData?.data || [];
-  const unreadCount = unreadData?.count || 0;
+
+  // Filter notifications: admins don't see announcements
+  const filteredNotifications = notifications.filter((notification) => {
+    if (isAdmin && notification.type === "announcement") {
+      return false;
+    }
+    return true;
+  });
+
+  // Calculate unread count from filtered notifications only
+  const unreadCount = filteredNotifications.filter(
+    (notification) => !notification.isRead
+  ).length;
+
+  // Function to handle notification click and navigate
+  const getRedirectPath = (type: string): string => {
+    switch (type) {
+      case "announcement":
+        return "/announcements";
+      case "leave":
+        return "/leaves";
+      case "check-in":
+      case "check-out":
+        return "/attendance";
+      default:
+        return "/";
+    }
+  };
 
   const NotificationItem = ({
     notification,
@@ -87,6 +118,10 @@ export const NotificationCenter = () => {
       if (!notification.isRead) {
         markAsReadMutation.mutate(notification.id);
       }
+      // Navigate to the appropriate page based on notification type
+      const redirectPath = getRedirectPath(notification.type);
+      navigate(redirectPath);
+      setOpen(false); // Close the notification popover
     };
 
     const handleDelete = (e: React.MouseEvent) => {
@@ -122,7 +157,7 @@ export const NotificationCenter = () => {
                   )}
                 </div>
                 <p className={`text-xs ${config.textColor} opacity-75 mt-1`}>
-                  {notification.message}
+                  {notification.title}
                 </p>
               </div>
               <Button
@@ -186,7 +221,7 @@ export const NotificationCenter = () => {
               <Loader2 className="h-8 w-8 text-muted-foreground animate-spin" />
               <p className="text-sm text-muted-foreground mt-2">Loading...</p>
             </div>
-          ) : notifications.length === 0 ? (
+          ) : filteredNotifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 px-4">
               <Bell className="h-10 w-10 text-muted-foreground mb-2 opacity-50" />
               <p className="text-sm text-muted-foreground">No notifications</p>
@@ -194,7 +229,7 @@ export const NotificationCenter = () => {
           ) : (
             <ScrollArea className="h-[400px] w-full">
               <div className={`p-3 space-y-2 `}>
-                {notifications.map((notification) => (
+                {filteredNotifications.map((notification) => (
                   <NotificationItem
                     key={notification.id}
                     notification={notification}

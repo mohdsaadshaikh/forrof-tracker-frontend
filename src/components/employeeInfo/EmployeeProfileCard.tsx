@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Mail, Phone, MapPin, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/attendance/StatusBadge";
+import { UserAvatar } from "@/components/common/UserAvatar";
 import {
   Tooltip,
   TooltipContent,
@@ -36,10 +37,14 @@ export const EmployeeProfileCard = ({
     <Card>
       <CardContent className="pt-6">
         {/* Avatar with Online Status */}
-        <div className="flex justify-center mb-6 relative">
-          <div className="w-24 h-24 bg-linear-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-4xl font-bold text-white">
-            {initials}
-          </div>
+        <div className="flex justify-center mb-6">
+          <UserAvatar
+            src={employee.avatar}
+            alt={employee.name}
+            initials={initials}
+            size="xl"
+            className="bg-gradient-to-br from-blue-500 to-purple-600"
+          />
         </div>
 
         {/* Status and Department */}

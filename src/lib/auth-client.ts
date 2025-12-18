@@ -34,6 +34,10 @@ export const authClient = createAuthClient({
           type: "boolean",
           required: false,
         },
+        uniqueId: {
+          type: "string",
+          required: false,
+        },
       },
     }),
     adminClient({
@@ -67,6 +71,7 @@ export type Session = {
   };
   user: {
     id: string;
+    uniqueId?: string;
     name: string;
     email: string;
     emailVerified: boolean;

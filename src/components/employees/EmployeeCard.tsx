@@ -1,5 +1,5 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
+import { UserAvatar } from "@/components/common/UserAvatar";
 import type { Employee } from "@/hooks/useEmployees";
 import { useNavigate } from "react-router-dom";
 
@@ -16,22 +16,19 @@ export const EmployeeCard = ({ employee }: EmployeeCardProps) => {
 
   return (
     <Card className="relative hover:shadow-lg transition-shadow">
-      <CardContent className="p-6">
-        {/* <div className="absolute top-4 left-4">
-          <Checkbox />
-        </div> */}
+      <CardContent className="px-6 py-3">
         <div className="flex flex-col items-center text-center">
-          <Avatar className="h-20 w-20 mb-4">
-            <AvatarImage src={employee.avatar} alt={employee.name} />
-            <AvatarFallback>
-              {employee.name
-                .split(" ")
-                .map((n) => n[0])
-                .join("")}
-            </AvatarFallback>
-          </Avatar>
+          <UserAvatar
+            src={employee.avatar}
+            alt={employee.name}
+            initials={employee.name
+              .split(" ")
+              .map((n) => n[0])
+              .join("")}
+            size="xl"
+          />
           <h3
-            className="font-semibold text-lg mb-2 hover:underline cursor-pointer"
+            className="font-semibold text-lg mb-2 mt-4 hover:underline cursor-pointer"
             onClick={handleClick}
           >
             {employee.name}
@@ -43,7 +40,7 @@ export const EmployeeCard = ({ employee }: EmployeeCardProps) => {
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">ID</span>
-              <span className="font-medium">{employee.id}</span>
+              <span className="font-medium">{employee.uniqueId || "N/A"}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Email</span>

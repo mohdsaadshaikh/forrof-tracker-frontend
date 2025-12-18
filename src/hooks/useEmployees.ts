@@ -5,6 +5,7 @@ import api from "@/lib/axios";
 
 export interface Employee {
   id: string;
+  uniqueId?: string;
   name: string;
   email: string;
   role: string;
@@ -46,8 +47,10 @@ const fetchDepartmentMap = async (): Promise<Map<string, string>> => {
 const mapUserToEmployee = (
   user: {
     id: string;
+    uniqueId?: string;
     name: string;
     email: string;
+    image?: string | null;
     role?: string;
     department?: string;
     departmentId?: string;
@@ -70,6 +73,7 @@ const mapUserToEmployee = (
 
   return {
     id: user.id,
+    uniqueId: user.uniqueId,
     name: user.name || "Unknown",
     email: user.email,
     role: user.role || "employee",
@@ -80,7 +84,7 @@ const mapUserToEmployee = (
     }),
     salary: user.salary,
     status: Math.random() > 0.5 ? "Online" : "Offline",
-    avatar: getInitials(user.name || ""),
+    avatar: user.image || getInitials(user.name || ""),
   };
 };
 

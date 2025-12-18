@@ -63,7 +63,9 @@ export const EmployeeTabsContent = ({ employee }: EmployeeTabsContentProps) => {
                 <p className="text-xs text-muted-foreground uppercase font-semibold mb-1">
                   Employee ID
                 </p>
-                <p className="text-sm font-medium">{employee.id}</p>
+                <p className="text-sm font-medium">
+                  {employee.uniqueId || employee.id}
+                </p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground uppercase font-semibold mb-1">

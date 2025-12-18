@@ -115,7 +115,7 @@ export const AttendanceTable = ({ data, isLoading }: AttendanceTableProps) => {
                 <div className="flex flex-col">
                   <span className="font-medium">{record.employeeName}</span>
                   <span className="text-xs text-muted-foreground">
-                    {record.id}
+                    {record.uniqueId}
                   </span>
                 </div>
               </TableCell>

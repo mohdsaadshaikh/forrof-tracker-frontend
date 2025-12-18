@@ -124,31 +124,6 @@ export default function AboutTab({ data, onValidationChange }: AboutTabProps) {
           )}
         </form>
       </Form>
-
-      {/* Tips Section */}
-      <div className="bg-gray-50 rounded-lg p-6 border border-gray-200 mt-8">
-        <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-          <span className="text-lg">💡</span> Tips for a great bio:
-        </h4>
-        <ul className="space-y-2 text-sm text-gray-700">
-          <li className="flex gap-2">
-            <span className="text-blue-600 shrink-0">•</span>
-            <span>Keep it professional but personable</span>
-          </li>
-          <li className="flex gap-2">
-            <span className="text-blue-600 shrink-0">•</span>
-            <span>Highlight your key skills and achievements</span>
-          </li>
-          <li className="flex gap-2">
-            <span className="text-blue-600 shrink-0">•</span>
-            <span>Mention your career goals and interests</span>
-          </li>
-          <li className="flex gap-2">
-            <span className="text-blue-600 shrink-0">•</span>
-            <span>Show enthusiasm about your work</span>
-          </li>
-        </ul>
-      </div>
     </div>
   );
 }

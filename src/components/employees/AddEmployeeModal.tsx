@@ -40,7 +40,7 @@ export function AddEmployeeModal({
     defaultValues: {
       name: "",
       email: "",
-      department: "",
+      departmentId: "",
     },
   });
 
@@ -52,7 +52,7 @@ export function AddEmployeeModal({
         email: data.email,
         password: "forrof1234",
         data: {
-          department: data.department,
+          departmentId: data.departmentId,
         },
       });
 
@@ -153,7 +153,7 @@ export function AddEmployeeModal({
 
           <FormField
             control={form.control}
-            name="department"
+            name="departmentId"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Department</FormLabel>
@@ -163,6 +163,8 @@ export function AddEmployeeModal({
                     onValueChange={field.onChange}
                     placeholder="Select a department"
                     disabled={isLoading}
+                    width="w-full"
+                    variant="outline"
                   />
                 </FormControl>
                 <FormMessage />
