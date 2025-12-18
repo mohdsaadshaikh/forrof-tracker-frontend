@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import ResponsiveDialog from "@/components/ResponsiveDialog";
+import { DatePicker } from "@/components/common/DatePicker";
 import {
   useAddExperience,
   useUpdateExperience,
@@ -185,7 +186,11 @@ export default function ExperienceTab({
                   <FormItem>
                     <FormLabel>Start Date</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} />
+                      <DatePicker
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="Select start date"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -199,7 +204,11 @@ export default function ExperienceTab({
                   <FormItem>
                     <FormLabel>End Date (Optional)</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} />
+                      <DatePicker
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="Select end date"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

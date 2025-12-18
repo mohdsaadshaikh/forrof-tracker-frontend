@@ -3,6 +3,7 @@ import { Calendar } from "@/components/ui/calendar";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -270,6 +271,9 @@ export const ApplyLeaveDialog = ({
                 />
               </FormControl>
               <FormMessage />
+              <FormDescription className="text-xs font-semibold text-end">
+                {field.value?.length || 0}/500
+              </FormDescription>
             </FormItem>
           )}
         />

@@ -33,13 +33,22 @@ export const formatExperienceData = (
 export const formatEducationData = (
   educations: UserEducation[]
 ): FormattedEducation[] => {
-  return educations.map((edu) => ({
-    id: edu.id,
-    degree: edu.educationName,
-    field: edu.description || "",
-    institution: edu.institute,
-    year: new Date(edu.startDate).getFullYear(),
-  }));
+  return educations.map((edu) => {
+    const startYear = new Date(edu.startDate).getFullYear();
+    const endYear = edu.endDate ? new Date(edu.endDate).getFullYear() : null;
+    const period = endYear
+      ? `${startYear} - ${endYear}`
+      : `${startYear} - Present`;
+
+    return {
+      id: edu.id,
+      degree: edu.educationName,
+      field: edu.description || "",
+      institution: edu.institute,
+      year: startYear,
+      period,
+    };
+  });
 };
 
 export const formatSkillsData = (skills: UserSkill[]): string[] => {

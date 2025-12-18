@@ -146,7 +146,7 @@ export const EmployeeTabsContent = ({ employee }: EmployeeTabsContentProps) => {
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Calendar className="h-4 w-4" />
-                  Graduated {edu.year}
+                  {edu.period}
                 </div>
               </CardContent>
             </Card>

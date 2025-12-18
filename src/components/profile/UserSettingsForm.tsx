@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PhoneInput } from "@/components/common/PhoneInput";
 import { updateUser } from "@/lib/auth-client";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
@@ -97,13 +98,12 @@ export const UserSettingsForm = ({ initialData }: UserSettingsFormProps) => {
 
             <div className="space-y-2">
               <Label htmlFor="phone">Phone Number</Label>
-              <Input
-                id="phone"
-                type="tel"
+              <PhoneInput
                 value={formData.phone ?? ""}
-                onChange={(e) =>
-                  setFormData({ ...formData, phone: e.target.value })
+                onChange={(value: string) =>
+                  setFormData({ ...formData, phone: value })
                 }
+                defaultCountry="PK"
               />
             </div>
 

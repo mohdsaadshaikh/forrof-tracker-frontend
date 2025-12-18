@@ -1,6 +1,6 @@
+import { OnboardingPage } from "@/pages/onboarding";
 import { useSession } from "@/lib/auth-client";
-import { useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 
 interface OnboardingGuardProps {
   children: React.ReactNode;
@@ -8,27 +8,53 @@ interface OnboardingGuardProps {
 
 export function OnboardingGuard({ children }: OnboardingGuardProps) {
   const { data: session } = useSession();
-  const navigate = useNavigate();
-  const navigationDoneRef = useRef(false);
+  const location = useLocation();
 
   const user = session?.user as Record<string, unknown>;
-  const role = user?.role as string | undefined;
   const isProfileCompleted = (user?.isProfileCompleted as boolean) ?? true;
 
-  // Use effect to handle navigation - must be called unconditionally
-  useEffect(() => {
-    // Skip for admin users
-    if (role === "ADMIN") {
-      navigationDoneRef.current = false;
-      return;
-    }
+  if (
+    session?.user &&
+    !isProfileCompleted &&
+    location.pathname !== "/profile"
+  ) {
+    document.documentElement.style.overflow = "hidden";
+    return (
+      <>
+        <Navigate to="/profile" replace />
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm">
+          <OnboardingPage
+            onCompleted={() => {
+              console.log("Onboarding completed, reloading...");
+              window.location.reload();
+            }}
+          />
+        </div>
+      </>
+    );
+  }
 
-    // Only navigate once and prevent re-navigation
-    if (session?.user && !isProfileCompleted && !navigationDoneRef.current) {
-      navigationDoneRef.current = true;
-      navigate("/onboarding", { replace: true });
-    }
-  }, [session, isProfileCompleted, navigate, role]);
+  if (
+    session?.user &&
+    !isProfileCompleted &&
+    location.pathname === "/profile"
+  ) {
+    document.documentElement.style.overflow = "hidden";
+    return (
+      <>
+        {children}
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm">
+          <OnboardingPage
+            onCompleted={() => {
+              console.log("Onboarding completed, reloading...");
+              window.location.reload();
+            }}
+          />
+        </div>
+      </>
+    );
+  }
 
+  document.documentElement.style.overflow = "auto";
   return <>{children}</>;
 }

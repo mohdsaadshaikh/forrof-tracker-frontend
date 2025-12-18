@@ -31,6 +31,7 @@ export interface FormattedEducation {
   field: string;
   institution: string;
   year: number;
+  period: string;
 }
 
 export interface UserSkill {

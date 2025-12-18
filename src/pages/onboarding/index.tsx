@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { useSession } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
 import {
   useGetOnboardingData,
   useCompleteOnboarding,
@@ -11,22 +13,51 @@ import PersonalTab from "./tabs/PersonalTab";
 import ExperienceTab from "./tabs/ExperienceTab";
 import SkillsTab from "./tabs/SkillsTab";
 import EducationTab from "./tabs/EducationTab";
-import { Loader2, User, Briefcase, Code, GraduationCap } from "lucide-react";
+import {
+  Loader2,
+  User,
+  Briefcase,
+  Code,
+  GraduationCap,
+  LogOut,
+  Home,
+} from "lucide-react";
 
-export default function OnboardingPage() {
+interface OnboardingPageProps {
+  onCompleted?: () => void;
+}
+
+export function OnboardingPage({ onCompleted }: OnboardingPageProps) {
   const navigate = useNavigate();
+  const { data: session } = useSession();
   const { data: onboardingData, isLoading } = useGetOnboardingData();
   const { mutate: completeOnboarding, isPending: isCompleting } =
     useCompleteOnboarding();
   const [activeTab, setActiveTab] = useState("personal");
   const [isCurrentTabValid, setIsCurrentTabValid] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
+
+  const user = session?.user as Record<string, unknown>;
+  const isProfileCompleted = (user?.isProfileCompleted as boolean) ?? false;
 
   const handleCompleteOnboarding = () => {
     completeOnboarding(undefined, {
       onSuccess: () => {
-        navigate("/", { replace: true });
+        setIsRedirecting(true);
+        setTimeout(() => {
+          onCompleted?.();
+        }, 2000);
       },
     });
+  };
+
+  const handleGoToDashboard = () => {
+    navigate("/");
+  };
+
+  const handleBackToLogin = async () => {
+    await authClient.signOut();
+    navigate("/login", { replace: true });
   };
 
   if (isLoading) {
@@ -35,6 +66,20 @@ export default function OnboardingPage() {
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-brand" />
           <p className="text-gray-600">Loading your profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isRedirecting) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-linear-to-br from-blue-50 to-indigo-100">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4 text-brand" />
+          <p className="text-lg font-semibold text-gray-900 mb-2">
+            Profile completed! 🎉
+          </p>
+          <p className="text-gray-600">Redirecting to dashboard...</p>
         </div>
       </div>
     );
@@ -53,7 +98,7 @@ export default function OnboardingPage() {
   const progressPercentage = ((currentTabIndex + 1) / tabs.length) * 100;
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-indigo-100 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+    <div className="h-screen overflow-y-auto scroll-smooth bg-linear-to-br from-blue-50 via-white to-indigo-100 py-12 px-4 sm:px-6 lg:px-8 relative">
       {/* Decorative background elements */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 -z-10" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 -z-10" />
@@ -155,64 +200,91 @@ export default function OnboardingPage() {
             </div>
           </Tabs>
 
-          {/* Enhanced Navigation Buttons */}
-          <div className="flex justify-between px-8 py-6 border-t bg-gray-50">
-            <Button
-              variant="outline"
-              onClick={() => {
-                const prevIdx = currentTabIndex - 1;
-                if (prevIdx >= 0) {
-                  setActiveTab(tabs[prevIdx].id);
-                }
-              }}
-              disabled={activeTab === "personal"}
-              className="font-medium"
-            >
-              ← Previous
-            </Button>
-
-            <div className="text-center text-xs text-gray-500">
-              {tabs.map((tab) => (
-                <span
-                  key={tab.id}
-                  className={`inline-block w-2 h-2 rounded-full mx-1 transition-colors ${
-                    activeTab === tab.id ? "bg-brand" : "bg-gray-300"
-                  }`}
-                />
-              ))}
-            </div>
-
-            {activeTab !== "education" ? (
+          {/* Enhanced Navigation Buttons - Inside Card */}
+          {!isProfileCompleted && (
+            <div className="flex items-center justify-between px-8 py-6 border-t bg-gray-50">
               <Button
+                variant="outline"
                 onClick={() => {
-                  const nextIdx = currentTabIndex + 1;
-                  if (nextIdx < tabs.length) {
-                    setActiveTab(tabs[nextIdx].id);
+                  const prevIdx = currentTabIndex - 1;
+                  if (prevIdx >= 0) {
+                    setActiveTab(tabs[prevIdx].id);
                   }
                 }}
-                disabled={!isCurrentTabValid}
+                disabled={activeTab === "personal"}
+                className="font-medium"
               >
-                Next →
+                ← Previous
               </Button>
-            ) : (
-              <Button
-                onClick={handleCompleteOnboarding}
-                disabled={isCompleting}
-                className="bg-linear-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 font-medium"
-              >
-                {isCompleting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Completing...
-                  </>
+
+              <div className="text-center text-xs text-gray-500">
+                {tabs.map((tab) => (
+                  <span
+                    key={tab.id}
+                    className={`inline-block w-2 h-2 rounded-full mx-1 transition-colors ${
+                      activeTab === tab.id ? "bg-brand" : "bg-gray-300"
+                    }`}
+                  />
+                ))}
+              </div>
+
+              <div className="flex gap-2">
+                {activeTab !== "education" ? (
+                  <Button
+                    onClick={() => {
+                      const nextIdx = currentTabIndex + 1;
+                      if (nextIdx < tabs.length) {
+                        setActiveTab(tabs[nextIdx].id);
+                      }
+                    }}
+                    disabled={!isCurrentTabValid}
+                  >
+                    Next →
+                  </Button>
                 ) : (
-                  "✓ Complete Profile"
+                  <Button
+                    onClick={handleCompleteOnboarding}
+                    disabled={isCompleting}
+                    className="bg-linear-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 font-medium"
+                  >
+                    {isCompleting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Completing...
+                      </>
+                    ) : (
+                      "✓ Complete Profile"
+                    )}
+                  </Button>
                 )}
-              </Button>
-            )}
-          </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="flex justify-between gap-4 mt-4">
+          {!isProfileCompleted ? (
+            <Button
+              onClick={handleBackToLogin}
+              className="font-medium flex-1 bg-red-50 hover:bg-red-100 text-red-700 border border-red-300"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Back to Login
+            </Button>
+          ) : (
+            <Button
+              className="font-medium flex-1"
+              variant="outline"
+              onClick={handleGoToDashboard}
+            >
+              <Home className="w-4 h-4 mr-2" />
+              Go to Dashboard
+            </Button>
+          )}
         </div>
       </div>
     </div>
   );
 }
+
+export default OnboardingPage;

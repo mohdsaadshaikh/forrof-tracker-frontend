@@ -11,7 +11,7 @@ import {
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useAuthState } from "@/hooks/useAuthState";
 import { signOut, useSession } from "@/lib/auth-client";
-import { LogOut, User } from "lucide-react";
+import { LogOut, SquareCheckBigIcon, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -100,6 +100,11 @@ const Header = () => {
             <DropdownMenuItem onClick={() => navigate("/profile")}>
               <User className="mr-2 h-4 w-4" />
               <span>Profile</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => navigate("/onboarding")}>
+              <SquareCheckBigIcon className="mr-2 h-4 w-4" />
+              <span>Onboarding</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem

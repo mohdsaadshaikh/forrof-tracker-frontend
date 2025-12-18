@@ -91,15 +91,10 @@ export default function AboutTab({ data, onValidationChange }: AboutTabProps) {
                     {...field}
                   />
                 </FormControl>
-                <div className="flex justify-between items-center">
-                  <FormDescription className="text-xs">
-                    Write a brief introduction about yourself, your background,
-                    and your professional goals
-                  </FormDescription>
-                  <FormDescription className="text-xs font-semibold">
-                    {field.value?.length || 0}/500
-                  </FormDescription>
-                </div>
+                <FormDescription className="text-xs font-semibold text-end">
+                  {field.value?.length || 0}/500
+                </FormDescription>
+
                 <FormMessage />
               </FormItem>
             )}

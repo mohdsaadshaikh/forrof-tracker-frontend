@@ -22,7 +22,21 @@ import {
 } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { X } from "lucide-react";
+import { X, Check } from "lucide-react";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import ResponsiveDialog from "@/components/ResponsiveDialog";
 import DepartmentSelect from "@/components/common/DepartmentSelect";
 import { useEmployees } from "@/hooks/useEmployees";
@@ -45,6 +59,7 @@ interface ProjectFormProps {
 export function ProjectForm({ open, onOpenChange, project }: ProjectFormProps) {
   const [employeeSearch, setEmployeeSearchState] = useState("");
   const [debouncedSearch] = useDebounce(employeeSearch, 750);
+  const [popoverSearch, setPopoverSearch] = useState("");
 
   const form = useForm<ProjectFormData>({
     resolver: zodResolver(projectFormSchema),
@@ -91,9 +106,9 @@ export function ProjectForm({ open, onOpenChange, project }: ProjectFormProps) {
 
   const memberIds = form.watch("memberIds") || [];
 
-  const availableEmployees = (employeesData?.employees || []).filter(
-    (emp) => !memberIds.includes(emp.id)
-  );
+  // const availableEmployees = (employeesData?.employees || []).filter(
+  //   (emp) => !memberIds.includes(emp.id)
+  // );
 
   const selectedMembers = (employeesData?.employees || []).filter((emp) =>
     memberIds.includes(emp.id)
@@ -225,31 +240,82 @@ export function ProjectForm({ open, onOpenChange, project }: ProjectFormProps) {
           <div>
             <Label>Assign Team Members</Label>
             <div className="mt-2 space-y-2">
-              {/* Employee Search */}
-              <div className="relative">
-                <Input
-                  placeholder="Search and add employees..."
-                  onChange={(e) => setEmployeeSearchState(e.target.value)}
-                  className="text-sm"
-                />
-                {employeeSearch && availableEmployees.length > 0 && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded-md shadow-lg z-10 max-h-48 overflow-y-auto">
-                    {availableEmployees.map((emp) => (
-                      <button
-                        key={emp.id}
-                        type="button"
-                        onClick={() => handleAddEmployee(emp.id)}
-                        className="w-full text-left px-3 py-2 hover:bg-accent text-sm"
-                      >
-                        <div className="font-medium">{emp.name}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {emp.email}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-left font-normal"
+                  >
+                    {memberIds.length > 0
+                      ? `${memberIds.length} member${
+                          memberIds.length !== 1 ? "s" : ""
+                        } selected`
+                      : "Search and add employees..."}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0" align="start">
+                  <Command>
+                    <CommandInput
+                      placeholder="Search employees..."
+                      value={popoverSearch}
+                      onValueChange={setPopoverSearch}
+                    />
+                    {!popoverSearch ? (
+                      <div className="p-4 text-sm text-muted-foreground text-center">
+                        Start typing to search employees...
+                      </div>
+                    ) : (
+                      <>
+                        <CommandEmpty>No employee found.</CommandEmpty>
+                        <CommandList>
+                          <CommandGroup>
+                            {(employeesData?.employees || [])
+                              .filter(
+                                (emp) =>
+                                  emp.name
+                                    .toLowerCase()
+                                    .includes(popoverSearch.toLowerCase()) ||
+                                  emp.email
+                                    .toLowerCase()
+                                    .includes(popoverSearch.toLowerCase())
+                              )
+                              .map((emp) => (
+                                <CommandItem
+                                  key={emp.id}
+                                  onSelect={() => {
+                                    if (memberIds.includes(emp.id)) {
+                                      handleRemoveEmployee(emp.id);
+                                    } else {
+                                      handleAddEmployee(emp.id);
+                                    }
+                                  }}
+                                  className="cursor-pointer"
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      memberIds.includes(emp.id)
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                  <div className="flex flex-col gap-1 flex-1">
+                                    <div className="font-medium">
+                                      {emp.name}
+                                    </div>
+                                    <div className="text-xs text-muted-foreground">
+                                      {emp.email}
+                                    </div>
+                                  </div>
+                                </CommandItem>
+                              ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </>
+                    )}
+                  </Command>
+                </PopoverContent>
+              </Popover>
 
               {/* Assigned Users */}
               {selectedMembers.length > 0 && (
@@ -260,7 +326,7 @@ export function ProjectForm({ open, onOpenChange, project }: ProjectFormProps) {
                       <button
                         type="button"
                         onClick={() => handleRemoveEmployee(user.id)}
-                        className="ml-1"
+                        className="ml-1 hover:text-destructive"
                       >
                         <X className="h-3 w-3" />
                       </button>

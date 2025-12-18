@@ -43,7 +43,7 @@ export const EmployeeProfileCard = ({
             alt={employee.name}
             initials={initials}
             size="xl"
-            className="bg-gradient-to-br from-blue-500 to-purple-600"
+            className="bg-linear-to-br from-blue-500 to-purple-600"
           />
         </div>
 
