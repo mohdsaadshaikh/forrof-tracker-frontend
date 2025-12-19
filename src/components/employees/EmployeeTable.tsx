@@ -1,4 +1,5 @@
 import { UserAvatar } from "@/components/common/UserAvatar";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -7,7 +8,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
@@ -15,8 +15,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import type { Employee } from "@/hooks/useEmployees";
+import { DollarSign, UserMinus, UserPlus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { UserPlus, UserMinus, DollarSign } from "lucide-react";
 
 interface EmployeeTableProps {
   employees: Employee[];
@@ -154,7 +154,37 @@ export const EmployeeTable = ({
               </TableCell>
               <TableCell className="text-right">
                 <TooltipProvider>
-                  <div className="flex items-center justify-end gap-2">
+                  <div className="flex items-center justify-end gap-1">
+                    {/* {employee.githubUrl && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <a
+                            href={employee.githubUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:text-gray-700"
+                          >
+                            <Github className="h-4 w-4" />
+                          </a>
+                        </TooltipTrigger>
+                        <TooltipContent>Visit GitHub Profile</TooltipContent>
+                      </Tooltip>
+                    )}
+                    {employee.linkedinUrl && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <a
+                            href={employee.linkedinUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:text-blue-600"
+                          >
+                            <Linkedin className="h-4 w-4" />
+                          </a>
+                        </TooltipTrigger>
+                        <TooltipContent>Visit LinkedIn Profile</TooltipContent>
+                      </Tooltip>
+                    )} */}
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button

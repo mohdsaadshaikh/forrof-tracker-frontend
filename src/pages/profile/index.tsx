@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSession } from "@/lib/auth-client";
 import api from "@/lib/axios";
 import { useQuery } from "@tanstack/react-query";
+import { Settings, Lock, AlertCircle } from "lucide-react";
 
 const Profile = () => {
   const { data: session } = useSession();
@@ -59,9 +60,18 @@ const Profile = () => {
 
       <Tabs defaultValue="settings" className="w-full">
         <TabsList className="grid w-full max-w-2xl grid-cols-3">
-          <TabsTrigger value="settings">User Settings</TabsTrigger>
-          <TabsTrigger value="password">Change Password</TabsTrigger>
-          <TabsTrigger value="report">Report Issue</TabsTrigger>
+          <TabsTrigger value="settings" className="gap-2">
+            <Settings className="h-4 w-4 sm:hidden" />
+            <span>Settings</span>
+          </TabsTrigger>
+          <TabsTrigger value="password" className="gap-2">
+            <Lock className="h-4 w-4 sm:hidden" />
+            <span>Password</span>
+          </TabsTrigger>
+          <TabsTrigger value="report" className="gap-2">
+            <AlertCircle className="h-4 w-4 sm:hidden" />
+            <span>Report</span>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="settings" className="mt-6">
@@ -84,6 +94,12 @@ const Profile = () => {
                     address:
                       ((session.user as unknown as Record<string, unknown>)
                         .address as string | null) || null,
+                    githubUrl:
+                      ((session.user as unknown as Record<string, unknown>)
+                        .githubUrl as string | null) || null,
+                    linkedinUrl:
+                      ((session.user as unknown as Record<string, unknown>)
+                        .linkedinUrl as string | null) || null,
                   }
                 : undefined
             }

@@ -66,6 +66,10 @@ export interface RawUserData {
   experiences?: UserExperience[];
   educations?: UserEducation[];
   skills?: UserSkill[];
+  githubUrl?: string | null;
+  linkedinUrl?: string | null;
+  status?: "Online" | "Offline" | "Break";
+  isOnline?: boolean;
 }
 
 export interface Employee {
@@ -88,4 +92,6 @@ export interface Employee {
   education: FormattedEducation[];
   role: string;
   isProfileCompleted: boolean;
+  githubUrl?: string | null;
+  linkedinUrl?: string | null;
 }

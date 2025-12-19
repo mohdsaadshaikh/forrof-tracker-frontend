@@ -8,6 +8,24 @@ export const reportIssueSchema = z.object({
 
 export type ReportIssueType = z.infer<typeof reportIssueSchema>;
 
+// GitHub URL validation - should be in format: https://github.com/username
+export const githubUrlSchema = z
+  .string()
+  .optional()
+  .refine((url) => {
+    if (!url) return true; // Optional field
+    return /^https:\/\/github\.com\/[a-zA-Z0-9-]+\/?$/.test(url);
+  }, "Please enter a valid GitHub URL (e.g., https://github.com/username)");
+
+// LinkedIn URL validation - should be in format: https://linkedin.com/in/username or https://www.linkedin.com/in/username
+export const linkedinUrlSchema = z
+  .string()
+  .optional()
+  .refine((url) => {
+    if (!url) return true; // Optional field
+    return /^https:\/\/(www\.)?linkedin\.com\/in\/[a-zA-Z0-9-]+\/?$/.test(url);
+  }, "Please enter a valid LinkedIn URL (e.g., https://linkedin.com/in/username)");
+
 const passwordSchema = z
   .string()
   .min(8, "Password must be at least 8 characters long")

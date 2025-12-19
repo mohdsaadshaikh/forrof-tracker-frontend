@@ -16,6 +16,8 @@ export interface Employee {
   salary?: number;
   status: "Online" | "Offline";
   avatar: string;
+  githubUrl?: string;
+  linkedinUrl?: string;
 }
 
 const getInitials = (name: string): string => {
@@ -56,6 +58,8 @@ const mapUserToEmployee = (
     departmentId?: string;
     createdAt: Date | string;
     salary?: number;
+    githubUrl?: string;
+    linkedinUrl?: string;
   },
   departmentMap: Map<string, string>
 ): Employee => {
@@ -85,6 +89,8 @@ const mapUserToEmployee = (
     salary: user.salary,
     status: Math.random() > 0.5 ? "Online" : "Offline",
     avatar: user.image || getInitials(user.name || ""),
+    githubUrl: user.githubUrl,
+    linkedinUrl: user.linkedinUrl,
   };
 };
 
@@ -134,6 +140,7 @@ export const useEmployees = (
       const { data: usersData, error } = await authClient.admin.listUsers({
         query: queryObj,
       });
+      console.log("Users Data:", usersData, "Error:", error);
 
       if (error) {
         throw new Error("Failed to fetch employees");

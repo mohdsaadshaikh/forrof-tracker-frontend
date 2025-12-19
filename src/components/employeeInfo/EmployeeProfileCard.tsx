@@ -1,6 +1,13 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Mail, Phone, MapPin, DollarSign } from "lucide-react";
+import {
+  Mail,
+  Phone,
+  MapPin,
+  DollarSign,
+  Github,
+  Linkedin,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/attendance/StatusBadge";
 import { UserAvatar } from "@/components/common/UserAvatar";
@@ -32,7 +39,7 @@ export const EmployeeProfileCard = ({
     .map((n) => n[0])
     .join("")
     .toUpperCase();
-
+  console.log(employee);
   return (
     <Card>
       <CardContent className="pt-6">
@@ -74,6 +81,33 @@ export const EmployeeProfileCard = ({
             <MapPin className="h-4 w-4 text-muted-foreground" />
             <span>{employee.location}</span>
           </div>
+
+          {employee.githubUrl && (
+            <div className="flex items-center gap-2 text-sm">
+              <Github className="h-4 w-4 text-muted-foreground" />
+              <a
+                href={employee.githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline truncate"
+              >
+                {employee.githubUrl.replace("https://", "")}
+              </a>
+            </div>
+          )}
+          {employee.linkedinUrl && (
+            <div className="flex items-center gap-2 text-sm">
+              <Linkedin className="h-4 w-4 text-muted-foreground" />
+              <a
+                href={employee.linkedinUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline truncate"
+              >
+                {employee.linkedinUrl.replace("https://", "")}
+              </a>
+            </div>
+          )}
         </div>
 
         {/* Details */}

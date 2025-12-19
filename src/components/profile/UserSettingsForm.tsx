@@ -6,12 +6,37 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { PhoneInput } from "@/components/common/PhoneInput";
 import { updateUser } from "@/lib/auth-client";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { githubUrlSchema, linkedinUrlSchema } from "@/lib/validations/user";
+
+const userSettingsSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email"),
+  phone: z.string().optional(),
+  department: z.string().optional(),
+  role: z.string().optional(),
+  salary: z.number().optional(),
+  address: z.string().optional(),
+  githubUrl: githubUrlSchema,
+  linkedinUrl: linkedinUrlSchema,
+});
+
+type UserSettingsFormValues = z.infer<typeof userSettingsSchema>;
 
 interface UserSettingsFormProps {
   initialData?: {
@@ -22,37 +47,52 @@ interface UserSettingsFormProps {
     role?: string | null;
     salary?: number | null;
     address?: string | null;
+    githubUrl?: string | null;
+    linkedinUrl?: string | null;
   };
 }
 
 export const UserSettingsForm = ({ initialData }: UserSettingsFormProps) => {
-  const [formData, setFormData] = useState(
-    initialData || {
-      name: "",
-      email: "",
-      phone: null,
-      department: null,
-      role: null,
-      salary: null,
-      address: null,
-    }
-  );
+  const form = useForm<UserSettingsFormValues>({
+    resolver: zodResolver(userSettingsSchema),
+    defaultValues: {
+      name: initialData?.name ?? "",
+      email: initialData?.email ?? "",
+      phone: initialData?.phone ?? "",
+      department: initialData?.department ?? "",
+      role: initialData?.role ?? "",
+      salary: initialData?.salary ?? undefined,
+      address: initialData?.address ?? "",
+      githubUrl: initialData?.githubUrl ?? "",
+      linkedinUrl: initialData?.linkedinUrl ?? "",
+    },
+  });
 
-  // Update formData when initialData changes
+  // Update form when initialData changes
   useEffect(() => {
     if (initialData) {
-      setFormData(initialData);
+      form.reset({
+        name: initialData.name ?? "",
+        email: initialData.email ?? "",
+        phone: initialData.phone ?? "",
+        department: initialData.department ?? "",
+        role: initialData.role ?? "",
+        salary: initialData.salary ?? undefined,
+        address: initialData.address ?? "",
+        githubUrl: initialData.githubUrl ?? "",
+        linkedinUrl: initialData.linkedinUrl ?? "",
+      });
     }
-  }, [initialData]);
+  }, [initialData, form]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (values: UserSettingsFormValues) => {
     try {
-      // updateUser comes from better-auth client and accepts partial user fields
       const updatePayload: Record<string, string | number | undefined> = {
-        name: formData.name,
-        phone: formData.phone ?? undefined,
-        address: formData.address ?? undefined,
+        name: values.name,
+        phone: values.phone || undefined,
+        address: values.address || undefined,
+        githubUrl: values.githubUrl || undefined,
+        linkedinUrl: values.linkedinUrl || undefined,
       };
 
       await updateUser(updatePayload);
@@ -71,147 +111,177 @@ export const UserSettingsForm = ({ initialData }: UserSettingsFormProps) => {
           <CardDescription>Update your personal details</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
-                required
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(handleSubmit)}
+              className="space-y-6 max-w-2xl"
+            >
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Your name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                readOnly
-                className="cursor-not-allowed opacity-75"
-                required
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        readOnly
+                        className="cursor-not-allowed opacity-75"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number</Label>
-              <PhoneInput
-                value={formData.phone ?? ""}
-                onChange={(value: string) =>
-                  setFormData({ ...formData, phone: value })
-                }
-                defaultCountry="PK"
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phone Number</FormLabel>
+                    <FormControl>
+                      <PhoneInput
+                        placeholder="Select a country"
+                        defaultCountry="PK"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="department">Department</Label>
-                <Input
-                  id="department"
-                  value={formData.department ?? ""}
-                  readOnly
-                  className="cursor-not-allowed opacity-75"
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="department"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="opacity-60">Department</FormLabel>
+                      <FormControl>
+                        <Input
+                          readOnly
+                          className="cursor-not-allowed focus-visible:ring-0 focus-visible:border-input opacity-60"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="role"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="opacity-60">Role</FormLabel>
+                      <FormControl>
+                        <Input
+                          readOnly
+                          className="cursor-not-allowed focus-visible:ring-0 focus-visible:border-input opacity-60"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="role">Role</Label>
-                <Input
-                  id="role"
-                  value={formData.role ?? ""}
-                  readOnly
-                  className="cursor-not-allowed opacity-75"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="salary">Salary</Label>
-              <Input
-                id="salary"
-                type="number"
-                value={formData.salary ?? ""}
-                readOnly
-                className="cursor-not-allowed opacity-75"
+              <FormField
+                control={form.control}
+                name="salary"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="opacity-60">Salary</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        readOnly
+                        className="cursor-not-allowed focus-visible:ring-0 focus-visible:border-input opacity-60"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="address">Address</Label>
-              <Input
-                id="address"
-                value={formData.address ?? ""}
-                onChange={(e) =>
-                  setFormData({ ...formData, address: e.target.value })
-                }
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Address</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="123 Main St, City, State 12345"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
 
-            <Button type="submit" className="bg-brand hover:bg-brand/90">
-              Save Changes
-            </Button>
-          </form>
+              <FormField
+                control={form.control}
+                name="githubUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>GitHub Profile</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="https://github.com/username"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="linkedinUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>LinkedIn Profile</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="https://linkedin.com/in/username"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <Button type="submit" className="bg-brand hover:bg-brand/90">
+                Save Changes
+              </Button>
+            </form>
+          </Form>
         </CardContent>
       </Card>
-      {/* 
-      <Card className="max-w-3xl">
-        <CardHeader>
-          <CardTitle>Notification Preferences</CardTitle>
-          <CardDescription>
-            Manage how you receive notifications
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4 max-w-2xl">
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label>Email Notifications</Label>
-              <p className="text-sm text-muted-foreground">
-                Receive notifications via email
-              </p>
-            </div>
-            <Switch
-              checked={notifications.email}
-              onCheckedChange={(checked) =>
-                setNotifications({ ...notifications, email: checked })
-              }
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label>Push Notifications</Label>
-              <p className="text-sm text-muted-foreground">
-                Receive push notifications in browser
-              </p>
-            </div>
-            <Switch
-              checked={notifications.push}
-              onCheckedChange={(checked) =>
-                setNotifications({ ...notifications, push: checked })
-              }
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label>SMS Notifications</Label>
-              <p className="text-sm text-muted-foreground">
-                Receive notifications via SMS
-              </p>
-            </div>
-            <Switch
-              checked={notifications.sms}
-              onCheckedChange={(checked) =>
-                setNotifications({ ...notifications, sms: checked })
-              }
-            />
-          </div>
-        </CardContent>
-      </Card> */}
     </div>
   );
 };

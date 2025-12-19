@@ -24,6 +24,7 @@ import {
   type Experience,
 } from "@/hooks/useOnboarding";
 import { Plus, Trash2, Edit } from "lucide-react";
+import DeleteConfirmDialog from "@/components/announcements/DeleteAnnouncementDialog";
 
 const experienceSchema = z.object({
   position: z.string().min(2, "Position is required"),
@@ -52,6 +53,8 @@ export default function ExperienceTab({
 
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const form = useForm<ExperienceFormValues>({
     resolver: zodResolver(experienceSchema),
@@ -104,8 +107,15 @@ export default function ExperienceTab({
   };
 
   const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this experience?")) {
-      deleteExperience(id);
+    setDeleteId(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (deleteId) {
+      deleteExperience(deleteId);
+      setDeleteDialogOpen(false);
+      setDeleteId(null);
     }
   };
 
@@ -244,6 +254,15 @@ export default function ExperienceTab({
           </form>
         </Form>
       </ResponsiveDialog>
+
+      <DeleteConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={confirmDelete}
+        title="Delete Experience"
+        message="Are you sure you want to delete this experience? This action cannot be undone."
+        isLoading={isDeleting}
+      />
 
       <div className="space-y-3">
         {data?.experiences && data.experiences.length > 0 ? (

@@ -24,6 +24,7 @@ import {
   type Education,
 } from "@/hooks/useOnboarding";
 import { Plus, Trash2, Edit, GraduationCap } from "lucide-react";
+import DeleteConfirmDialog from "@/components/announcements/DeleteAnnouncementDialog";
 
 const educationSchema = z.object({
   educationName: z.string().min(2, "Degree/Program name is required"),
@@ -52,6 +53,8 @@ export default function EducationTab({
 
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   // Education is valid if at least one education entry exists
   useEffect(() => {
@@ -104,8 +107,15 @@ export default function EducationTab({
   };
 
   const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this education entry?")) {
-      deleteEducation(id);
+    setDeleteId(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (deleteId) {
+      deleteEducation(deleteId);
+      setDeleteDialogOpen(false);
+      setDeleteId(null);
     }
   };
 
@@ -248,6 +258,15 @@ export default function EducationTab({
           </form>
         </Form>
       </ResponsiveDialog>
+
+      <DeleteConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={confirmDelete}
+        title="Delete Education"
+        message="Are you sure you want to delete this education entry? This action cannot be undone."
+        isLoading={isDeleting}
+      />
 
       <div className="space-y-3">
         {data?.educations && data.educations.length > 0 ? (

@@ -73,19 +73,21 @@ export const NotificationCenter = () => {
   const markAllAsReadMutation = useMarkAllAsRead();
   const deleteNotificationMutation = useDeleteNotification();
 
-  const notifications = notificationsData?.data || [];
+  const notifications: ServerNotification[] = notificationsData?.data || [];
 
   // Filter notifications: admins don't see announcements
-  const filteredNotifications = notifications.filter((notification) => {
-    if (isAdmin && notification.type === "announcement") {
-      return false;
+  const filteredNotifications = notifications.filter(
+    (notification: ServerNotification) => {
+      if (isAdmin && notification.type === "announcement") {
+        return false;
+      }
+      return true;
     }
-    return true;
-  });
+  );
 
   // Calculate unread count from filtered notifications only
   const unreadCount = filteredNotifications.filter(
-    (notification) => !notification.isRead
+    (notification: ServerNotification) => !notification.isRead
   ).length;
 
   // Function to handle notification click and navigate
@@ -110,7 +112,30 @@ export const NotificationCenter = () => {
   }) => {
     const config =
       notificationConfig[notification.type as keyof typeof notificationConfig];
+
+    // Fallback if config is not found
+    if (!config) {
+      return null;
+    }
+
     const IconComponent = config.icon;
+
+    // For check-in/check-out notifications, format the title
+    let displayTitle = notification.title;
+    if (
+      (notification.type === "check-in" || notification.type === "check-out") &&
+      notification.user
+    ) {
+      const action =
+        notification.type === "check-in" ? "checked in" : "checked out";
+      const time = notification.time
+        ? new Date(notification.time).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+        : "";
+      displayTitle = `${notification.user.name} ${action} at ${time}`;
+    }
 
     const handleMarkAsRead = () => {
       if (!notification.isRead) {
@@ -119,7 +144,7 @@ export const NotificationCenter = () => {
       // Navigate to the appropriate page based on notification type
       const redirectPath = getRedirectPath(notification.type);
       navigate(redirectPath);
-      setOpen(false); // Close the notification popover
+      // setOpen(false); // Close the notification popover
     };
 
     const handleDelete = (e: React.MouseEvent) => {
@@ -155,7 +180,7 @@ export const NotificationCenter = () => {
                   )}
                 </div>
                 <p className={`text-xs ${config.textColor} opacity-75 mt-1`}>
-                  {notification.title}
+                  {displayTitle}
                 </p>
               </div>
               <Button
@@ -227,12 +252,14 @@ export const NotificationCenter = () => {
           ) : (
             <ScrollArea className="h-[400px] w-full">
               <div className={`p-3 space-y-2 `}>
-                {filteredNotifications.map((notification) => (
-                  <NotificationItem
-                    key={notification.id}
-                    notification={notification}
-                  />
-                ))}
+                {filteredNotifications.map(
+                  (notification: ServerNotification) => (
+                    <NotificationItem
+                      key={notification.id}
+                      notification={notification}
+                    />
+                  )
+                )}
               </div>
             </ScrollArea>
           )}

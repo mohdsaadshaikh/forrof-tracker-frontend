@@ -71,8 +71,8 @@ export const transformUserData = (userData: RawUserData): Employee => {
     department: userData.department?.name || "Unassigned",
     departmentId: userData.departmentId,
     dateJoined: userData.createdAt,
-    status: "Active",
-    isOnline: false,
+    status: userData.status || "Active",
+    isOnline: userData.isOnline || false,
     salary: userData.salary || 0,
     bio: userData.profile?.about || "No bio available",
     skills: formattedSkills,
@@ -80,5 +80,7 @@ export const transformUserData = (userData: RawUserData): Employee => {
     education: formattedEducation,
     role: userData.role || "employee",
     isProfileCompleted: userData.isProfileCompleted,
+    githubUrl: userData.githubUrl || null,
+    linkedinUrl: userData.linkedinUrl || null,
   };
 };

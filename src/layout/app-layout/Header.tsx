@@ -71,7 +71,7 @@ const Header = () => {
   };
 
   const userName = session?.user?.name.split(" ")[0] || "User";
-  const userRole = session?.user?.role || "employee";
+  const userRole = session?.user?.role || "role";
   const userAvatar = session?.user?.image;
 
   return (
@@ -101,11 +101,15 @@ const Header = () => {
               <User className="mr-2 h-4 w-4" />
               <span>Profile</span>
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => navigate("/onboarding")}>
-              <SquareCheckBigIcon className="mr-2 h-4 w-4" />
-              <span>Onboarding</span>
-            </DropdownMenuItem>
+            {userRole === "employee" && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate("/onboarding")}>
+                  <SquareCheckBigIcon className="mr-2 h-4 w-4" />
+                  <span>Onboarding</span>
+                </DropdownMenuItem>
+              </>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={handleLogout}

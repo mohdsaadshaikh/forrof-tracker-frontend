@@ -16,6 +16,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
+import { githubUrlSchema, linkedinUrlSchema } from "@/lib/validations/user";
 
 const personalSchema = z.object({
   phone: z.string(),
@@ -27,6 +28,8 @@ const personalSchema = z.object({
     .min(5, {
       message: "Address must be at least 5 characters",
     }),
+  githubUrl: githubUrlSchema,
+  linkedinUrl: linkedinUrlSchema,
 });
 
 type PersonalFormValues = z.infer<typeof personalSchema>;
@@ -45,6 +48,8 @@ export default function PersonalTab({ onValidationChange }: PersonalTabProps) {
     defaultValues: {
       phone: (user?.phone as string) || "",
       address: (user?.address as string) || "",
+      githubUrl: (user?.githubUrl as string) || "",
+      linkedinUrl: (user?.linkedinUrl as string) || "",
     },
   });
 
@@ -58,6 +63,8 @@ export default function PersonalTab({ onValidationChange }: PersonalTabProps) {
       await updateUser({
         phone: values.phone || undefined,
         address: values.address || undefined,
+        githubUrl: values.githubUrl || undefined,
+        linkedinUrl: values.linkedinUrl || undefined,
       });
       toast.success("Personal information updated!");
     } catch {
@@ -66,7 +73,7 @@ export default function PersonalTab({ onValidationChange }: PersonalTabProps) {
   };
 
   return (
-    <Card className="shadow-none">
+    <Card className="shadow-none max-md:border-0 p-0 py-6">
       <CardHeader>
         <CardTitle>Contact Information</CardTitle>
       </CardHeader>
@@ -100,6 +107,40 @@ export default function PersonalTab({ onValidationChange }: PersonalTabProps) {
                   <FormControl>
                     <Input
                       placeholder="123 Main St, City, State 12345"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="githubUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>GitHub Profile</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="https://github.com/username"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="linkedinUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>LinkedIn Profile</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="https://linkedin.com/in/username"
                       {...field}
                     />
                   </FormControl>

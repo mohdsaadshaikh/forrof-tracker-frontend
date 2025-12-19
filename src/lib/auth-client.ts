@@ -38,6 +38,14 @@ export const authClient = createAuthClient({
           type: "string",
           required: false,
         },
+        githubUrl: {
+          type: "string",
+          required: false,
+        },
+        linkedinUrl: {
+          type: "string",
+          required: false,
+        },
       },
     }),
     adminClient({
@@ -83,6 +91,8 @@ export type Session = {
     address?: string | null;
     salary?: number | null;
     isProfileCompleted?: boolean;
+    githubUrl: string | null;
+    linkedinUrl: string | null;
     createdAt: Date;
     updatedAt: Date;
     banned?: boolean | null;
