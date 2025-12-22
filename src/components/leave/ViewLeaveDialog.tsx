@@ -93,7 +93,9 @@ export const ViewLeaveDialog = ({
         <div className="flex items-start justify-between">
           <div>
             <h3 className="text-xl font-semibold">{leave.employee.name}</h3>
-            <p className="text-sm text-muted-foreground">{leave.employee.id}</p>
+            {/* <p className="text-sm text-muted-foreground">
+              {leave.employee.uniqueId}
+            </p> */}
           </div>
           <Badge
             className={

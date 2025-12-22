@@ -75,10 +75,18 @@ export const NotificationCenter = () => {
 
   const notifications: ServerNotification[] = notificationsData?.data || [];
 
-  // Filter notifications: admins don't see announcements
+  // Filter notifications:
+  // - Admins don't see announcements
+  // - Employees don't see check-in/check-out notifications (only admins)
   const filteredNotifications = notifications.filter(
     (notification: ServerNotification) => {
       if (isAdmin && notification.type === "announcement") {
+        return false;
+      }
+      if (
+        !isAdmin &&
+        (notification.type === "check-in" || notification.type === "check-out")
+      ) {
         return false;
       }
       return true;
@@ -122,6 +130,7 @@ export const NotificationCenter = () => {
 
     // For check-in/check-out notifications, format the title
     let displayTitle = notification.title;
+    let displayMessage = notification.message;
     if (
       (notification.type === "check-in" || notification.type === "check-out") &&
       notification.user
@@ -136,15 +145,35 @@ export const NotificationCenter = () => {
         : "";
       displayTitle = `${notification.user.name} ${action} at ${time}`;
     }
+    if (notification.type === "leave") {
+      displayTitle = undefined;
+      // Format dates using date-fns
+      if (notification.data?.startDate && notification.data?.endDate) {
+        const startDate = new Date(notification.data.startDate);
+        const endDate = new Date(notification.data.endDate);
 
-    const handleMarkAsRead = () => {
+        const fromStr = `${startDate.getDate()} ${format(startDate, "MMM")}`;
+        const toStr = `${endDate.getDate()} ${format(endDate, "MMM")}`;
+        // Remove the date part from message and keep only the meaningful part
+        const cleanedMessage = (notification.message || "")
+          .replace(/\d{1,2}\/\d{1,2}\/\d{4}/g, "") // Remove date patterns
+          .replace(/from\s+to/i, "") // Remove "from to"
+          .replace(/has been/i, "has been") // Normalize
+          .trim();
+        displayMessage = `${cleanedMessage} (${fromStr} to ${toStr})`;
+      } else {
+        displayMessage = notification.message;
+      }
+    }
+
+    const handleMarkAsRead = (e?: React.MouseEvent) => {
+      if (e) e.stopPropagation();
       if (!notification.isRead) {
         markAsReadMutation.mutate(notification.id);
       }
       // Navigate to the appropriate page based on notification type
       const redirectPath = getRedirectPath(notification.type);
       navigate(redirectPath);
-      // setOpen(false); // Close the notification popover
     };
 
     const handleDelete = (e: React.MouseEvent) => {
@@ -179,9 +208,26 @@ export const NotificationCenter = () => {
                     ></span>
                   )}
                 </div>
-                <p className={`text-xs ${config.textColor} opacity-75 mt-1`}>
-                  {displayTitle}
-                </p>
+                {notification.type === "leave" ? (
+                  <p className={`text-xs ${config.textColor} opacity-75 mt-1`}>
+                    {displayMessage || notification.message}
+                  </p>
+                ) : (
+                  <>
+                    <p
+                      className={`text-xs ${config.textColor} opacity-75 mt-1`}
+                    >
+                      {displayTitle}
+                    </p>
+                    {notification.type !== "announcement" && displayMessage && (
+                      <p
+                        className={`text-xs ${config.textColor} opacity-60 mt-0.5`}
+                      >
+                        {displayMessage}
+                      </p>
+                    )}
+                  </>
+                )}
               </div>
               <Button
                 variant="ghost"

@@ -14,6 +14,7 @@ export interface Leave {
     id: string;
     name: string;
     email: string;
+    uniqueId: string;
   };
   leaveType: LeaveType;
   startDate: string;
@@ -206,6 +207,7 @@ export const useCreateLeave = () => {
       queryClient.invalidateQueries({ queryKey: ["my-leaves"] });
       queryClient.invalidateQueries({ queryKey: ["leave-stats"] });
       queryClient.invalidateQueries({ queryKey: ["admin-leave-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
     onError: (error: ApiError) => {
       console.log(error);
@@ -239,6 +241,7 @@ export const useUpdateLeaveStatus = () => {
       queryClient.invalidateQueries({ queryKey: ["my-leaves"] });
       queryClient.invalidateQueries({ queryKey: ["leave-stats"] });
       queryClient.invalidateQueries({ queryKey: ["admin-leave-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
     onError: (error: ApiError) => {
       toast.error(

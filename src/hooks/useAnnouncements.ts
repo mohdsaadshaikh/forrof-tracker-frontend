@@ -90,6 +90,7 @@ export const useCreateAnnouncement = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["announcements"] });
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
       toast.success("Announcement created successfully!");
     },
     onError: (error: ApiError) => {
@@ -116,6 +117,7 @@ export const useUpdateAnnouncement = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["announcements"] });
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
       toast.success("Announcement updated successfully!");
     },
     onError: (error: ApiError) => {
@@ -136,6 +138,7 @@ export const useDeleteAnnouncement = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["announcements"] });
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
       toast.success("Announcement deleted successfully!");
     },
     onError: (error: ApiError) => {

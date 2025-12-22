@@ -29,11 +29,18 @@ import EmployeeLeaves from "./pages/employee/leaves";
 import NotFound from "./pages/NotFound";
 import OnboardingPage from "./pages/onboarding";
 import Profile from "./pages/profile";
+import Loading from "./pages/Loading";
 
 const queryClient = new QueryClient();
 
 const App = () => {
-  const { isAdmin, isEmployee } = useRole();
+  const { isAdmin, isEmployee, isLoading } = useRole();
+
+  // Show loading page while determining user role
+  if (isLoading) {
+    return <Loading />;
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
