@@ -60,6 +60,7 @@ export function ProjectForm({ open, onOpenChange, project }: ProjectFormProps) {
   const [employeeSearch, setEmployeeSearchState] = useState("");
   const [debouncedSearch] = useDebounce(employeeSearch, 750);
   const [popoverSearch, setPopoverSearch] = useState("");
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
   const form = useForm<ProjectFormData>({
     resolver: zodResolver(projectFormSchema),
@@ -240,7 +241,7 @@ export function ProjectForm({ open, onOpenChange, project }: ProjectFormProps) {
           <div>
             <Label>Assign Team Members</Label>
             <div className="mt-2 space-y-2">
-              <Popover>
+              <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
@@ -288,6 +289,9 @@ export function ProjectForm({ open, onOpenChange, project }: ProjectFormProps) {
                                     } else {
                                       handleAddEmployee(emp.id);
                                     }
+                                    // Close popover and clear search after selection
+                                    setIsPopoverOpen(false);
+                                    setPopoverSearch("");
                                   }}
                                   className="cursor-pointer"
                                 >

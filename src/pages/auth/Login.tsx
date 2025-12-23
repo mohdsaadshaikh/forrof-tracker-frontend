@@ -57,9 +57,16 @@ const Login = () => {
           },
           onError: (ctx) => {
             if (ctx.error.status === 403) {
-              toast.info(
-                "Please verify your email first. We have sent you a verification link."
-              );
+              // Check if it's a banned user
+              if (ctx.error.code === "BANNED_USER") {
+                toast.error(
+                  "Your account has been deactivated. Please contact support."
+                );
+              } else {
+                toast.info(
+                  "Please verify your email first. We have sent you a verification link."
+                );
+              }
             } else {
               toast.error(ctx.error.message || "Login failed");
             }

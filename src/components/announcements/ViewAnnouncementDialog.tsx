@@ -2,8 +2,8 @@ import ResponsiveDialog from "@/components/ResponsiveDialog";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import type { Announcement } from "@/hooks/useAnnouncements";
-import { formatDistanceToNow, format } from "date-fns";
-import { CalendarDays, User, Building2 } from "lucide-react";
+import { formatDistanceToNow, format, isPast } from "date-fns";
+import { CalendarDays, User, Building2, Clock } from "lucide-react";
 
 interface ViewAnnouncementDialogProps {
   open: boolean;
@@ -69,6 +69,20 @@ const ViewAnnouncementDialog = ({
             <div className="flex items-center gap-2">
               <Building2 className="h-4 w-4" />
               <span>{announcement.department.name}</span>
+            </div>
+          )}
+
+          {announcement.expiresAt && (
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4" />
+              <span>
+                {isPast(new Date(announcement.expiresAt))
+                  ? "Expired on"
+                  : "Expires on"}
+              </span>
+              <span>
+                {format(new Date(announcement.expiresAt), "PPP HH:mm")}
+              </span>
             </div>
           )}
         </div>

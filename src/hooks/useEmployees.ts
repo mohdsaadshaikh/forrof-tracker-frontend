@@ -1,7 +1,8 @@
 import { authClient } from "@/lib/auth-client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import api from "@/lib/axios";
+import { useState } from "react";
 
 export interface Employee {
   id: string;
@@ -18,6 +19,7 @@ export interface Employee {
   avatar: string;
   githubUrl?: string;
   linkedinUrl?: string;
+  banned?: boolean;
 }
 
 const getInitials = (name: string): string => {
@@ -60,6 +62,7 @@ const mapUserToEmployee = (
     salary?: number;
     githubUrl?: string;
     linkedinUrl?: string;
+    banned?: boolean;
   },
   departmentMap: Map<string, string>
 ): Employee => {
@@ -91,6 +94,7 @@ const mapUserToEmployee = (
     avatar: user.image || getInitials(user.name || ""),
     githubUrl: user.githubUrl,
     linkedinUrl: user.linkedinUrl,
+    banned: user.banned,
   };
 };
 
@@ -188,4 +192,73 @@ export const useEmployees = (
       };
     },
   });
+};
+
+export const useEmployeeActions = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+
+  const banUser = async (
+    userId: string,
+    banReason: string = "Account deactivated"
+  ) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await authClient.admin.banUser({
+        userId,
+        banReason,
+      });
+
+      if (result.error) {
+        setError(result.error.message || "Failed to deactivate user");
+        return { success: false, error: result.error };
+      }
+
+      // Invalidate employees queries
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
+
+      return { success: true, data: result.data };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Unknown error";
+      setError(message);
+      return { success: false, error: message };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const unbanUser = async (userId: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await authClient.admin.unbanUser({
+        userId,
+      });
+
+      if (result.error) {
+        setError(result.error.message || "Failed to reactivate user");
+        return { success: false, error: result.error };
+      }
+
+      // Invalidate employees queries
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
+
+      return { success: true, data: result.data };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Unknown error";
+      setError(message);
+      return { success: false, error: message };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return {
+    banUser,
+    unbanUser,
+    isLoading,
+    error,
+  };
 };

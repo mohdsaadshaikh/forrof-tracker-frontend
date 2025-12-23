@@ -14,8 +14,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { DeactivateEmployeeModal } from "@/components/employees/DeactivateEmployeeModal";
 import type { Employee } from "@/hooks/useEmployees";
-import { DollarSign, UserMinus, UserPlus } from "lucide-react";
+import { DollarSign, UserMinus, UserPlus, Lock, LockOpen } from "lucide-react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 interface EmployeeTableProps {
@@ -32,6 +34,10 @@ export const EmployeeTable = ({
   onSalaryClick,
 }: EmployeeTableProps) => {
   const navigate = useNavigate();
+  const [deactivateEmployee, setDeactivateEmployee] = useState<Employee | null>(
+    null
+  );
+  const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
   console.log("Employees:", employees);
 
   const handleAssignClick = (employee: Employee) => {
@@ -50,6 +56,11 @@ export const EmployeeTable = ({
     if (onSalaryClick) {
       onSalaryClick(employee);
     }
+  };
+
+  const handleDeactivateClick = (employee: Employee) => {
+    setDeactivateEmployee(employee);
+    setIsDeactivateModalOpen(true);
   };
 
   const handleClick = (employeeId: string) => {
@@ -155,36 +166,37 @@ export const EmployeeTable = ({
               <TableCell className="text-right">
                 <TooltipProvider>
                   <div className="flex items-center justify-end gap-1">
-                    {/* {employee.githubUrl && (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <a
-                            href={employee.githubUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="hover:text-gray-700"
-                          >
-                            <Github className="h-4 w-4" />
-                          </a>
-                        </TooltipTrigger>
-                        <TooltipContent>Visit GitHub Profile</TooltipContent>
-                      </Tooltip>
-                    )}
-                    {employee.linkedinUrl && (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <a
-                            href={employee.linkedinUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="hover:text-blue-600"
-                          >
-                            <Linkedin className="h-4 w-4" />
-                          </a>
-                        </TooltipTrigger>
-                        <TooltipContent>Visit LinkedIn Profile</TooltipContent>
-                      </Tooltip>
-                    )} */}
+                    {/* Deactivate/Reactivate Button */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeactivateClick(employee);
+                          }}
+                          className={
+                            employee.banned
+                              ? ""
+                              : "text-orange-600 hover:text-orange-700"
+                          }
+                        >
+                          {employee.banned ? (
+                            <LockOpen className="h-4 w-4" />
+                          ) : (
+                            <Lock className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {employee.banned
+                          ? "Reactivate Employee"
+                          : "Deactivate Employee"}
+                      </TooltipContent>
+                    </Tooltip>
+
+                    {/* Assign to Department Button */}
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button
@@ -200,6 +212,8 @@ export const EmployeeTable = ({
                       </TooltipTrigger>
                       <TooltipContent>Assign to Department</TooltipContent>
                     </Tooltip>
+
+                    {/* Remove from Department Button */}
                     {employee.department &&
                       employee.department !== "-" &&
                       employee.department !== "Unassigned" && (
@@ -243,6 +257,13 @@ export const EmployeeTable = ({
           ))}
         </TableBody>
       </Table>
+
+      {/* Deactivate/Reactivate Modal */}
+      <DeactivateEmployeeModal
+        isOpen={isDeactivateModalOpen}
+        onOpenChange={setIsDeactivateModalOpen}
+        employee={deactivateEmployee}
+      />
     </div>
   );
 };

@@ -11,7 +11,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { signOut } from "@/lib/auth-client";
-import { LogOut } from "lucide-react";
+import { LogOut, User } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useSession } from "@/lib/auth-client";
@@ -91,6 +91,13 @@ export function AppSidebar() {
       roles: ["admin", "employee"],
     },
 
+    {
+      url: "/pofile",
+      icon: User,
+      adminTitle: "Profile",
+      employeeTitle: "Profile",
+      roles: ["employee"],
+    },
     {
       url: "/settings",
       icon: Settings,

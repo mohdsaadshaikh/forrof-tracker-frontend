@@ -5,6 +5,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   ChartContainer,
   ChartTooltip,
@@ -228,7 +229,7 @@ export default function EmployeeDashboard() {
 
         {/* Announcements */}
         <div className="flex-1">
-          <Card className="min-h-[356px]">
+          <Card className="min-h-[356px] flex flex-col">
             <CardHeader>
               <div className="flex justify-between items-center">
                 <CardTitle className="text-base font-medium">
@@ -236,32 +237,36 @@ export default function EmployeeDashboard() {
                 </CardTitle>
               </div>
             </CardHeader>
-            <CardContent>
-              {isLoadingAnnouncements ? (
-                <p>Loading announcements...</p>
-              ) : announcementsList.length === 0 ? (
-                <p className="text-muted-foreground text-sm">
-                  No announcements yet.
-                </p>
-              ) : (
-                <Accordion type="single" collapsible className="space-y-2">
-                  {announcementsList.map((announcement) => (
-                    <AccordionItem
-                      key={announcement.id}
-                      value={announcement.id}
-                      className="bg-gray-100 rounded-lg"
-                    >
-                      <AccordionTrigger className="px-4 py-3 text-left font-medium">
-                        {announcement.title}
-                      </AccordionTrigger>
-                      <AccordionContent className="px-4 py-3 bg-gray-100 rounded-b-lg">
-                        {announcement.description ||
-                          "No description available."}
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
-              )}
+            <CardContent className="flex-1 p-0">
+              <ScrollArea className="w-full h-[250px]">
+                <div className="p-4">
+                  {isLoadingAnnouncements ? (
+                    <p>Loading announcements...</p>
+                  ) : announcementsList.length === 0 ? (
+                    <p className="text-muted-foreground text-sm">
+                      No announcements yet.
+                    </p>
+                  ) : (
+                    <Accordion type="single" collapsible className="space-y-2">
+                      {announcementsList.map((announcement) => (
+                        <AccordionItem
+                          key={announcement.id}
+                          value={announcement.id}
+                          className="bg-gray-100 rounded-lg"
+                        >
+                          <AccordionTrigger className="px-4 py-3 text-left font-medium">
+                            {announcement.title}
+                          </AccordionTrigger>
+                          <AccordionContent className="px-4 py-3 bg-gray-100 rounded-b-lg">
+                            {announcement.description ||
+                              "No description available."}
+                          </AccordionContent>
+                        </AccordionItem>
+                      ))}
+                    </Accordion>
+                  )}
+                </div>
+              </ScrollArea>
             </CardContent>
           </Card>
         </div>

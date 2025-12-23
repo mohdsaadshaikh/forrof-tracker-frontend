@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
 import DepartmentSelect from "@/components/common/DepartmentSelect";
 import {
   useCreateAnnouncement,
@@ -53,8 +54,13 @@ const AnnouncementForm = ({
         (announcement?.category as AnnouncementFormData["category"]) ??
         "update",
       departmentId: announcement?.department?.id ?? "",
+      expiryType: "never",
+      expiryDate: undefined,
+      expiryTime: undefined,
     },
   });
+
+  const expiryType = form.watch("expiryType");
 
   const onSubmit = async (data: AnnouncementFormData) => {
     try {
@@ -62,7 +68,18 @@ const AnnouncementForm = ({
       const submitData = {
         ...data,
         departmentId: data.departmentId === "" ? null : data.departmentId,
-      };
+        expiresAt: null,
+      } as Record<string, unknown>;
+
+      // Calculate expiresAt based on selection
+      if (data.expiryType === "date" && data.expiryDate) {
+        submitData.expiresAt = new Date(data.expiryDate).toISOString();
+      }
+
+      // Remove helper fields before sending
+      delete submitData.expiryType;
+      delete submitData.expiryTime;
+      delete submitData.expiryDate;
 
       if (isEdit && announcement) {
         await updateMutation.mutateAsync({
@@ -151,7 +168,7 @@ const AnnouncementForm = ({
                 <DepartmentSelect
                   value={field.value ?? ""}
                   onValueChange={field.onChange}
-                  placeholder="Select department"
+                  placeholder="All departments"
                   showAllOption={true}
                   variant="outline"
                   width="w-full"
@@ -161,6 +178,53 @@ const AnnouncementForm = ({
             </FormItem>
           )}
         />
+
+        {/* Expiry Section */}
+        <div>
+          <FormField
+            control={form.control}
+            name="expiryType"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormLabel>Announcement Visibility</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select visibility duration" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="never">Never Expires</SelectItem>
+                    <SelectItem value="date">Expires on Date</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {expiryType === "date" && (
+            <FormField
+              control={form.control}
+              name="expiryDate"
+              render={({ field }) => (
+                <FormItem className="w-full mt-4">
+                  <FormLabel>Expiry Date and Time</FormLabel>
+                  <FormControl>
+                    <DateTimePicker
+                      date={field.value}
+                      onDateChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+        </div>
 
         <div className="flex gap-2 justify-end pt-4">
           <Button

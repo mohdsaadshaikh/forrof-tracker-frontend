@@ -18,6 +18,23 @@ interface AttendanceTableProps {
 }
 
 export const AttendanceTable = ({ data, isLoading }: AttendanceTableProps) => {
+  // Define status priority order
+  const statusPriority = {
+    ONLINE: 1,
+    OFFLINE: 2,
+    BREAK: 3,
+    ABSENT: 4,
+  };
+
+  // Sort data by status priority
+  const sortedData = [...data].sort((a, b) => {
+    const priorityA =
+      statusPriority[a.status as keyof typeof statusPriority] ?? 5;
+    const priorityB =
+      statusPriority[b.status as keyof typeof statusPriority] ?? 5;
+    return priorityA - priorityB;
+  });
+
   if (isLoading) {
     return (
       <div className="border rounded-lg overflow-x-auto">
@@ -106,7 +123,7 @@ export const AttendanceTable = ({ data, isLoading }: AttendanceTableProps) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.map((record) => (
+          {sortedData.map((record) => (
             <TableRow
               key={record.id}
               className="hover:bg-muted/50 transition-colors"

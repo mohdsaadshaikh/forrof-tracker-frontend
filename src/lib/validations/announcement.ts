@@ -20,6 +20,9 @@ export const announcementFormSchema = z.object({
   category: announcementCategorySchema,
   departmentId: z.string().optional(),
   publishDate: z.date().optional(),
+  expiryType: z.enum(["never", "date"]),
+  expiryDate: z.date().optional(),
+  expiryTime: z.any().optional(),
   // sendEmail: z.boolean().default(false),
 });
 
