@@ -13,7 +13,7 @@ interface DeactivateEmployeeModalProps {
     id: string;
     name: string;
     email: string;
-    banned?: boolean;
+    banned?: boolean | null;
   } | null;
   onSuccess?: () => void;
 }
