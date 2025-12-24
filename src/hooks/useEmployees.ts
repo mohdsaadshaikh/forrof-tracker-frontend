@@ -31,6 +31,22 @@ const getInitials = (name: string): string => {
     .slice(0, 2);
 };
 
+interface UserData {
+  id: string;
+  uniqueId?: string;
+  name: string;
+  email: string;
+  image?: string | null;
+  role?: string;
+  department?: string;
+  departmentId?: string;
+  createdAt: Date | string;
+  salary?: number;
+  githubUrl?: string;
+  linkedinUrl?: string;
+  banned?: boolean;
+}
+
 // Fetch all departments and create a lookup map
 const fetchDepartmentMap = async (): Promise<Map<string, string>> => {
   try {
@@ -158,7 +174,7 @@ export const useEmployees = (
         };
       }
 
-      let employees = usersData.users.map((user) =>
+      let employees = usersData.users.map((user: any) =>
         mapUserToEmployee(user, departmentMap)
       );
 

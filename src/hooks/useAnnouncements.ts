@@ -20,6 +20,7 @@ export interface Announcement {
   };
   createdAt: string;
   publishDate?: string;
+  expiresAt?: string;
 }
 
 export interface AnnouncementsFilters {
