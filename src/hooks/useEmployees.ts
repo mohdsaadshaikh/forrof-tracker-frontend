@@ -19,7 +19,7 @@ export interface Employee {
   avatar: string;
   githubUrl?: string;
   linkedinUrl?: string;
-  banned?: boolean;
+  banned?: boolean | null;
 }
 
 const getInitials = (name: string): string => {
@@ -30,22 +30,6 @@ const getInitials = (name: string): string => {
     .join("")
     .slice(0, 2);
 };
-
-interface UserData {
-  id: string;
-  uniqueId?: string;
-  name: string;
-  email: string;
-  image?: string | null;
-  role?: string;
-  department?: string;
-  departmentId?: string;
-  createdAt: Date | string;
-  salary?: number;
-  githubUrl?: string;
-  linkedinUrl?: string;
-  banned?: boolean;
-}
 
 // Fetch all departments and create a lookup map
 const fetchDepartmentMap = async (): Promise<Map<string, string>> => {
@@ -64,22 +48,24 @@ const fetchDepartmentMap = async (): Promise<Map<string, string>> => {
   }
 };
 
+interface UserData {
+  id: string;
+  uniqueId?: string;
+  name: string;
+  email: string;
+  image?: string | null;
+  role?: string;
+  department?: string;
+  departmentId?: string;
+  createdAt: Date | string;
+  salary?: number;
+  githubUrl?: string;
+  linkedinUrl?: string;
+  banned?: boolean | null;
+}
+
 const mapUserToEmployee = (
-  user: {
-    id: string;
-    uniqueId?: string;
-    name: string;
-    email: string;
-    image?: string | null;
-    role?: string;
-    department?: string;
-    departmentId?: string;
-    createdAt: Date | string;
-    salary?: number;
-    githubUrl?: string;
-    linkedinUrl?: string;
-    banned?: boolean;
-  },
+  user: UserData,
   departmentMap: Map<string, string>
 ): Employee => {
   // Get department name from departmentId using the map, fallback to department field, then "Unassigned"
@@ -174,7 +160,7 @@ export const useEmployees = (
         };
       }
 
-      let employees = usersData.users.map((user: any) =>
+      let employees = usersData.users.map((user: UserData) =>
         mapUserToEmployee(user, departmentMap)
       );
 
