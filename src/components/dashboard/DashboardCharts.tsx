@@ -1,13 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  BarChart,
-  Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
   ResponsiveContainer,
-  // Area,
-  // AreaChart,
   // PieChart,
   // Pie,
   // Cell,
@@ -50,18 +48,19 @@ DashboardChartsProps) => {
             className="h-full w-full"
           >
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={weeklyHoursData}>
+              <LineChart data={weeklyHoursData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="week" />
                 <YAxis />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar
+                <Line
+                  type="monotone"
                   dataKey="hours"
-                  // fill="hsl(var(--primary))"
-                  fill="#01339a"
-                  radius={[8, 8, 0, 0]}
+                  stroke="#01339a"
+                  strokeWidth={2}
+                  dot={{ fill: "#01339a", r: 4 }}
                 />
-              </BarChart>
+              </LineChart>
             </ResponsiveContainer>
           </ChartContainer>
         </CardContent>

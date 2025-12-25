@@ -92,7 +92,7 @@ export function AppSidebar() {
     },
 
     {
-      url: "/pofile",
+      url: "/profile",
       icon: User,
       adminTitle: "Profile",
       employeeTitle: "Profile",
